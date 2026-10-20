@@ -1,0 +1,66 @@
+﻿{
+    "results":  [
+                    {
+                        "name":  "Windows PowerShell 5.1, native winsqlite3 save/reopen/backup/Framework crypto",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual native Main and File services started",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "SYSTEM scheduled principal: Vihan Enterprices Main Service",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "SYSTEM scheduled principal: Vihan Enterprices File Service",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native snapshots contain no account credential fields",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Client A committed save to native Main database",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Independent Client B session reload sees committed save",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Stale concurrent client revision is rejected",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native dedicated File Service attachment upload/download",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual native database and attachments backup created",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native services stop/restart preserves committed database",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native acceptance execution",
+                        "result":  "FAIL",
+                        "error":  "Exception calling \"Validate\" with \"2\" argument(s): \"Certificate chain is not trusted or revocation verification failed; fix CA trust, do not bypass validation\""
+                    }
+                ],
+    "runId":  "39409166338",
+    "productionDataChanged":  false,
+    "runner":  "Windows",
+    "notRun":  [
+                   "Physical two-PC LAN",
+                   "Interactive UAC/cancellation",
+                   "Actual D-volume absent/read-only",
+                   "Production activation"
+               ],
+    "os":  "Microsoft Windows NT 10.0.26100.0",
+    "powerShell":  "5.1.26100.33438",
+    "physicalTwoPc":  false,
+    "status":  "FAIL"
+}
