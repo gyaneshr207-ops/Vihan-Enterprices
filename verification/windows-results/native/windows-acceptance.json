@@ -1,0 +1,90 @@
+﻿{
+    "results":  [
+                    {
+                        "name":  "Windows PowerShell 5.1, native winsqlite3 save/reopen/backup/Framework crypto",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual native Main and File services started",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "SYSTEM scheduled principal: Vihan Enterprices Main Service",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "SYSTEM scheduled principal: Vihan Enterprices File Service",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native snapshots contain no account credential fields",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Client A committed save to native Main database",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Independent Client B session reload sees committed save",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Stale concurrent client revision is rejected",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native dedicated File Service attachment upload/download",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual native database and attachments backup created",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual installed runtime 1.0.37 starts",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Installed 1.0.37 retains existing business data",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Actual installed runtime 1.0.38 starts",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Installed 1.0.38 retains existing business data",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Compiled installer upgrades existing installation to current version on intended D default",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Compiled installer reinstall completed with existing identity and paths",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native services stop/restart preserves committed database",
+                        "result":  "PASS"
+                    },
+                    {
+                        "name":  "Native acceptance execution",
+                        "result":  "FAIL",
+                        "error":  "TLS service restart/health verification failed"
+                    }
+                ],
+    "runId":  "39409573292",
+    "productionDataChanged":  false,
+    "runner":  "Windows",
+    "notRun":  [
+                   "Physical two-PC LAN",
+                   "Interactive UAC/cancellation",
+                   "Actual D-volume absent/read-only",
+                   "Production activation"
+               ],
+    "os":  "Microsoft Windows NT 10.0.26100.0",
+    "powerShell":  "5.1.26100.33648",
+    "physicalTwoPc":  false,
+    "status":  "FAIL"
+}
