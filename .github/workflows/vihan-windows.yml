@@ -1,0 +1,50 @@
+name: Vihan isolated Windows verification
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/windows-v139']
+    paths: ['verification/v139-candidate.zip', '.github/workflows/vihan-windows.yml']
+permissions:
+  contents: write
+jobs:
+  native:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Extract isolated source
+        shell: powershell
+        run: |
+          Expand-Archive -LiteralPath verification/v139-candidate.zip -DestinationPath "$env:RUNNER_TEMP\vihan-source"
+          New-Item -ItemType Directory -Force verification/windows-results | Out-Null
+      - name: Native Windows PowerShell Main File TLS migration checks
+        id: native
+        continue-on-error: true
+        shell: powershell
+        run: |
+          & "$env:RUNNER_TEMP\vihan-source\tests\WindowsAcceptance.ps1" -OutputDirectory "$env:GITHUB_WORKSPACE\verification\windows-results\native"
+          exit $LASTEXITCODE
+      - name: Compile Windows installer with Inno Setup
+        id: installer
+        continue-on-error: true
+        shell: powershell
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (!(Test-Path $iscc)) { choco install innosetup --yes --no-progress; if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' } }
+          & $iscc "$env:RUNNER_TEMP\vihan-source\Vihan_Enterprices_v1.0.39_Inno_Setup.iss"
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compile failed' }
+          Copy-Item "$env:RUNNER_TEMP\vihan-source\Output\*.exe" verification/windows-results/
+          Get-FileHash verification/windows-results/*.exe -Algorithm SHA256 | Select-Object @{n='file';e={Split-Path $_.Path -Leaf}},Hash | ConvertTo-Json | Set-Content verification/windows-results/installer-sha256.json
+      - name: Save execution evidence on separate branch
+        if: always()
+        shell: powershell
+        env:
+          NATIVE_OUTCOME: ${{ steps.native.outcome }}
+          INSTALLER_OUTCOME: ${{ steps.installer.outcome }}
+        run: |
+          @{runId=$env:GITHUB_RUN_ID;runAttempt=$env:GITHUB_RUN_ATTEMPT;sourceCommit=$env:GITHUB_SHA;runner=$env:RUNNER_OS;nativeOutcome=$env:NATIVE_OUTCOME;installerOutcome=$env:INSTALLER_OUTCOME;utc=(Get-Date).ToUniversalTime().ToString('o')} | ConvertTo-Json | Set-Content verification/windows-results/run.json
+          git config user.name 'Vihan Windows Verification'
+          git config user.email 'codex@openai.com'
+          git add verification/windows-results
+          git commit -m "Record isolated Windows run $env:GITHUB_RUN_ID"
+          git push origin "HEAD:refs/heads/verification/windows-$env:GITHUB_RUN_ID"
