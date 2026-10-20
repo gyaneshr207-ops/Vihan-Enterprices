@@ -1,0 +1,768 @@
+TAP version 13
+# Subtest: admin page: opens with NO key prompt, lists only Client PCs with clear copy status
+ok 1 - admin page: opens with NO key prompt, lists only Client PCs with clear copy status
+  ---
+  duration_ms: 51.063703
+  type: 'test'
+  ...
+# Subtest: admin page: ON / OFF button sends the right request and refreshes
+ok 2 - admin page: ON / OFF button sends the right request and refreshes
+  ---
+  duration_ms: 23.634434
+  type: 'test'
+  ...
+# Subtest: admin page: clear messages for LAN client (403), old Main service (404), no connection
+ok 3 - admin page: clear messages for LAN client (403), old Main service (404), no connection
+  ---
+  duration_ms: 64.88433
+  type: 'test'
+  ...
+# Subtest: main.js: Offline PC Access button opens the in-app admin window (no PowerShell, no UAC)
+ok 4 - main.js: Offline PC Access button opens the in-app admin window (no PowerShell, no UAC)
+  ---
+  duration_ms: 3015.771322
+  type: 'test'
+  ...
+# Subtest: main.js: button while the Main PC is unreachable shows a clear message instead of a broken window
+ok 5 - main.js: button while the Main PC is unreachable shows a clear message instead of a broken window
+  ---
+  duration_ms: 3000.119628
+  type: 'test'
+  ...
+# Subtest: main.js: heartbeat tells the Main PC whether this Client has an offline copy
+ok 6 - main.js: heartbeat tells the Main PC whether this Client has an offline copy
+  ---
+  duration_ms: 3096.279142
+  type: 'test'
+  ...
+# Subtest: bootstrap.html fills localStorage from the offline copy and opens /app/index.html
+ok 7 - bootstrap.html fills localStorage from the offline copy and opens /app/index.html
+  ---
+  duration_ms: 36.643169
+  type: 'test'
+  ...
+# Subtest: camera permission accepts configured service origins only
+ok 8 - camera permission accepts configured service origins only
+  ---
+  duration_ms: 1.842674
+  type: 'test'
+  ...
+# Subtest: Inquiry: modal open/close, create/edit/search/filter/print/delete and fixture save
+ok 9 - Inquiry: modal open/close, create/edit/search/filter/print/delete and fixture save
+  ---
+  duration_ms: 2933.623121
+  type: 'test'
+  ...
+# Subtest: Counter Account File: PDF upload/save/filter/description/view/close/download/delete
+ok 10 - Counter Account File: PDF upload/save/filter/description/view/close/download/delete
+  ---
+  duration_ms: 2624.279005
+  type: 'test'
+  ...
+# Subtest: Day Book: new entry, draft retention, save/edit/search/filter/print, report tabs and delete
+ok 11 - Day Book: new entry, draft retention, save/edit/search/filter/print, report tabs and delete
+  ---
+  duration_ms: 3328.341529
+  type: 'test'
+  ...
+# Subtest: Bank Book: settings bank CRUD, entry draft retention/save/edit/report/search/filter/print/delete
+ok 12 - Bank Book: settings bank CRUD, entry draft retention/save/edit/report/search/filter/print/delete
+  ---
+  duration_ms: 2607.388364
+  type: 'test'
+  ...
+# Subtest: Cash Main Counter: transfer draft/save/edit/delete, reports and settings tabs
+ok 13 - Cash Main Counter: transfer draft/save/edit/delete, reports and settings tabs
+  ---
+  duration_ms: 2234.885516
+  type: 'test'
+  ...
+# Subtest: Data Entry: form/file draft retention, save, view/edit/delete, settings and fixture reload
+ok 14 - Data Entry: form/file draft retention, save, view/edit/delete, settings and fixture reload
+  ---
+  duration_ms: 2417.309791
+  type: 'test'
+  ...
+# Subtest: All Documents: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export
+ok 15 - All Documents: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export
+  ---
+  duration_ms: 2862.357053
+  type: 'test'
+  ...
+# Subtest: All Software: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export
+ok 16 - All Software: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export
+  ---
+  duration_ms: 2723.326735
+  type: 'test'
+  ...
+# Subtest: Photo: original-image fallback, upload/adjust/download/print/reset and preservation during switching
+ok 17 - Photo: original-image fallback, upload/adjust/download/print/reset and preservation during switching
+  ---
+  duration_ms: 2334.686709
+  type: 'test'
+  ...
+# Subtest: all nine Company 2 modules: first click, all 81 transitions, rapid switching, admin
+ok 18 - all nine Company 2 modules: first click, all 81 transitions, rapid switching, admin
+  ---
+  duration_ms: 42344.384134
+  type: 'test'
+  ...
+# Subtest: all nine Company 2 modules: first click, all 81 transitions, rapid switching, user
+not ok 19 - all nine Company 2 modules: first click, all 81 transitions, rapid switching, user
+  ---
+  duration_ms: 38836.854548
+  type: 'test'
+  location: '/workspace/vihan-security/tests/company2_navigation.browser.test.js:16:36'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.click: Timeout 8000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#c2InquiryRuntimeV150 button.nav').filter({ hasText: /^Day Book$/ })[22m
+    [2m    - locator resolved to <button type="button" id="dayBookBtnV223" class="nav c2-daybook-v225">Day Book</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is visible, enabled and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    TestContext.<anonymous> (/workspace/vihan-security/tests/company2_navigation.browser.test.js:20:107)
+  ...
+# Subtest: Admin Dashboard and Back to Admin from every Company 2 module clear isolation
+ok 20 - Admin Dashboard and Back to Admin from every Company 2 module clear isolation
+  ---
+  duration_ms: 5601.80334
+  type: 'test'
+  ...
+# Subtest: delayed Documents/Software loads cannot reopen an older page or override selection
+ok 21 - delayed Documents/Software loads cannot reopen an older page or override selection
+  ---
+  duration_ms: 2230.409058
+  type: 'test'
+  ...
+# Subtest: a missing module or denied permission leaves previous page and selection usable
+ok 22 - a missing module or denied permission leaves previous page and selection usable
+  ---
+  duration_ms: 1463.520621
+  type: 'test'
+  ...
+# Subtest: unsaved Data Entry survives Inquiry, Counter and dedicated pages without detaching the Inquiry report
+ok 23 - unsaved Data Entry survives Inquiry, Counter and dedicated pages without detaching the Inquiry report
+  ---
+  duration_ms: 2475.634952
+  type: 'test'
+  ...
+# Subtest: failed module open restores a parked draft and preserves the selected page
+ok 24 - failed module open restores a parked draft and preserves the selected page
+  ---
+  duration_ms: 1602.438545
+  type: 'test'
+  ...
+# Subtest: saved user permissions cannot be bypassed by sidebar or programmatic navigation
+ok 25 - saved user permissions cannot be bypassed by sidebar or programmatic navigation
+  ---
+  duration_ms: 1425.816761
+  type: 'test'
+  ...
+# Subtest: independent Main/Client browser sessions share the fixture data and navigation behavior
+ok 26 - independent Main/Client browser sessions share the fixture data and navigation behavior
+  ---
+  duration_ms: 6902.89773
+  type: 'test'
+  ...
+# Subtest: desktop refuses a wrong product, file service, offline server or failed health response
+ok 27 - desktop refuses a wrong product, file service, offline server or failed health response
+  ---
+  duration_ms: 3.085399
+  type: 'test'
+  ...
+# Subtest: auto update does not reload a client with pending saves
+ok 28 - auto update does not reload a client with pending saves
+  ---
+  duration_ms: 15.433821
+  type: 'test'
+  ...
+# Subtest: auto update does not reload a client with unknown save state
+ok 29 - auto update does not reload a client with unknown save state
+  ---
+  duration_ms: 3.305068
+  type: 'test'
+  ...
+# Subtest: all Admin sections and existing static button handler targets load without undefined functions
+ok 30 - all Admin sections and existing static button handler targets load without undefined functions
+  ---
+  duration_ms: 2263.208514
+  type: 'test'
+  ...
+# Subtest: Company create/edit and Company 1/Utopiya identity survive reload without cross-company data changes
+ok 31 - Company create/edit and Company 1/Utopiya identity survive reload without cross-company data changes
+  ---
+  duration_ms: 2415.054139
+  type: 'test'
+  ...
+# Subtest: Company 1 student validation, double-save prevention, edit/search and company data isolation
+ok 32 - Company 1 student validation, double-save prevention, edit/search and company data isolation
+  ---
+  duration_ms: 1882.649385
+  type: 'test'
+  ...
+# Subtest: Company 1 Joining, Payment, Leave and Reports navigation and a linked joining/payment
+ok 33 - Company 1 Joining, Payment, Leave and Reports navigation and a linked joining/payment
+  ---
+  duration_ms: 2009.229972
+  type: 'test'
+  ...
+# Subtest: Staff create/edit/tabs/delete and settings backup error reporting
+ok 34 - Staff create/edit/tabs/delete and settings backup error reporting
+  ---
+  duration_ms: 2198.352403
+  type: 'test'
+  ...
+# Subtest: successful backup response updates last-backup status without ReferenceError
+ok 35 - successful backup response updates last-backup status without ReferenceError
+  ---
+  duration_ms: 1383.56558
+  type: 'test'
+  ...
+# Subtest: two clients conflict: stale text is not retried over Main data and remains pending for review
+ok 36 - two clients conflict: stale text is not retried over Main data and remains pending for review
+  ---
+  duration_ms: 4717.812335
+  type: 'test'
+  ...
+# Subtest: user cannot directly open Admin pages or denied sidebar modules
+ok 37 - user cannot directly open Admin pages or denied sidebar modules
+  ---
+  duration_ms: 3516.9943
+  type: 'test'
+  ...
+# Subtest: failed text save remains pending and never reports Main PC confirmed saved
+ok 38 - failed text save remains pending and never reports Main PC confirmed saved
+  ---
+  duration_ms: 1848.971764
+  type: 'test'
+  ...
+# Subtest: configured File Service on a nonadjacent port is used directly for file listing
+ok 39 - configured File Service on a nonadjacent port is used directly for file listing
+  ---
+  duration_ms: 2659.317153
+  type: 'test'
+  ...
+# Subtest: conflict resolution applies only explicit operator choice: keep local
+ok 40 - conflict resolution applies only explicit operator choice: keep local
+  ---
+  duration_ms: 2502.605103
+  type: 'test'
+  ...
+# Subtest: conflict resolution applies only explicit operator choice: keep Main
+ok 41 - conflict resolution applies only explicit operator choice: keep Main
+  ---
+  duration_ms: 2440.703079
+  type: 'test'
+  ...
+# Subtest: Staff attendance update is idempotent and salary/payment ledger balances match saved entries
+ok 42 - Staff attendance update is idempotent and salary/payment ledger balances match saved entries
+  ---
+  duration_ms: 1835.841688
+  type: 'test'
+  ...
+# Subtest: device heartbeat role/version/status are text, not executable Admin HTML
+ok 43 - device heartbeat role/version/status are text, not executable Admin HTML
+  ---
+  duration_ms: 1355.044597
+  type: 'test'
+  ...
+# Subtest: uploaded active HTML document downloads without executing in Main app origin
+ok 44 - uploaded active HTML document downloads without executing in Main app origin
+  ---
+  duration_ms: 1386.171104
+  type: 'test'
+  ...
+# Subtest: username apostrophes keep Admin Edit handler valid without exposing stored password
+ok 45 - username apostrophes keep Admin Edit handler valid without exposing stored password
+  ---
+  duration_ms: 1306.271023
+  type: 'test'
+  ...
+# Subtest: main.js: Main PC off + offline copy exists -> opens the local ORIGINAL app (read-only), once
+ok 46 - main.js: Main PC off + offline copy exists -> opens the local ORIGINAL app (read-only), once
+  ---
+  duration_ms: 2885.873982
+  type: 'test'
+  ...
+# Subtest: main.js: Main PC off + NO offline copy -> clear message, no data shown
+ok 47 - main.js: Main PC off + NO offline copy -> clear message, no data shown
+  ---
+  duration_ms: 2786.062614
+  type: 'test'
+  ...
+# Subtest: main.js: Main PC on -> live app opens (not the offline copy); allowed PC syncs in background
+ok 48 - main.js: Main PC on -> live app opens (not the offline copy); allowed PC syncs in background
+  ---
+  duration_ms: 8605.477148
+  type: 'test'
+  ...
+# Subtest: schedule: first sync is due immediately
+ok 49 - schedule: first sync is due immediately
+  ---
+  duration_ms: 1.999442
+  type: 'test'
+  ...
+# Subtest: schedule: synced after last 8PM -> not due all day
+ok 50 - schedule: synced after last 8PM -> not due all day
+  ---
+  duration_ms: 0.305405
+  type: 'test'
+  ...
+# Subtest: schedule: after 8PM it becomes due once stagger delay passes (max 10 min)
+ok 51 - schedule: after 8PM it becomes due once stagger delay passes (max 10 min)
+  ---
+  duration_ms: 0.282028
+  type: 'test'
+  ...
+# Subtest: schedule: different PCs get different start delays
+ok 52 - schedule: different PCs get different start delays
+  ---
+  duration_ms: 0.486442
+  type: 'test'
+  ...
+# Subtest: schedule: failed attempt is retried every 30 min, not sooner
+ok 53 - schedule: failed attempt is retried every 30 min, not sooner
+  ---
+  duration_ms: 0.367153
+  type: 'test'
+  ...
+# Subtest: schedule: a PC that was just switched ON starts within ~2 minutes (not 30)
+ok 54 - schedule: a PC that was just switched ON starts within ~2 minutes (not 30)
+  ---
+  duration_ms: 0.203124
+  type: 'test'
+  ...
+# Subtest: schedule: PC was off at 8PM -> catch-up when opened next morning
+ok 55 - schedule: PC was off at 8PM -> catch-up when opened next morning
+  ---
+  duration_ms: 0.215952
+  type: 'test'
+  ...
+# Subtest: schedule: before 8PM the slot is yesterday 8PM
+ok 56 - schedule: before 8PM the slot is yesterday 8PM
+  ---
+  duration_ms: 0.117465
+  type: 'test'
+  ...
+# Subtest: sync: PC that is NOT allowed gets no data and no files
+ok 57 - sync: PC that is NOT allowed gets no data and no files
+  ---
+  duration_ms: 39.931612
+  type: 'test'
+  ...
+# Subtest: sync: allowed PC gets data + attachments; deleted keys excluded
+ok 58 - sync: allowed PC gets data + attachments; deleted keys excluded
+  ---
+  duration_ms: 65.770572
+  type: 'test'
+  ...
+# Subtest: sync: second run only fetches changes and changed attachments
+ok 59 - sync: second run only fetches changes and changed attachments
+  ---
+  duration_ms: 86.586789
+  type: 'test'
+  ...
+# Subtest: sync: empty/settings-only answer from Main never erases a useful copy
+ok 60 - sync: empty/settings-only answer from Main never erases a useful copy
+  ---
+  duration_ms: 84.838533
+  type: 'test'
+  ...
+# Subtest: sync: Main restored from older backup (lower revision) -> full replacement
+ok 61 - sync: Main restored from older backup (lower revision) -> full replacement
+  ---
+  duration_ms: 58.617533
+  type: 'test'
+  ...
+# Subtest: sync: attachment failure keeps data, is NOT marked complete, and is retried
+ok 62 - sync: attachment failure keeps data, is NOT marked complete, and is retried
+  ---
+  duration_ms: 78.647227
+  type: 'test'
+  ...
+# Subtest: sync: Main unreachable keeps the old copy
+ok 63 - sync: Main unreachable keeps the old copy
+  ---
+  duration_ms: 45.678746
+  type: 'test'
+  ...
+# Subtest: sync: permission removed on Main -> offline copy is deleted from this PC
+ok 64 - sync: permission removed on Main -> offline copy is deleted from this PC
+  ---
+  duration_ms: 48.27828
+  type: 'test'
+  ...
+# Subtest: sync: deleted attachment on Main is removed from the copy
+ok 65 - sync: deleted attachment on Main is removed from the copy
+  ---
+  duration_ms: 43.356745
+  type: 'test'
+  ...
+# Subtest: server: needs auth, serves original pages, snapshot, blobs, refuses all writes
+ok 66 - server: needs auth, serves original pages, snapshot, blobs, refuses all writes
+  ---
+  duration_ms: 75.530327
+  type: 'test'
+  ...
+# Subtest: sync: failed refresh of an existing attachment retains its previous bytes and index reference
+ok 67 - sync: failed refresh of an existing attachment retains its previous bytes and index reference
+  ---
+  duration_ms: 116.819231
+  type: 'test'
+  ...
+# Subtest: scoped offline copy requires user session, protects cached identity, returns no credential fields and expires
+ok 68 - scoped offline copy requires user session, protects cached identity, returns no credential fields and expires
+  ---
+  duration_ms: 114.670231
+  type: 'test'
+  ...
+# Subtest: legacy company-wide credential cache is retained on disk but refused for offline serving
+ok 69 - legacy company-wide credential cache is retained on disk but refused for offline serving
+  ---
+  duration_ms: 0.890192
+  type: 'test'
+  ...
+# Subtest: secure enrollment refuses unavailable OS protection instead of storing plaintext copy
+ok 70 - secure enrollment refuses unavailable OS protection instead of storing plaintext copy
+  ---
+  duration_ms: 13.053718
+  type: 'test'
+  ...
+# Subtest: protected offline attachment bytes decrypt for authorized local session and reject tampering
+ok 71 - protected offline attachment bytes decrypt for authorized local session and reject tampering
+  ---
+  duration_ms: 58.467499
+  type: 'test'
+  ...
+# Subtest: old Main offline protocol and partial unscoped caches are refused without reading business data
+ok 72 - old Main offline protocol and partial unscoped caches are refused without reading business data
+  ---
+  duration_ms: 6.546637
+  type: 'test'
+  ...
+# Missing configured database cannot silently become an empty database
+# Unicode, spaces and quoted data save/read
+# Failed group commit rolls back all partial writes
+# Connection can save after a failed transaction
+# SQLite snapshot integrity 0
+# Backup is transaction-consistent during another connection's writes 0
+# SQLite snapshot integrity 1
+# Backup is transaction-consistent during another connection's writes 1
+# SQLite snapshot integrity 2
+# Backup is transaction-consistent during another connection's writes 2
+# SQLite snapshot integrity 3
+# Backup is transaction-consistent during another connection's writes 3
+# Concurrent writer commits survive
+# Backup refuses an existing destination
+# Database save/reopen persistence
+# PASS Actual service plan/commit saves text to SQLite
+# PASS Stale client revision is rejected without overwrite
+# PASS Duplicate same-key batch cannot bypass expected revision
+# PASS Snapshot and changes include committed revisions
+# PASS Attachment bytes and metadata commit together
+# PASS Interrupted upload retains the existing file
+# PASS SQL failure retains original attachment and cleans new upload
+# PASS Successful replacement switches metadata before removing old bytes
+# PASS Attachment delete removes metadata and bytes
+# PASS Missing initialized database is blocked
+# PASS Only explicit fresh initialization is allowed
+# PASS Legacy data prevents automatic creation/migration
+# PASS Absolute D-drive paths with spaces are retained and normalized
+# PASS Wrong-drive configuration is rejected, never silently migrated
+# PASS Parent traversal cannot redirect the configured data path
+# PASS Actual updater backup/rollback restores application and desktop host
+# PASS Failed update rollback restores installed version metadata
+# PASS Privileged update authorization requires the real case-sensitive key, not a boolean header
+# PASS Port updates preserve identity, other service port and configured data path
+# PASS 28 PowerShell files parse; no reserved-variable assignments
+# PASS Valid archive with nested paths and spaces extracts
+# PASS Unsafe archive rejected before extraction 0
+# PASS Unsafe archive rejected before extraction 1
+# PASS Unsafe archive rejected before extraction 2
+# PASS Unsafe archive rejected before extraction 3
+# PASS Unsafe archive rejected before extraction 4
+# PASS Unique salts, actual PBKDF2 verification and wrong-password rejection
+# PASS Malformed and weakened hash formats rejected
+# PASS Projection preserves JSON collection shape and removes credential fields
+# PASS Projection preserves JSON collection shape and removes credential fields
+# PASS Projection preserves JSON collection shape and removes credential fields
+# PASS Business postal PIN/reference fields are preserved; account credential filtering is scoped
+# PASS Restore invalidates old session grants before exposing restored data
+# PLAN ONLY: no database opened or changed. PrepareCopy creates a separate verified credential-migration candidate; switching production still needs explicit operator approval.
+# PASS Migration default plan creates no files and opens no database
+# Prepared and integrity-verified separate copy. Converted account count: 1. No production switch performed.
+# PASS Original database credential and business records unchanged
+# PASS Prepared copy converts credentials without account lockout
+# PASS Candidate SQLite integrity and business record preserved
+# PASS Credential-bearing legacy change history removed from candidate
+# PASS Separate original safety copy supports rollback
+# PASS Migration refuses existing output directory overwrite
+# Subtest: PowerShell/SQLite integration: sqlite_bridge.integration.ps1
+ok 73 - PowerShell/SQLite integration: sqlite_bridge.integration.ps1
+  ---
+  duration_ms: 1394.130794
+  type: 'test'
+  ...
+# Subtest: PowerShell/SQLite integration: backend_safety.integration.ps1
+ok 74 - PowerShell/SQLite integration: backend_safety.integration.ps1
+  ---
+  duration_ms: 2234.209022
+  type: 'test'
+  ...
+# Subtest: PowerShell/SQLite integration: powershell_syntax.integration.ps1
+ok 75 - PowerShell/SQLite integration: powershell_syntax.integration.ps1
+  ---
+  duration_ms: 941.800258
+  type: 'test'
+  ...
+# Subtest: PowerShell/SQLite integration: archive_safety.integration.ps1
+ok 76 - PowerShell/SQLite integration: archive_safety.integration.ps1
+  ---
+  duration_ms: 728.391333
+  type: 'test'
+  ...
+# Subtest: PowerShell/SQLite integration: security_core.integration.ps1
+ok 77 - PowerShell/SQLite integration: security_core.integration.ps1
+  ---
+  duration_ms: 6594.506948
+  type: 'test'
+  ...
+# Subtest: private draft cipher preserves Unicode, hides plaintext, binds owner and detects tampering/wrong key
+ok 78 - private draft cipher preserves Unicode, hides plaintext, binds owner and detects tampering/wrong key
+  ---
+  duration_ms: 87.517672
+  type: 'test'
+  ...
+# Subtest: no user session, forged admin headers and invalid session cannot read protected APIs
+ok 79 - no user session, forged admin headers and invalid session cannot read protected APIs
+  ---
+  duration_ms: 1952.442438
+  type: 'test'
+  ...
+# Subtest: login directory never returns users, credentials or business records
+ok 80 - login directory never returns users, credentials or business records
+  ---
+  duration_ms: 41.546913
+  type: 'test'
+  ...
+# Subtest: wrong login rejected; authorized company snapshot and change feed omit other company and credentials
+ok 81 - wrong login rejected; authorized company snapshot and change feed omit other company and credentials
+  ---
+  duration_ms: 572.243631
+  type: 'test'
+  ...
+# Subtest: ordinary user cannot call admin APIs or forge role/company permissions
+ok 82 - ordinary user cannot call admin APIs or forge role/company permissions
+  ---
+  duration_ms: 164.533494
+  type: 'test'
+  ...
+# Subtest: company file identities and file delete/upload actions are checked on server
+ok 83 - company file identities and file delete/upload actions are checked on server
+  ---
+  duration_ms: 327.093143
+  type: 'test'
+  ...
+# Subtest: authorized adds persist; unauthorized edit/delete rejected without partial commit
+ok 84 - authorized adds persist; unauthorized edit/delete rejected without partial commit
+  ---
+  duration_ms: 270.476882
+  type: 'test'
+  ...
+# Subtest: logout revokes token replay; unrelated browser session remains usable
+ok 85 - logout revokes token replay; unrelated browser session remains usable
+  ---
+  duration_ms: 120.297963
+  type: 'test'
+  ...
+# Subtest: cross-origin credentialed requests denied
+ok 86 - cross-origin credentialed requests denied
+  ---
+  duration_ms: 28.394931
+  type: 'test'
+  ...
+# Subtest: expired server session is rejected even when device token remains valid
+ok 87 - expired server session is rejected even when device token remains valid
+  ---
+  duration_ms: 24.639812
+  type: 'test'
+  ...
+# Subtest: company aggregate changes merge only permitted own records and preserve other company
+ok 88 - company aggregate changes merge only permitted own records and preserve other company
+  ---
+  duration_ms: 220.621633
+  type: 'test'
+  ...
+# Subtest: password change uses salted hash, leaks no credentials, and revokes old sessions
+ok 89 - password change uses salted hash, leaks no credentials, and revokes old sessions
+  ---
+  duration_ms: 2090.348571
+  type: 'test'
+  ...
+# Subtest: actual Chromium login uses real PowerShell session guard and never receives password fields
+ok 90 - actual Chromium login uses real PowerShell session guard and never receives password fields
+  ---
+  duration_ms: 2813.578684
+  type: 'test'
+  ...
+# Subtest: actual attachment bytes are scoped; upload, folder move and metadata identity cannot bypass detailed permissions
+ok 91 - actual attachment bytes are scoped; upload, folder move and metadata identity cannot bypass detailed permissions
+  ---
+  duration_ms: 1759.108392
+  type: 'test'
+  ...
+# Subtest: offline transfer requires enrolled PC AND authenticated company scope; no cached passwords
+ok 92 - offline transfer requires enrolled PC AND authenticated company scope; no cached passwords
+  ---
+  duration_ms: 716.592547
+  type: 'test'
+  ...
+# Subtest: actual Chromium company-user save reaches SQLite without exposing another company
+ok 93 - actual Chromium company-user save reaches SQLite without exposing another company
+  ---
+  duration_ms: 1884.366789
+  type: 'test'
+  ...
+# Subtest: real Company 2 user keeps original module bindings and can save Data Entry through the server guard
+ok 94 - real Company 2 user keeps original module bindings and can save Data Entry through the server guard
+  ---
+  duration_ms: 2945.809216
+  type: 'test'
+  ...
+# Subtest: row ownership, purchase actions and SSO settings cannot be forged through generic writes
+ok 95 - row ownership, purchase actions and SSO settings cannot be forged through generic writes
+  ---
+  duration_ms: 787.165506
+  type: 'test'
+  ...
+# Subtest: legacy request workflow exposes own requests and cannot forge an Admin approval
+ok 96 - legacy request workflow exposes own requests and cannot forge an Admin approval
+  ---
+  duration_ms: 721.612952
+  type: 'test'
+  ...
+# Subtest: secure incremental polling returns current scoped changes and an empty quiet poll
+ok 97 - secure incremental polling returns current scoped changes and an empty quiet poll
+  ---
+  duration_ms: 686.751757
+  type: 'test'
+  ...
+# Subtest: private draft keys are account-bound, excluded from snapshots, with Admin-only cross-account recovery
+ok 98 - private draft keys are account-bound, excluded from snapshots, with Admin-only cross-account recovery
+  ---
+  duration_ms: 654.026125
+  type: 'test'
+  ...
+# Subtest: shared-browser logout keeps encrypted private drafts, isolates another login, and restores original owner
+ok 99 - shared-browser logout keeps encrypted private drafts, isolates another login, and restores original owner
+  ---
+  duration_ms: 14144.631071
+  type: 'test'
+  ...
+# Subtest: Admin first login seals legacy ownerless browser recovery without replaying it to Main
+ok 100 - Admin first login seals legacy ownerless browser recovery without replaying it to Main
+  ---
+  duration_ms: 1648.250846
+  type: 'test'
+  ...
+# Subtest: documented legacy no-profile business access is preserved without granting Admin or other-company access
+ok 101 - documented legacy no-profile business access is preserved without granting Admin or other-company access
+  ---
+  duration_ms: 749.315116
+  type: 'test'
+  ...
+# Subtest: same-company report signatures remain readable while other user private profile and management stay protected
+ok 102 - same-company report signatures remain readable while other user private profile and management stay protected
+  ---
+  duration_ms: 1354.730626
+  type: 'test'
+  ...
+# Subtest: linked user Staff attendance works in actual browser and cannot edit payroll or another Staff record
+ok 103 - linked user Staff attendance works in actual browser and cannot edit payroll or another Staff record
+  ---
+  duration_ms: 3542.417228
+  type: 'test'
+  ...
+# Subtest: unprivileged record IDs cannot inject inline handlers while ordinary business punctuation is preserved
+ok 104 - unprivileged record IDs cannot inject inline handlers while ordinary business punctuation is preserved
+  ---
+  duration_ms: 720.028264
+  type: 'test'
+  ...
+# Subtest: disabling user revokes previously valid session immediately
+ok 105 - disabling user revokes previously valid session immediately
+  ---
+  duration_ms: 729.475699
+  type: 'test'
+  ...
+# Subtest: offline: writing to localStorage never queues or sends anything to a server
+ok 106 - offline: writing to localStorage never queues or sends anything to a server
+  ---
+  duration_ms: 429.37795
+  type: 'test'
+  ...
+# Subtest: offline: attachment save and delete are refused
+ok 107 - offline: attachment save and delete are refused
+  ---
+  duration_ms: 3.525427
+  type: 'test'
+  ...
+# Subtest: offline: file requests stay on the local origin (no Main PC / port+1)
+ok 108 - offline: file requests stay on the local origin (no Main PC / port+1)
+  ---
+  duration_ms: 1.992907
+  type: 'test'
+  ...
+# Subtest: offline: flush reports nothing pending and does not touch the network
+ok 109 - offline: flush reports nothing pending and does not touch the network
+  ---
+  duration_ms: 1.710266
+  type: 'test'
+  ...
+# Subtest: online (unchanged): a write is still queued and sent to /api/storage/batch
+ok 110 - online (unchanged): a write is still queued and sent to /api/storage/batch
+  ---
+  duration_ms: 653.985773
+  type: 'test'
+  ...
+# Subtest: online (unchanged): file service still uses main port + 1
+ok 111 - online (unchanged): file service still uses main port + 1
+  ---
+  duration_ms: 2.549472
+  type: 'test'
+  ...
+# Subtest: update download verifies checksum and bytes before publishing destination
+ok 112 - update download verifies checksum and bytes before publishing destination
+  ---
+  duration_ms: 35.653841
+  type: 'test'
+  ...
+# Subtest: truncated update rejects promptly and preserves existing package
+ok 113 - truncated update rejects promptly and preserves existing package
+  ---
+  duration_ms: 20.497113
+  type: 'test'
+  ...
+# Subtest: bad or missing checksum never replaces an existing package
+ok 114 - bad or missing checksum never replaces an existing package
+  ---
+  duration_ms: 6.804488
+  type: 'test'
+  ...
+1..114
+# tests 114
+# suites 0
+# pass 113
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 245246.021551

@@ -1,0 +1,266 @@
+[
+  {
+    "path": "OFFLINE_README.txt",
+    "change": "modified",
+    "beforeSHA256": "14e1ccf094583fbcc10a3e46fb1e33e48a05218cd342a5e72a87a2f17e68a562",
+    "afterSHA256": "5b95099dadd4d663d002baed47fa573b1e2041b46bac1d50d985fb611ba2aabe"
+  },
+  {
+    "path": "READ_ME_FIRST_HI.md",
+    "change": "modified",
+    "beforeSHA256": "24af6c616cc0f6e930816d38a4fa7879d6f2327b5bb3b15358bd90009c0a70e4",
+    "afterSHA256": "b93e07f138d681f8d7641a9d588499a0e6815b99d2728203a35403185f356f52"
+  },
+  {
+    "path": "Vihan_Enterprices_v1.0.37_Inno_Setup.iss",
+    "change": "removed",
+    "beforeSHA256": "c37e3d8086682d2997688c624f665222a34e007f91c22420883517b7c97b8ab0",
+    "afterSHA256": null
+  },
+  {
+    "path": "Vihan_Enterprices_v1.0.38_Inno_Setup.iss",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "dc051e79c9c41bdc2bb96d52d079b1cea4e4a126e51d2e9f47f640a07c0747b9"
+  },
+  {
+    "path": "app/bootstrap.html",
+    "change": "modified",
+    "beforeSHA256": "4d9791c6d63a5045e01a6d4342e6df092985b4f73b572cab26e1480c1b1932a4",
+    "afterSHA256": "f1a11e766d795d2b6e4ccf7f46548dea9b8cdf07178ce24b83d41ad41d4d9824"
+  },
+  {
+    "path": "app/index.html",
+    "change": "modified",
+    "beforeSHA256": "f2a7c1fdbed6be42643e740bfc968ff6677a46b76d461e69fd58d060d0fff5ac",
+    "afterSHA256": "6d072e7229846e23e2b27a41382a47a0a3c70f23dae7c44750dd4f35899f048f"
+  },
+  {
+    "path": "app/vendor/NOBLE_CIPHERS_LICENSE.txt",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "f36671a5487c9c5050efacb58011c37c24c55a889803cb036cf9d9a6347c1e2d"
+  },
+  {
+    "path": "app/vendor/vihan-draft-cipher.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "3f13637c7af58de829985b39531bc7aff5c79ae2bae3d966c90a6eea91706fac"
+  },
+  {
+    "path": "app/version.json",
+    "change": "modified",
+    "beforeSHA256": "4a5688b5c84876a2671e8965f84322abe3f77fe6a4e5358804f1048240fe8ed5",
+    "afterSHA256": "6f54d046ac3703e0cfdb1a18f8921f439da140b350a134864067d6d6c82668c2"
+  },
+  {
+    "path": "app/vihan-auth.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "f3ee6a0e13f1b9f494ddd785d4e576c6ae6a70e34172822e14996efcbbce95e6"
+  },
+  {
+    "path": "app/vihan-sync.js",
+    "change": "modified",
+    "beforeSHA256": "2e1884af8432fbf51bfa682addd37313fc5d7dc8a4662015eee346335396f5e0",
+    "afterSHA256": "650b0ef7038b6b5901b00ba50e1a5d4bdb843eb0501199e941a94c0e05aa7e7d"
+  },
+  {
+    "path": "build/draft-cipher/README.md",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "d15ce633af1cd0482f01146206a006320178bb081cf42daff7c39c9870faac09"
+  },
+  {
+    "path": "build/draft-cipher/entry.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "a1b785842c7e6484da093452f651b375b6481b5e13657be36d815c10497f8440"
+  },
+  {
+    "path": "build/draft-cipher/package-lock.json",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "b1279ba8a34690e99e76a05570ee9387df4889591c03d3f275709dee9ae18f2b"
+  },
+  {
+    "path": "build/draft-cipher/package.json",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "f29c3821cd182e97aa5cc8274cd37e7bd6a228e87809daebc8db5d90564db575"
+  },
+  {
+    "path": "installer/Install.ps1",
+    "change": "modified",
+    "beforeSHA256": "2122b876f3573f5a7d1565a1ff552067ac4ced1ee334d43ed32b5452133fe100",
+    "afterSHA256": "7446017b84582950789d50e8f096a60983bf4fc0b040430c3da3495cf4e951b5"
+  },
+  {
+    "path": "manifest.json",
+    "change": "modified",
+    "beforeSHA256": "cb5edebd0e31963d873851ddf7d71e1d4057a825b1e5ed2cd810ea533923307a",
+    "afterSHA256": "69f9130fe89000e34211bc25940f7148eb77759b1737100d0bb131b5a32a2fb3"
+  },
+  {
+    "path": "runtime/ApplyRemoteRestore.ps1",
+    "change": "modified",
+    "beforeSHA256": "4806c7b3c0e92f159098fa61a5b5afb0dab2f778f113baba3a756774f1ed1b29",
+    "afterSHA256": "eb4319f5e05230008dd51d16a017a6fce187538dc48a16ed532e40f16e2af466"
+  },
+  {
+    "path": "runtime/BlobStorage.ps1",
+    "change": "modified",
+    "beforeSHA256": "bb8cc8715cc3392ea8dbb3768b6b2578803262ed87f5f9c1b1543c3e027dc310",
+    "afterSHA256": "1d13db3ec5a417e5086c969b22c97a61088fc752e1ea0eeb24a495a278ae392d"
+  },
+  {
+    "path": "runtime/CredentialMigration.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "084b116fb04afaf7d814514cf5b31b57f1a1f2343876d627711fcc39c0016989"
+  },
+  {
+    "path": "runtime/FileService.ps1",
+    "change": "modified",
+    "beforeSHA256": "dfdd80293d0a0adb9d33c37dfb28c91c2834572dc40a4a14c2142609bb3e29b7",
+    "afterSHA256": "4305357fcc195a69a50eda152946164e575a2fc1d47ff7526a86359b2ce6e640"
+  },
+  {
+    "path": "runtime/FirstSetup.ps1",
+    "change": "modified",
+    "beforeSHA256": "828f7f39e9301c96562cc9b2101911007121e3d7737ec125de7e646f1b9557e9",
+    "afterSHA256": "059677d509521466eb1a52d65fca3240f5bf2c8826333aa07da3e2887832f587"
+  },
+  {
+    "path": "runtime/MainService.ps1",
+    "change": "modified",
+    "beforeSHA256": "e18eb189ce5b4ccb6afebac4eda2c9341402999ee80679e39cacd20232215a38",
+    "afterSHA256": "d4dc1b78f8f5f8859be20d7fd5867897f64287aea3e2cc2574a69949a63c13db"
+  },
+  {
+    "path": "runtime/ProvisionSecurity.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "78c52d2768596941c5f92eff7257cfd01296734894ae3b78c81f65f2098941a6"
+  },
+  {
+    "path": "runtime/RepairMainService.ps1",
+    "change": "modified",
+    "beforeSHA256": "7497058b8211ec29b2193d2414666196e9f6c88c41ee972ed423c38e5659e96d",
+    "afterSHA256": "f8e85f9984dbf54f7239a84c31c48a171a998d5db122dbc36eb0e30c04507447"
+  },
+  {
+    "path": "runtime/UserSecurity.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "b89d6c36a6af93fd9012fd27ea19b72e4228679b4e1228d1aa183077c3bed3bb"
+  },
+  {
+    "path": "runtime/VihanAuthCrypto.cs",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "a58156b35b41ec60e23f92415acda100399f5ba55362cf0cb5056b3b28fe793c"
+  },
+  {
+    "path": "runtime/electron-app/main.js",
+    "change": "modified",
+    "beforeSHA256": "3347117ae0290a46f8b55df9c0f7841f0ade10853d36a1f4534157a4680f7151",
+    "afterSHA256": "5bcb79f737b47c0be74ae254fdcdf1eb1a51b54e5baf8c08106b9a6001238e7b"
+  },
+  {
+    "path": "runtime/electron-app/offline.js",
+    "change": "modified",
+    "beforeSHA256": "5915a08d2e1403d719bc16f8686834608a580bb5c59640e52b663f2c9d554441",
+    "afterSHA256": "8d0c8de9efd982f597288e93dbbf37f7d3adb51c29b6e1dd2223faa029fb6774"
+  },
+  {
+    "path": "runtime/electron-app/package.json",
+    "change": "modified",
+    "beforeSHA256": "f641e897ddd92e24acb82afcccedd9b10ff3d84740466467c4749b52319c909d",
+    "afterSHA256": "3cc6acd47dc5f747729ae7fd8f4f6fd9b6f13a12f5029c599bdb0e671286711e"
+  },
+  {
+    "path": "tests/WindowsNativeSmoke.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "9e1543d3bfffe431efb36829f4fce6bf593b0106fa54aa8f624cd314bf604cec"
+  },
+  {
+    "path": "tests/bootstrap_offline.test.js",
+    "change": "modified",
+    "beforeSHA256": "7c1a27e18d41d8cf0efcf579bcfc49281509253a902de545caa177aa011c350e",
+    "afterSHA256": "69b7247896b3208591bf7ae1cae2d17946c50180589e8047947bf4c2265d70a0"
+  },
+  {
+    "path": "tests/full_app_audit.browser.test.js",
+    "change": "modified",
+    "beforeSHA256": "fb0d3255627fa53fcef3ae4c0294bd9dd3361daeb7e0915bc2a44982806719de",
+    "afterSHA256": "07d4884b9c034d9b32da4aa204916d8d7646b981cc386e1b2a9e441dec39a487"
+  },
+  {
+    "path": "tests/helpers/company2-browser-harness.js",
+    "change": "modified",
+    "beforeSHA256": "2586777d3830ee0706627c5f9b03075c80f81eb8ebdce8a47d640fdca1f504c5",
+    "afterSHA256": "bd9c5711641ddb9c9a9a40b2dc506369bfbc35e058f984788d228875811a2ecd"
+  },
+  {
+    "path": "tests/helpers/run_main_harness.js",
+    "change": "modified",
+    "beforeSHA256": "6d3db87b50de3bab00f3abf96a0020fc4915d49770326780a03ac4a43de11c24",
+    "afterSHA256": "82e849220af8364ca3366f6c1f8cc881072f5f4c2f281b523952f8231c8023db"
+  },
+  {
+    "path": "tests/helpers/test-protection.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "c9a9e4fe1bd4fdecf0d069020030f9d4da2c08627104927ab13d1cfc466e4f20"
+  },
+  {
+    "path": "tests/main_integration.test.js",
+    "change": "modified",
+    "beforeSHA256": "6671694a97e251b9a2f780c1b5f030a5e07858dca20427179de1b0fd56777642",
+    "afterSHA256": "bf075328fee244d5cac8d8157ee8fc87a01722ccae76f29ec4bd84dc4af8c959"
+  },
+  {
+    "path": "tests/offline.test.js",
+    "change": "modified",
+    "beforeSHA256": "8aec1f4ffd8a733c91071e950db37a46b9ccc4872b84411054f6fe6f6de85da4",
+    "afterSHA256": "a0992f029d5d9f0fccce6f803dc91e8eea139e7ae0ed8b0807ad0b5fefbf3471"
+  },
+  {
+    "path": "tests/offline_security.test.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "84df9a7989cf2860881b4b25e37aeb9af01fd02aceb2406e4d741bd0d702e706"
+  },
+  {
+    "path": "tests/powershell_backend.test.js",
+    "change": "modified",
+    "beforeSHA256": "8502315e3afb959061d2e0813b00fe894f03cd832b59a6d48c324f20a7514ea3",
+    "afterSHA256": "4bd981e0939980e0f444af75571c00bf81a5ccfb739a01f3543f24e946dc4311"
+  },
+  {
+    "path": "tests/private_draft_cipher.test.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "5a44e438990ef8c89abcd039c91bf70d29abc2545e1c2ec56494b44dc8ddc7fe"
+  },
+  {
+    "path": "tests/security/server.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "b8fe2775590a944f416020b32a96aed609bdb020f2a045da1d49825b517fb648"
+  },
+  {
+    "path": "tests/security_auth.integration.test.js",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "b64056bcc9e3112d22a6c8d711152a6ed807f22cce72fe8c25a8d860dcf7760b"
+  },
+  {
+    "path": "tests/security_core.integration.ps1",
+    "change": "added",
+    "beforeSHA256": null,
+    "afterSHA256": "adc890936505a3e05d963e9f3c4de5ea1ee72aafeb11f8c7ba7cd691809fd652"
+  }
+]

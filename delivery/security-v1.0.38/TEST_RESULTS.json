@@ -1,0 +1,465 @@
+{
+  "environment": "Linux/Chromium/PowerShell7, not native Windows",
+  "tests": 114,
+  "passed": 114,
+  "failed": 0,
+  "skipped": 0,
+  "results": [
+    {
+      "test": "admin page: opens with NO key prompt, lists only Client PCs with clear copy status",
+      "result": "PASS"
+    },
+    {
+      "test": "admin page: ON / OFF button sends the right request and refreshes",
+      "result": "PASS"
+    },
+    {
+      "test": "admin page: clear messages for LAN client (403), old Main service (404), no connection",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: Offline PC Access button opens the in-app admin window (no PowerShell, no UAC)",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: button while the Main PC is unreachable shows a clear message instead of a broken window",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: heartbeat tells the Main PC whether this Client has an offline copy",
+      "result": "PASS"
+    },
+    {
+      "test": "bootstrap.html fills localStorage from the offline copy and opens /app/index.html",
+      "result": "PASS"
+    },
+    {
+      "test": "camera permission accepts configured service origins only",
+      "result": "PASS"
+    },
+    {
+      "test": "Inquiry: modal open/close, create/edit/search/filter/print/delete and fixture save",
+      "result": "PASS"
+    },
+    {
+      "test": "Counter Account File: PDF upload/save/filter/description/view/close/download/delete",
+      "result": "PASS"
+    },
+    {
+      "test": "Day Book: new entry, draft retention, save/edit/search/filter/print, report tabs and delete",
+      "result": "PASS"
+    },
+    {
+      "test": "Bank Book: settings bank CRUD, entry draft retention/save/edit/report/search/filter/print/delete",
+      "result": "PASS"
+    },
+    {
+      "test": "Cash Main Counter: transfer draft/save/edit/delete, reports and settings tabs",
+      "result": "PASS"
+    },
+    {
+      "test": "Data Entry: form/file draft retention, save, view/edit/delete, settings and fixture reload",
+      "result": "PASS"
+    },
+    {
+      "test": "All Documents: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export",
+      "result": "PASS"
+    },
+    {
+      "test": "All Software: folder create/rename/open/back/delete; file upload/search/filter/edit/download/delete; index export",
+      "result": "PASS"
+    },
+    {
+      "test": "Photo: original-image fallback, upload/adjust/download/print/reset and preservation during switching",
+      "result": "PASS"
+    },
+    {
+      "test": "all nine Company 2 modules: first click, all 81 transitions, rapid switching, admin",
+      "result": "PASS"
+    },
+    {
+      "test": "all nine Company 2 modules: first click, all 81 transitions, rapid switching, user",
+      "result": "PASS"
+    },
+    {
+      "test": "Admin Dashboard and Back to Admin from every Company 2 module clear isolation",
+      "result": "PASS"
+    },
+    {
+      "test": "delayed Documents/Software loads cannot reopen an older page or override selection",
+      "result": "PASS"
+    },
+    {
+      "test": "a missing module or denied permission leaves previous page and selection usable",
+      "result": "PASS"
+    },
+    {
+      "test": "unsaved Data Entry survives Inquiry, Counter and dedicated pages without detaching the Inquiry report",
+      "result": "PASS"
+    },
+    {
+      "test": "failed module open restores a parked draft and preserves the selected page",
+      "result": "PASS"
+    },
+    {
+      "test": "saved user permissions cannot be bypassed by sidebar or programmatic navigation",
+      "result": "PASS"
+    },
+    {
+      "test": "independent Main/Client browser sessions share the fixture data and navigation behavior",
+      "result": "PASS"
+    },
+    {
+      "test": "desktop refuses a wrong product, file service, offline server or failed health response",
+      "result": "PASS"
+    },
+    {
+      "test": "auto update does not reload a client with pending saves",
+      "result": "PASS"
+    },
+    {
+      "test": "auto update does not reload a client with unknown save state",
+      "result": "PASS"
+    },
+    {
+      "test": "all Admin sections and existing static button handler targets load without undefined functions",
+      "result": "PASS"
+    },
+    {
+      "test": "Company create/edit and Company 1/Utopiya identity survive reload without cross-company data changes",
+      "result": "PASS"
+    },
+    {
+      "test": "Company 1 student validation, double-save prevention, edit/search and company data isolation",
+      "result": "PASS"
+    },
+    {
+      "test": "Company 1 Joining, Payment, Leave and Reports navigation and a linked joining/payment",
+      "result": "PASS"
+    },
+    {
+      "test": "Staff create/edit/tabs/delete and settings backup error reporting",
+      "result": "PASS"
+    },
+    {
+      "test": "successful backup response updates last-backup status without ReferenceError",
+      "result": "PASS"
+    },
+    {
+      "test": "two clients conflict: stale text is not retried over Main data and remains pending for review",
+      "result": "PASS"
+    },
+    {
+      "test": "user cannot directly open Admin pages or denied sidebar modules",
+      "result": "PASS"
+    },
+    {
+      "test": "failed text save remains pending and never reports Main PC confirmed saved",
+      "result": "PASS"
+    },
+    {
+      "test": "configured File Service on a nonadjacent port is used directly for file listing",
+      "result": "PASS"
+    },
+    {
+      "test": "conflict resolution applies only explicit operator choice: keep local",
+      "result": "PASS"
+    },
+    {
+      "test": "conflict resolution applies only explicit operator choice: keep Main",
+      "result": "PASS"
+    },
+    {
+      "test": "Staff attendance update is idempotent and salary/payment ledger balances match saved entries",
+      "result": "PASS"
+    },
+    {
+      "test": "device heartbeat role/version/status are text, not executable Admin HTML",
+      "result": "PASS"
+    },
+    {
+      "test": "uploaded active HTML document downloads without executing in Main app origin",
+      "result": "PASS"
+    },
+    {
+      "test": "username apostrophes keep Admin Edit handler valid without exposing stored password",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: Main PC off + offline copy exists -> opens the local ORIGINAL app (read-only), once",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: Main PC off + NO offline copy -> clear message, no data shown",
+      "result": "PASS"
+    },
+    {
+      "test": "main.js: Main PC on -> live app opens (not the offline copy); allowed PC syncs in background",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: first sync is due immediately",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: synced after last 8PM -> not due all day",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: after 8PM it becomes due once stagger delay passes (max 10 min)",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: different PCs get different start delays",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: failed attempt is retried every 30 min, not sooner",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: a PC that was just switched ON starts within ~2 minutes (not 30)",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: PC was off at 8PM -> catch-up when opened next morning",
+      "result": "PASS"
+    },
+    {
+      "test": "schedule: before 8PM the slot is yesterday 8PM",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: PC that is NOT allowed gets no data and no files",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: allowed PC gets data + attachments; deleted keys excluded",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: second run only fetches changes and changed attachments",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: empty/settings-only answer from Main never erases a useful copy",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: Main restored from older backup (lower revision) -> full replacement",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: attachment failure keeps data, is NOT marked complete, and is retried",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: Main unreachable keeps the old copy",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: permission removed on Main -> offline copy is deleted from this PC",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: deleted attachment on Main is removed from the copy",
+      "result": "PASS"
+    },
+    {
+      "test": "server: needs auth, serves original pages, snapshot, blobs, refuses all writes",
+      "result": "PASS"
+    },
+    {
+      "test": "sync: failed refresh of an existing attachment retains its previous bytes and index reference",
+      "result": "PASS"
+    },
+    {
+      "test": "scoped offline copy requires user session, protects cached identity, returns no credential fields and expires",
+      "result": "PASS"
+    },
+    {
+      "test": "legacy company-wide credential cache is retained on disk but refused for offline serving",
+      "result": "PASS"
+    },
+    {
+      "test": "secure enrollment refuses unavailable OS protection instead of storing plaintext copy",
+      "result": "PASS"
+    },
+    {
+      "test": "protected offline attachment bytes decrypt for authorized local session and reject tampering",
+      "result": "PASS"
+    },
+    {
+      "test": "old Main offline protocol and partial unscoped caches are refused without reading business data",
+      "result": "PASS"
+    },
+    {
+      "test": "PowerShell/SQLite integration: sqlite_bridge.integration.ps1",
+      "result": "PASS"
+    },
+    {
+      "test": "PowerShell/SQLite integration: backend_safety.integration.ps1",
+      "result": "PASS"
+    },
+    {
+      "test": "PowerShell/SQLite integration: powershell_syntax.integration.ps1",
+      "result": "PASS"
+    },
+    {
+      "test": "PowerShell/SQLite integration: archive_safety.integration.ps1",
+      "result": "PASS"
+    },
+    {
+      "test": "PowerShell/SQLite integration: security_core.integration.ps1",
+      "result": "PASS"
+    },
+    {
+      "test": "private draft cipher preserves Unicode, hides plaintext, binds owner and detects tampering/wrong key",
+      "result": "PASS"
+    },
+    {
+      "test": "no user session, forged admin headers and invalid session cannot read protected APIs",
+      "result": "PASS"
+    },
+    {
+      "test": "login directory never returns users, credentials or business records",
+      "result": "PASS"
+    },
+    {
+      "test": "wrong login rejected; authorized company snapshot and change feed omit other company and credentials",
+      "result": "PASS"
+    },
+    {
+      "test": "ordinary user cannot call admin APIs or forge role/company permissions",
+      "result": "PASS"
+    },
+    {
+      "test": "company file identities and file delete/upload actions are checked on server",
+      "result": "PASS"
+    },
+    {
+      "test": "authorized adds persist; unauthorized edit/delete rejected without partial commit",
+      "result": "PASS"
+    },
+    {
+      "test": "logout revokes token replay; unrelated browser session remains usable",
+      "result": "PASS"
+    },
+    {
+      "test": "cross-origin credentialed requests denied",
+      "result": "PASS"
+    },
+    {
+      "test": "expired server session is rejected even when device token remains valid",
+      "result": "PASS"
+    },
+    {
+      "test": "company aggregate changes merge only permitted own records and preserve other company",
+      "result": "PASS"
+    },
+    {
+      "test": "password change uses salted hash, leaks no credentials, and revokes old sessions",
+      "result": "PASS"
+    },
+    {
+      "test": "actual Chromium login uses real PowerShell session guard and never receives password fields",
+      "result": "PASS"
+    },
+    {
+      "test": "actual attachment bytes are scoped; upload, folder move and metadata identity cannot bypass detailed permissions",
+      "result": "PASS"
+    },
+    {
+      "test": "offline transfer requires enrolled PC AND authenticated company scope; no cached passwords",
+      "result": "PASS"
+    },
+    {
+      "test": "actual Chromium company-user save reaches SQLite without exposing another company",
+      "result": "PASS"
+    },
+    {
+      "test": "real Company 2 user keeps original module bindings and can save Data Entry through the server guard",
+      "result": "PASS"
+    },
+    {
+      "test": "row ownership, purchase actions and SSO settings cannot be forged through generic writes",
+      "result": "PASS"
+    },
+    {
+      "test": "legacy request workflow exposes own requests and cannot forge an Admin approval",
+      "result": "PASS"
+    },
+    {
+      "test": "secure incremental polling returns current scoped changes and an empty quiet poll",
+      "result": "PASS"
+    },
+    {
+      "test": "private draft keys are account-bound, excluded from snapshots, with Admin-only cross-account recovery",
+      "result": "PASS"
+    },
+    {
+      "test": "shared-browser logout keeps encrypted private drafts, isolates another login, and restores original owner",
+      "result": "PASS"
+    },
+    {
+      "test": "Admin first login seals legacy ownerless browser recovery without replaying it to Main",
+      "result": "PASS"
+    },
+    {
+      "test": "documented legacy no-profile business access is preserved without granting Admin or other-company access",
+      "result": "PASS"
+    },
+    {
+      "test": "same-company report signatures remain readable while other user private profile and management stay protected",
+      "result": "PASS"
+    },
+    {
+      "test": "linked user Staff attendance works in actual browser and cannot edit payroll or another Staff record",
+      "result": "PASS"
+    },
+    {
+      "test": "unprivileged record IDs cannot inject inline handlers while ordinary business punctuation is preserved",
+      "result": "PASS"
+    },
+    {
+      "test": "disabling user revokes previously valid session immediately",
+      "result": "PASS"
+    },
+    {
+      "test": "offline: writing to localStorage never queues or sends anything to a server",
+      "result": "PASS"
+    },
+    {
+      "test": "offline: attachment save and delete are refused",
+      "result": "PASS"
+    },
+    {
+      "test": "offline: file requests stay on the local origin (no Main PC / port+1)",
+      "result": "PASS"
+    },
+    {
+      "test": "offline: flush reports nothing pending and does not touch the network",
+      "result": "PASS"
+    },
+    {
+      "test": "online (unchanged): a write is still queued and sent to /api/storage/batch",
+      "result": "PASS"
+    },
+    {
+      "test": "online (unchanged): file service still uses main port + 1",
+      "result": "PASS"
+    },
+    {
+      "test": "update download verifies checksum and bytes before publishing destination",
+      "result": "PASS"
+    },
+    {
+      "test": "truncated update rejects promptly and preserves existing package",
+      "result": "PASS"
+    },
+    {
+      "test": "bad or missing checksum never replaces an existing package",
+      "result": "PASS"
+    }
+  ]
+}

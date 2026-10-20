@@ -1,0 +1,59 @@
+# VIHAN ENTERPRICES v1.0.38 — security repair और सत्यापन
+
+स्रोत: `delivery/Vihan_Enterprices_v1.0.37_Audit_Repaired.zip`, GitHub main baseline commit `88fdafc0a9e09d39241a94995b59713ba953c87e`। Existing app/runtime पर repair है; framework/application replacement नहीं। पहले की v1.0.37 reports `reports/audit/` में historical evidence हैं; यह report नए security changes का विवरण है।
+
+## किए गए बदलाव
+
+| Confirmed problem / reproduce | Root cause और repair | Executed evidence |
+|---|---|---|
+| Service token लेकर बिना user login snapshot पढ़ना | Service/device connection और user identity अलग; Main और File दोनों में shared server security gate | Direct HTTP: no session/invalid token/forged Admin headers denied |
+| दूसरी company के records/files या direct APIs से UI bypass | Server-authenticated identity; explicit storage namespace policies; root aggregate projection/merge; attachment database/action checks; unknown namespaces ordinary users के लिए deny | Company 1 vs Company 2, direct file IDs, authorized save, own-company merge tests |
+| Passwords और hashes sync/snapshot से browser तक पहुँचना | Recursive credential projection; changes endpoint changed keys के current filtered values देता है; login server पर होता है | Snapshots/change-feed/offline/Chromium में credential fields absent |
+| Password plaintext storage | New password writes PBKDF2-SHA256, 600,000 iterations, 16-byte random salt; legacy credentials केवल server पर verify; staged copy migration supplied | Actual C# verification, unique salts, wrong/invalid hash rejection; separate SQLite copy migration + rollback safety snapshot |
+| Old session logout/disable/permission change के बाद usable | Random 256-bit session cookie, database में token का hash, 8-hour expiry, current account/role/permission fingerprint; logout deletes grant | Expiry, replay after logout, disabled user, password rotation and multiple sessions |
+| Browser `mcSession` या Admin headers trusted हो सकते थे | Server never accepts browser role/boolean/company claim as authenticated authority | Forged headers/direct requests denied |
+| General save से forbidden row edit/delete/ownership change | Existing/new row diff, canonical JSON comparison, server-assigned owner, editOwn/other actions, purchase/sales/date and setting field checks | Permitted add, denied edit/delete, forged owner, own edit, denied purchase and SSO field mutation |
+| JSON property order को edit समझना | Semantic canonical comparison; snapshot output deterministic | Actual Company 2 user create/save/reload regression |
+| Filtered company list देखकर Student module wrong company में bind होना | Secure projection में permanent server module IDs preserve; missing visible company का अर्थ missing module binding नहीं | Real Chromium Company 2 session retains `studentCompanyId` and `company2ModuleId` |
+| Device heartbeat text Admin HTML में execute हो सकता था | Role/version/status HTML escaping | Injected `<img onerror>` rendered only as text |
+| CSRF/untrusted cross-origin file requests | Exact host/scheme/configured port checks, HttpOnly SameSite=Strict session cookie; File CORS restricted | Cross-origin direct request rejected |
+| Browser storage import में credential-bearing root persist हो सकती थी | Protected credential API; direct credential-bearing localStorage writes rejected; legacy queued credentials stripped while business drafts retained for review | Chromium rejects direct credential-bearing browser storage write |
+| Old ownerless pending drafts नई identity से sync होना | Owner labels; unknown legacy drafts quarantined locally for Admin recovery; login/logout scopes cache/drafts | Scope recovery logic plus save/role/navigation regressions; production draft recovery not performed |
+| PC-wide offline copy company/user restrictions bypass करती थी | User session + enrolled PC required, filtered snapshot/manifest/files, 24-hour read-only grant; OS-protected snapshot; AES-GCM attachments; OS-user directories; session change invalidation | HTTP enrollment checks, encrypted cache/attachment tests, expiry/tamper rejection; actual Windows DPAPI pending |
+| Restore backed-up sessions resurrect कर सकती थी | Staged restore deletes session grants before exposure | Actual SQLite helper test; full native restore still pending |
+| Fresh installs known default Admin password इस्तेमाल करती थीं | Explicit empty-store provisioning; new Admin passwords require 12+ characters; existing account login remains compatible | Source/parser + new password path tests; native provisioning UI pending |
+
+## लागू authorization contract
+
+- Global Admin login का existing meaning retained: active company account with role `Admin` can authenticate as global Admin. Company/User login server में ordinary scoped identity है, even when the client edits `mcSession`.
+- Company root read में only own company, own private user profile, permitted business collections और same-company public username/name/signature/role/active directory आते हैं। Other users के Aadhaar/PAN/phone/photos नहीं दिए जाते। Own collection writes preserve all other company data and server-only credentials. Global user/permission/Staff management requires Admin; linked Staff user केवल अपनी आज की attendance Mark In/Out कर सकता है, payroll/settings/other staff/history नहीं बदल सकता।
+- Company 2 array CRUD, settings, financial requests और attachment modules explicit policies से protected हैं। Own request submission/resubmission allowed transitions तक सीमित है; user Pending request को Admin Approved नहीं बना सकता।
+- Unknown/legacy storage keys ordinary users के लिए **fail closed** हैं; उन्हें guessed company IDs से allow नहीं किया गया। Full historical combinations of payroll, bank-linked ledger, old approvals and every custom role preset have not been certified with a production dataset. Conservative denials may require a reviewed policy mapping; do not disable the gate to work around them.
+- View/Open permission से legitimately मिले data को user copy कर सकता है। Print/export button hiding को cryptographic data-copy prevention नहीं कहा गया है।
+- Device-only health/status, update status/package fetch and heartbeat remain available for launcher/discovery/update operation. They do not grant business data access or update publishing rights. Publish additionally requires an Admin user session and protected Main key.
+- Changes return current projections for distinct changed keys; quiet polls return no business payload. History gaps/restores use a full projected snapshot. This avoids repeatedly serializing all data or sending credential-bearing historical values. Very large live datasets still need native performance/load measurement.
+
+## अतिरिक्त compatibility और private-draft repairs
+
+- Existing permission policy preserved: saved profile न होने पर authenticated user को अपने company के known business modules का legacy full access मिलता है; saved empty profile denies access. Admin/unknown namespaces कभी इससे खुलते नहीं। Server और UI दोनों इसी policy का पालन करते हैं।
+- Pending browser drafts XChaCha20-Poly1305 authenticated encryption से sealed हैं। Random account key केवल server private table और current browser memory में रहती है; local/session storage में plaintext key नहीं। Different account drafts decrypt नहीं कर सकता। Password/staff-link changes key scope rotate करते हैं।
+- Existing system modal में **Export Private Draft / Recover Private Draft** controls हैं। Owner अपना bundle recover कर सकता है; Admin explicit bundle/key ID से authorized recovery कर सकता है। Recovery reviewed JSON download है, automatic database import नहीं। First authorized Admin login old quarantined recovery seal करता है। Old production browser artifacts/history का deletion यहाँ नहीं हुआ।
+- Cipher pinned `@noble/ciphers` 1.3.0 (MIT), bundled build/lock/license included. Actual browser download/upload/recovery, wrong key/tamper rejection executed.
+- Credential scrubbing account/user context तक सीमित है: legitimate business postal PIN/reference-token values preserve होते हैं।
+- Non-Admin record identifiers में executable inline-handler characters rejected हैं; ordinary names में apostrophe/ampersand allowed हैं। Existing Admin username inline handlers apostrophe-escaped हैं। Document viewer active HTML/SVG execute नहीं करता; unknown active formats download होते हैं। Real browser regressions executed.
+- Offline protocol requires securityVersion 1 on both ends; encrypted snapshot and blob index, partial/unscoped legacy cache refusal tested. Legacy cache files retained for reviewed cleanup.
+
+## वास्तव में बाकी / production activation blockers
+
+1. **Windows unavailable:** Linux machine पर Windows PowerShell 5.1/.NET Framework, native `winsqlite3.dll`, SYSTEM/Task Scheduler/UAC, service lifecycle, D: ACL/disk failures, Inno installer/uninstaller, native Electron/DPAPI/camera/printing और physical two-PC LAN नहीं चले। `.exe` बनाया होने का दावा नहीं।
+2. **Production migration not approved or executed:** Existing plaintext password records/history और old plaintext backup/client cache copies अपने-आप मिटाए/बदले नहीं गए। New credentials hashed हैं; old credentials server-only compatibility path पर हैं until verified staged migration is explicitly activated. `CredentialMigration.ps1` default plan-only है; PrepareCopy अलग candidate और restricted safety copy बनाता है।
+3. **HTTP transport remains an existing limitation:** Current Windows listeners/connection discovery HTTP-based हैं। New session authorization HTTP traffic को encrypt नहीं करती। Actual LAN certificate/TLS deployment is not supplied or verified here. Network interception protection के लिए Windows-side TLS/certificate/connection rollout still required; this package is not certified for untrusted networks.
+4. **Native compatibility/performance unverified:** Main/File hosts must be upgraded together; दोनों health versions verify करें। Mixed old/new service pairs unsupported और unsafe हैं। Old clients cannot keep PC-wide offline transfer. Old unscoped credential caches are retained but refused for serving; new live login/enrollment is required. Custom/historical workflows need Windows acceptance tests before production rollout.
+5. **Intermittent Company 2 navigation timeout:** Baseline और एक final run में ordinary-user rapid navigation click timeout मिला। Separate reruns/profiled 81 transitions completed, लेकिन root cause confirmed/fixed नहीं है। Exact evidence test report में है; इसे resolved घोषित नहीं किया गया।
+6. **Offline policy boundary:** 24-hour grant depends on OS account/protected storage and trustworthy system clock. Offline access cannot immediately learn a Main-side revocation while disconnected; reconnect revalidation or expiry closes it. Windows protection APIs/ACLs remain unexecuted here. Offline cache last authorized app principal को trusted Windows OS account के अंतर्गत खोलती है; disconnected mode में independent per-app password challenge नहीं है। Shared Windows profiles पर account isolation का दावा नहीं: separate Windows accounts या offline disabled deployment/further offline-login work आवश्यक है।
+
+**Existing D: filesystem ACL hardening is not completed:** API guards local filesystem access का विकल्प नहीं हैं। Only migration safety folder/restore key have explicit scoped ACL logic; existing data/update trees के actual ACLs unknown हैं। Windows acceptance में review/hardening आवश्यक है।
+
+No production database/configuration was supplied, switched, reset or deleted. Only isolated fixtures and temporary databases were used. All 341 existing `app/index.html` style blocks remain byte-for-byte identical to v1.0.37. Company 2 authoritative router retained; no new navigation wrapper added.
+
+Test counts/commands are in `TEST_REPORT_HI.md`; exact file hashes/diff accompany the delivery. Do not label this package “100% Windows-certified” or “all bugs fixed.”
