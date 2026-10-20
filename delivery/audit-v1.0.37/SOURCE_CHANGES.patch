@@ -1,0 +1,1963 @@
+--- a/Vihan_Enterprices_v1.0.37_Inno_Setup.iss
++++ b/Vihan_Enterprices_v1.0.37_Inno_Setup.iss
+@@ -0,0 +1,42 @@
++#define MyAppName "Vihan Enterprices"
++#define MyAppVersion "1.0.37"
++#define MyAppPublisher "Vihan Enterprices"
++[Setup]
++AppId={{0F915C66-5EB7-46E0-8236-B4D816FE55E1}
++AppName={#MyAppName}
++AppVersion={#MyAppVersion}
++AppPublisher={#MyAppPublisher}
++DefaultDirName={localappdata}\VihanEnterpricesInstallerSource
++DefaultGroupName={#MyAppName}
++OutputDir=Output
++OutputBaseFilename=Vihan_Enterprices_v1.0.37_Setup
++Compression=lzma2
++SolidCompression=yes
++PrivilegesRequired=lowest
++WizardStyle=modern
++ArchitecturesAllowed=x64compatible
++UninstallDisplayName=Vihan Enterprices
++[Files]
++Source: "app\*"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs createallsubdirs
++Source: "runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
++Source: "installer\*"; DestDir: "{app}\installer"; Flags: ignoreversion recursesubdirs createallsubdirs
++[Tasks]
++Name: "main"; Description: "Main PC / Server"; GroupDescription: "Choose this PC role:"; Flags: exclusive
++Name: "client"; Description: "Client PC"; GroupDescription: "Choose this PC role:"; Flags: exclusive unchecked
++[Run]
++Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\Install.ps1"" -Mode Main"; Description: "Install Main PC"; Flags: waituntilterminated; Tasks: main
++Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\Install.ps1"" -Mode Client"; Description: "Install Client PC"; Flags: waituntilterminated; Tasks: client
++
++[Code]
++function InitializeUninstall(): Boolean;
++var
++  ExitCode: Integer;
++begin
++  Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
++    '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\installer\EasyUninstall.ps1') + '"',
++    '', SW_SHOWNORMAL, ewWaitUntilTerminated, ExitCode);
++  if Result then
++    Result := ExitCode = 0;
++  if not Result then
++    MsgBox('Uninstall cancelled or failed. Application/data removal was not confirmed.', mbInformation, MB_OK);
++end;
+--- a/app/bootstrap.html
++++ b/app/bootstrap.html
+@@ -7,7 +7,7 @@
+ body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#eef4fb;min-height:100vh;display:grid;place-items:center;color:#172033}.box{background:white;border:1px solid #dce4ef;border-radius:18px;padding:28px;width:min(430px,92vw);box-shadow:0 18px 60px #0001;text-align:center}.logo{width:72px;height:72px;border-radius:18px;background:#e8f0ff;color:#315bea;font-weight:800;font-size:28px;display:grid;place-items:center;margin:0 auto 12px}.muted{color:#64748b;font-size:13px}.err{color:#a11f1f;background:#fff1f1;padding:10px;border-radius:8px;display:none;margin-top:12px}
+ </style>
+ </head>
+-<body><div class="box"><div class="logo">VE</div><h2>Vihan Enterprices</h2><p id="msg">Main Service se latest changes load ho rahe hain…</p><div class="muted">App v1.0.36 • Instant Navigation • SQLite D Drive • Anti-Freeze</div><div id="err" class="err"></div></div>
++<body><div class="box"><div class="logo">VE</div><h2>Vihan Enterprices</h2><p id="msg">Main Service se latest changes load ho rahe hain…</p><div class="muted">App v1.0.37 • Instant Navigation • SQLite D Drive • Anti-Freeze</div><div id="err" class="err"></div></div>
+ <script>
+ (async()=>{
+   try{
+@@ -79,7 +79,7 @@
+     const mv=JSON.stringify(next);
+     sessionStorage.setItem('__vihan_sync_meta',mv);
+     nativeSet.call(localStorage,M,mv);
+-    location.replace('/app/index.html?v=1.0.36');
++    location.replace('/app/index.html?v=1.0.37');
+   }catch(e){
+     document.getElementById('msg').textContent='Main Service connect nahi ho pa rahi.';
+     const x=document.getElementById('err');
+--- a/app/index.html
++++ b/app/index.html
+@@ -2,7 +2,7 @@
+ 
+ <html lang="hi">
+ <head>
+-<meta charset="utf-8"/><meta name="application-name" content="Vihan Enterprices"/><meta name="vihan-app-version" content="1.0.1"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
++<meta charset="utf-8"/><meta name="application-name" content="Vihan Enterprices"/><meta name="vihan-app-version" content="1.0.37"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+ <title>Vihan Enterprices</title>
+ <script src="/app/vihan-sync.js"></script>
+ <style>
+@@ -8320,6 +8320,8 @@
+ }
+ 
+ function page(id,btn){
++  if(session?.type!=='admin'&&['companies','staffManagement','users','settings','auditReportV612'].includes(id)){alert('Permission denied.');return}
++
+   // V1.0.7: normal/admin page navigation must close dedicated Company 2 workspaces.
+   try{ if(typeof window.v843ClearDedicatedCompany2View==='function') window.v843ClearDedicatedCompany2View(); }catch(e){}
+   // V597: Admin-level pages must never show Company 2 runtime sidebar buttons.
+@@ -8774,7 +8776,9 @@
+     return;
+   }
+ 
++  if(saveStudent._saving)return;
+   let name=sName.value.trim();
++  if(!name){alert('Student name required.');sName.focus();return}
+   let father=sFather.value.trim();
+   let phone=sPhone.value.trim();
+   let parentPhone=sParentPhone.value.trim();
+@@ -8808,6 +8812,7 @@
+     return out;
+   };
+ 
++  saveStudent._saving=true;
+   (async()=>{
+     try{
+       let imageData=imgFile ? await fileToData(imgFile) : (currentStudentImage||'');
+@@ -8862,11 +8867,12 @@
+       editingStudentId=null;
+       closeStudentModal();
+       renderStudents();
+-      alert('Student saved successfully.');
++      const confirmed=!window.vihanWaitForSaved||await window.vihanWaitForSaved();
++      alert(confirmed?'Student saved successfully.':'Student इस PC पर सुरक्षित है; Main PC save अभी pending है.');
+     }catch(e){
+       console.error(e);
+       alert('Student save नहीं हुआ. '+(e?.message||'File processing error'));
+-    }
++    }finally{saveStudent._saving=false}
+   })();
+ }
+ function nextStudentSerial(c){
+@@ -11112,6 +11118,7 @@
+ 
+     const d=getData();
+     let c=(d.companies||[]).find(x=>x.id===window.editCid);
++    if((d.companies||[]).some(x=>x.id!==c?.id&&String(x.name||'').trim().toLowerCase()===name.toLowerCase()))return alert('Company name already exists');
+     const lf=logoEl.files?.[0]||null;
+     const sf=signatureEl.files?.[0]||null;
+ 
+@@ -11655,7 +11662,7 @@
+   // Fast Entry: do not rebuild the whole Inquiry workspace twice and do not block the UI with alert().
+   // The list refresh runs once on the next frame, so + New Inquiry remains immediately clickable.
+   requestAnimationFrame(()=>{try{c2RenderInquiryListV154()}catch(_e){}});
+-  c2InquiryToastV1014(wasEdit?'Inquiry updated successfully.':'Inquiry saved successfully.');
++  if(window.vihanWaitForSaved)window.vihanWaitForSaved().then(ok=>c2InquiryToastV1014(ok?(wasEdit?'Inquiry updated successfully.':'Inquiry saved successfully.'):'Inquiry इस PC पर सुरक्षित है; Main PC save pending है.'));else c2InquiryToastV1014('Inquiry इस PC पर सुरक्षित है.');
+ }
+ 
+ 
+@@ -27110,7 +27117,7 @@
+ function sm712StaffCompanyIds(x){let a=Array.isArray(x?.companyIds)?x.companyIds.filter(Boolean):[];if(x?.companyId&&!a.includes(x.companyId))a.unshift(x.companyId);return a}
+ function sm712StaffHasCompany(x,cid){return !cid||sm712StaffCompanyIds(x).includes(cid)}
+ function sm712StaffCompanyNames(x){let a=sm712StaffCompanyIds(x).map(sm712CompanyName).filter(Boolean);return a.join(', ')}
+-function sm712RenderCompanyAccess(selected){let box=document.getElementById('sm712CompanyChecks');if(!box)return;let set=new Set(Array.isArray(selected)?selected:[]);if(!selected)box.querySelectorAll('input:checked').forEach(e=>set.add(e.value));box.innerHTML=sm712Companies().map(c=>`<label><input type="checkbox" value="${esc(c.id)}" ${set.has(c.id)?'checked':''}> ${esc(c.name)}</label>`).join('')}
++function sm712RenderCompanyAccess(selected){let box=document.getElementById('sm712CompanyChecks');if(!box)return;box.style.display='flex';let set=new Set(Array.isArray(selected)?selected:[]);if(!selected)box.querySelectorAll('input:checked').forEach(e=>set.add(e.value));box.innerHTML=sm712Companies().map(c=>`<label><input type="checkbox" value="${esc(c.id)}" ${set.has(c.id)?'checked':''}> ${esc(c.name)}</label>`).join('')}
+ function sm712SelectedCompanyIds(){let a=[];document.querySelectorAll('#sm712CompanyChecks input:checked').forEach(e=>{if(!a.includes(e.value))a.push(e.value)});return a}
+ function sm712NextCode(){let a=sm712Data().staff,n=a.reduce((m,x)=>Math.max(m,Number(String(x.code||'').replace(/\D/g,''))||0),0)+1;return 'ST-'+String(n).padStart(4,'0')}
+ function sm712Tab(name,btn){document.querySelectorAll('#staffManagement .sm712-panel').forEach(x=>x.classList.remove('active'));document.querySelectorAll('#staffManagement .sm712-tab').forEach(x=>x.classList.remove('active'));document.getElementById('sm712Panel_'+name)?.classList.add('active');btn?.classList.add('active');sm712RefreshAll()}
+@@ -27862,7 +27869,7 @@
+   // Sidebar: show ONLY modules explicitly allowed in saved profile.
+   function applySidebar(){
+     if(!isC2User())return;const host=document.getElementById('c2InquiryRuntimeV150');if(!host)return;
+-    host.querySelectorAll('button.nav').forEach(b=>{const label=String(b.textContent||'').trim(),key=MODULE_MAP[label];if(key)b.classList.toggle('v777-permission-hidden',!can(key))});
++    host.querySelectorAll('button.nav').forEach(b=>{const label=String(b.textContent||'').trim(),key=MODULE_MAP[label];if(key){const blocked=!can(key);b.classList.toggle('v777-permission-hidden',blocked);if(blocked){b.style.setProperty('display','none','important');b.dataset.v777Display='1'}else if(b.dataset.v777Display==='1'){b.style.removeProperty('display');delete b.dataset.v777Display}}});
+   }
+   window.db609ApplyCompany2MainModulePermissions=applySidebar;
+   function firstAllowed(){if(!isC2User())return false;applySidebar();const host=document.getElementById('c2InquiryRuntimeV150');const b=host&&[...host.querySelectorAll('button.nav')].find(x=>MODULE_MAP[String(x.textContent||'').trim()]&&can(MODULE_MAP[String(x.textContent||'').trim()]));if(b){b.click();return true}const ws=document.getElementById('c2WorkspaceV184');if(ws){ws.style.display='block';ws.innerHTML='<div style="margin:18px;padding:16px;border:1px solid #dbe3ee;background:#fff;border-radius:10px;font-weight:700">Is User ko abhi koi Company 2 module permission nahi di gayi hai.</div>'}return false}
+@@ -30001,7 +30008,7 @@
+   }
+   function clearPaint(btn){
+     if(!btn)return;
+-    btn.classList.remove(MARK);
++    if(btn.classList.contains(MARK))btn.classList.remove(MARK);
+     if(btn.getAttribute(PAINT)==='1'){
+       ['background','background-color','color','border-color','box-shadow','filter'].forEach(k=>btn.style.removeProperty(k));
+       btn.removeAttribute(PAINT);
+@@ -30011,7 +30018,7 @@
+     if(!btn)return;
+     const look=selectedLook();
+     if(!look)return;
+-    btn.classList.add(MARK);
++    if(!btn.classList.contains(MARK))btn.classList.add(MARK);
+     btn.style.setProperty('background',look.background,'important');
+     btn.style.setProperty('background-color',look.background,'important');
+     btn.style.setProperty('color',look.color,'important');
+@@ -30235,6 +30242,7 @@
+ <script id="ve104MainBackupSettings">
+ (function(){
+   const q=id=>document.getElementById(id);
++  let backupMessageOwned=false;
+   async function req(path,opts){
+     const r=await fetch(path,Object.assign({cache:'no-store',credentials:'same-origin'},opts||{}));
+     let d=null;try{d=await r.json()}catch(_e){}
+@@ -30250,18 +30258,19 @@
+       if(dbt)dbt.textContent=d.persistence||'SQLite';
+       if(dbp)dbp.textContent=d.databasePath||'D:\\Vihan Enterprices\\Data\\VihanEnterprices.db';
+       if(loc)loc.textContent=d.backupPath||'D:\\Vihan Enterprices\\Backups';
+-      if(msg)msg.textContent='Main Service connected. Single Master Backup isi location par banega.';
++      if(msg&&!backupMessageOwned)msg.textContent='Main Service connected. Single Master Backup isi location par banega.';
+       return d;
+     }catch(e){
+       if(st)st.textContent='Disconnected';
+       if(dbt)dbt.textContent='SQLite — Disconnected';
+       if(dbp)dbp.textContent='-';
+       if(loc)loc.textContent='-';
+-      if(msg)msg.textContent='Main Service connect nahi hai. Main PC ON aur same LAN/Wi-Fi check karein.';
++      if(msg&&!backupMessageOwned)msg.textContent='Main Service connect nahi hai. Main PC ON aur same LAN/Wi-Fi check karein.';
+       return null;
+     }
+   };
+   window.ve104DownloadAllCompanies=async function(){
++    backupMessageOwned=true;
+     const b=document.getElementById('ve104BackupNowBtn');
+     const old=b?.textContent;
+     if(b){b.disabled=true;b.textContent='Preparing All Companies Backup...'}
+@@ -30281,7 +30290,8 @@
+     finally{if(b){b.disabled=false;b.textContent=old||'Download Complete Backup'}}
+   };
+   window.ve104BackupNow=async function(){
+-    const b=q('ve104BackupNowBtn'),msg=q('ve104BackupMessage'),loc=q('ve104BackupLocation');
++    backupMessageOwned=true;
++    const b=q('ve104BackupNowBtn'),msg=q('ve104BackupMessage'),loc=q('ve104BackupLocation'),last=q('ve104LastBackup');
+     if(b){b.disabled=true;b.textContent='Backup ban raha hai...'}
+     if(msg)msg.textContent='Central backup ban raha hai. App band na karein...';
+     try{
+--- a/app/version.json
++++ b/app/version.json
+@@ -1,6 +1,6 @@
+ {
+   "product": "Vihan Enterprices",
+-  "version": "1.0.36",
++  "version": "1.0.37",
+   "baseline": "V867",
+   "mode": "V867 stable router + offline read-only copy for allowed Client PCs"
+ }--- a/app/vihan-sync.js
++++ b/app/vihan-sync.js
+@@ -1,6 +1,6 @@
+ (function(){
+ 'use strict';
+-const PRODUCT='Vihan Enterprices', APP_VERSION='1.0.36';
++const PRODUCT='Vihan Enterprices', APP_VERSION='1.0.37';
+ // v1.0.35 OFFLINE READ-ONLY: when the Main PC is off, the desktop app serves this same page from a local copy.
+ // In that mode (window.__VIHAN_OFFLINE__ is injected by the local offline server) NOTHING is queued or sent to the Main PC.
+ const OFFLINE=!!window.__VIHAN_OFFLINE__, OFFLINE_INFO=window.__VIHAN_OFFLINE_INFO__||{};
+@@ -76,7 +76,7 @@
+ function putPending(key,rec){
+   if(OFFLINE){offlineWriteNotice();return}
+   key=String(key);const prev=pending[key];
+-  pending[key]={...rec,key,expectedRev:Number(prev?.expectedRev??rec.expectedRev??keyRevs[key]??0),seq:nextSeq(),savedAt:Date.now()};
++  pending[key]={...rec,key,expectedRev:Number(prev?.expectedRev??rec.expectedRev??keyRevs[key]??0),seq:nextSeq(),savedAt:Date.now(),...(prev?.conflict?{conflict:prev.conflict}:{})};
+   savePending();updateBadge();
+   // Fast UI path: save pending copy locally immediately, then coalesce rapid app writes for a few ms before network commit.
+   // This keeps form/button clicks instant while still sending the change to Main PC almost immediately.
+@@ -93,13 +93,21 @@
+ // v1.0.34: large files, backups and central update packages use the dedicated Main-PC File Service (main port + 1).
+ // This keeps text saves/search/buttons responsive while a PDF/photo/software file is moving.
+ const MAIN_PORT=Number(location.port)||17867;
+-const FILE_PORT=MAIN_PORT+1;
+-const FILE_ORIGIN=OFFLINE?location.origin:location.protocol+'//'+location.hostname+':'+FILE_PORT;
++let FILE_PORT=MAIN_PORT+1;
++let FILE_ORIGIN=OFFLINE?location.origin:location.protocol+'//'+location.hostname+':'+FILE_PORT;
+ let heavyIoCount=0,fileServiceFailures=0;
+ function heavyIoStart(){heavyIoCount++;schedulePoll(8000)}
+ function heavyIoEnd(){heavyIoCount=Math.max(0,heavyIoCount-1);if(!heavyIoCount)schedulePoll(900)}
+ function fileUrl(path){return FILE_ORIGIN+(String(path||'').startsWith('/')?'':'/')+String(path||'')}
++let filePortCheckedAt=0,filePortCheck=null;
++async function refreshFileServicePort(){
++  if(OFFLINE||Date.now()-filePortCheckedAt<15000)return;
++  if(filePortCheck)return filePortCheck;
++  filePortCheck=(async()=>{try{const d=await api('/api/status');const n=Number(d?.fileServicePort);if(Number.isInteger(n)&&n>0&&n<=65535){FILE_PORT=n;FILE_ORIGIN=location.protocol+'//'+location.hostname+':'+n}}catch(_e){}finally{filePortCheckedAt=Date.now();filePortCheck=null}})();
++  return filePortCheck;
++}
+ async function fileJson(path,opts={}){
++  await refreshFileServicePort();
+   const o={...opts,credentials:'include',cache:'no-store'};
+   try{
+     const r=await fetch(fileUrl(path),o);let data=null;try{data=await r.json()}catch(_e){}
+@@ -124,9 +132,10 @@
+   if(!vihanIsGlobalAdmin()){alert('Sirf Admin central software update publish kar sakta hai.');return}
+   const inp=document.getElementById('ve125UpdateFile'),file=inp?.files?.[0];if(!file){alert('Pehle .veupdate ya .zip update file select karein.');return}
+   if(!/\.(veupdate|zip)$/i.test(file.name)){alert('Sirf Vihan .veupdate ya .zip package select karein.');return}
++  const adminKey=prompt('Central update publish करने के लिए Main PC की protected restore-admin.key दर्ज करें।');if(!adminKey)return;
+   const msg=document.getElementById('ve125UpdateMessage'),btn=document.getElementById('ve125PublishBtn');if(btn)btn.disabled=true;const pid=progressBegin('file','Software Update Publish',file.name+' • Main PC ko bheja ja raha hai…');heavyIoStart();
+-  const sendTo=(url)=>new Promise((resolve,reject)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.withCredentials=true;x.timeout=300000;x.setRequestHeader('Content-Type','application/octet-stream');x.setRequestHeader('Cache-Control','no-store');x.setRequestHeader('X-Vihan-Admin','1');x.setRequestHeader('X-Vihan-PC','Admin App');x.upload.onprogress=e=>{if(e.lengthComputable)progressUpdate(pid,Math.min(94,5+Math.round((e.loaded/e.total)*88)),'Update package Main PC par upload ho raha hai…')};x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText||'{}')}catch{};if(x.status>=200&&x.status<300)resolve(d||{});else reject(new Error(d?.error||('HTTP '+x.status)))};x.onerror=()=>reject(new Error('Update upload connection failed'));x.ontimeout=()=>reject(new Error('Update upload timeout'));x.send(file)});
+-  (async()=>{try{let d;try{d=await sendTo(fileUrl('/api/update/publish'))}catch(e){d=await sendTo('/api/update/publish')}progressUpdate(pid,98,'Update publish ho gaya. Main PC aur clients auto-update karenge…');await new Promise(r=>requestAnimationFrame(r));progressFinish(pid,true,'✓ Central Update Published — All PCs Auto Update');if(msg)msg.textContent='Update publish ho gaya. Main PC background me update hoga; running Client apps automatically restart/update hongi. Closed Client PC next open par update hoga.';setTimeout(()=>window.vihanRefreshCentralUpdateStatus().catch(()=>{}),2500)}catch(e){progressFinish(pid,false,'Update Publish Failed');if(msg)msg.textContent='Update publish nahi hua: '+e.message;alert('Update publish error: '+e.message)}finally{heavyIoEnd();if(btn)btn.disabled=false}})();
++  const sendTo=(url)=>new Promise((resolve,reject)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.withCredentials=true;x.timeout=300000;x.setRequestHeader('Content-Type','application/octet-stream');x.setRequestHeader('Cache-Control','no-store');x.setRequestHeader('X-Vihan-Admin','1');x.setRequestHeader('X-Vihan-Restore-Key',adminKey.trim());x.setRequestHeader('X-Vihan-PC','Admin App');x.upload.onprogress=e=>{if(e.lengthComputable)progressUpdate(pid,Math.min(94,5+Math.round((e.loaded/e.total)*88)),'Update package Main PC par upload ho raha hai…')};x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText||'{}')}catch{};if(x.status>=200&&x.status<300)resolve(d||{});else reject(new Error(d?.error||('HTTP '+x.status)))};x.onerror=()=>reject(new Error('Update upload connection failed'));x.ontimeout=()=>reject(new Error('Update upload timeout'));x.send(file)});
++  (async()=>{try{await refreshFileServicePort();let d;try{d=await sendTo(fileUrl('/api/update/publish'))}catch(e){d=await sendTo('/api/update/publish')}progressUpdate(pid,98,'Update publish ho gaya. Main PC aur clients auto-update karenge…');await new Promise(r=>requestAnimationFrame(r));progressFinish(pid,true,'✓ Central Update Published — All PCs Auto Update');if(msg)msg.textContent='Update publish ho gaya. Main PC background me update hoga; running Client apps automatically restart/update hongi. Closed Client PC next open par update hoga.';setTimeout(()=>window.vihanRefreshCentralUpdateStatus().catch(()=>{}),2500)}catch(e){progressFinish(pid,false,'Update Publish Failed');if(msg)msg.textContent='Update publish nahi hua: '+e.message;alert('Update publish error: '+e.message)}finally{heavyIoEnd();if(btn)btn.disabled=false}})();
+ };
+ 
+ 
+@@ -177,7 +186,7 @@
+ async function flushPending(){
+   if(OFFLINE)return true;
+   if(flushing){flushAgain=true;return flushPromise||false}
+-  const keys=Object.keys(pending);if(!keys.length){saving=false;updateBadge();return true}
++  const keys=Object.keys(pending).filter(k=>!pending[k]?.conflict);if(!keys.length){saving=false;updateBadge();return pendingCount()===0}
+   flushing=true;saving=true;updateBadge();
+   const snapshot=keys.map(key=>({key,rec:{...pending[key]}})).filter(x=>x.rec);
+   flushPromise=(async()=>{
+@@ -196,14 +205,14 @@
+           }
+         }else if(r.conflict){
+           allOk=false;const cur=r.current;keyRevs[key]=Number(cur?.keyRev)||Number(keyRevs[key]||0);globalRev=Math.max(globalRev,Number(r.revision)||0);
+-          const now=pending[key];if(now){now.expectedRev=keyRevs[key];savePending()}
++          const now=pending[key];if(now){now.conflict={keyRev:keyRevs[key],detectedAt:Date.now()};savePending();showToast('Save conflict: दूसरे PC के बदलाव मिले। Resolve Save Conflicts से समीक्षा करें; कोई बदलाव overwrite नहीं किया गया।','warn')}
+         }else allOk=false;
+       }
+       saveMeta();
+       if(pendingCount()===0){markSavedNow();announceSaved('✓ Data Main PC par save ho gaya.');}
+     }catch(e){allOk=false;markFailure()}
+     finally{flushing=false;saving=false;flushPromise=null;updateBadge()}
+-    if(pendingCount()>0){const delay=online?70:900;scheduleFlush(delay)}
++    if(Object.values(pending).some(r=>!r.conflict)){const delay=online?70:900;scheduleFlush(delay)}
+     if(flushAgain){flushAgain=false;scheduleFlush(20)}
+     return allOk&&pendingCount()===0;
+   })();
+@@ -232,6 +241,19 @@
+ function schedulePoll(delay){if(OFFLINE)return;if(pollTimer)clearTimeout(pollTimer);pollTimer=setTimeout(async()=>{await poll();schedulePoll(nextPollDelay())},Math.max(150,delay||nextPollDelay()))}
+ document.addEventListener('visibilitychange',()=>schedulePoll(document.hidden?8000:500));if(!OFFLINE){schedulePoll(500);if(pendingCount())scheduleFlush(20)}
+ 
++window.vihanConflicts=()=>Object.entries(pending).filter(([,r])=>r.conflict).map(([key,r])=>({key,keyRev:r.conflict.keyRev}));
++window.vihanResolveConflicts=async function(){
++  const conflicts=window.vihanConflicts();if(!conflicts.length)return true;
++  let snapshot;try{snapshot=await api('/api/snapshot')}catch(e){showToast('Main PC से latest data नहीं मिला। Conflict सुरक्षित रखा गया।','warn');return false}
++  const keepLocal=confirm('दूसरे PC के बदलाव Main PC पर मौजूद हैं। इस PC के अधूरे बदलाव रखकर उन्हें बदलना है? Cancel दबाने पर Main PC की copy रखने का विकल्प मिलेगा।');
++  if(!keepLocal&&!confirm('Main PC की copy रखें और इस PC के conflicting अधूरे बदलाव छोड़ दें? खुले forms में पुराने values रह सकते हैं; उन्हें Clear करके data दोबारा खोलें। Cancel दबाने पर दोनों copies सुरक्षित रहेंगी।'))return false;
++  for(const {key} of conflicts){
++    const now=pending[key];if(!now?.conflict)continue;const current=snapshot.items?.[key];keyRevs[key]=Number(current?.keyRev)||0;
++    if(keepLocal){now.expectedRev=keyRevs[key];delete now.conflict}
++    else{if(!current||current.deleted)nativeRemove.call(localStorage,key);else nativeSet.call(localStorage,key,String(current.value??''));delete pending[key]}
++  }
++  savePending();saveMeta();updateBadge();if(keepLocal)return flushPending();notifyRemote({type:'conflict-resolved',revision:globalRev});showToast('Main PC की copy रखी गई। खुले पुराने form को Clear करके नया data खोलें।','ok');return true;
++};
+ window.vihanFlushPending=flushPending;
+ window.vihanWaitForSaved=async function(timeoutMs=4000){
+   const end=Date.now()+Math.max(500,Number(timeoutMs)||4000);while(Date.now()<end){if(pendingCount()===0)return true;await flushPending();if(pendingCount()===0)return true;await new Promise(r=>setTimeout(r,120))}return pendingCount()===0;
+@@ -256,6 +278,7 @@
+ async function xhrBinaryPost(path,meta,blob,onUpload){
+   heavyIoStart();
+   try{
++    await refreshFileServicePort();
+     try{return await xhrBinaryPostTo(fileUrl(path),meta,blob,onUpload)}
+     catch(e){return await xhrBinaryPostTo(path,meta,blob,onUpload)}
+   }finally{heavyIoEnd()}
+@@ -265,9 +288,9 @@
+ window.vihanBlobGet=async function(db,store,id){try{const d=await fileJson('/api/blob/meta?db='+encodeURIComponent(db)+'&store='+encodeURIComponent(store)+'&id='+encodeURIComponent(id));if(!d||!d.record)return null;const r=d.record;if(d.hasBlob){heavyIoStart();let resp;try{try{resp=await fetch(fileUrl('/api/blob/file?db='+encodeURIComponent(db)+'&store='+encodeURIComponent(store)+'&id='+encodeURIComponent(id)),{credentials:'include',cache:'no-store'});if(!resp.ok&&(resp.status===401||resp.status>=500))throw new Error('Dedicated file service HTTP '+resp.status)}catch(_e){resp=await fetch('/api/blob/file?db='+encodeURIComponent(db)+'&store='+encodeURIComponent(store)+'&id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'})}if(!resp.ok)throw new Error('File load HTTP '+resp.status);var b=await resp.blob()}finally{heavyIoEnd()};remoteBlobRefs.add(b);r.blob=b}return r}catch(e){if(e?.status!==404)throw e;const d=await fileJson('/api/blob/get?db='+encodeURIComponent(db)+'&store='+encodeURIComponent(store)+'&id='+encodeURIComponent(id));if(!d||!d.record)return null;const r=d.record;if(d.blobBase64){const b=blobFromB64(d.blobBase64,d.blobType);remoteBlobRefs.add(b);r.blob=b}return r}};
+ window.vihanBlobPut=async function(db,store,obj){if(OFFLINE){offlineWriteNotice('Offline Read-Only: file / photo save nahi ho sakta.');throw new Error('Offline Read-Only: Main PC band hai, file save nahi ho sakti.')}const r={...obj};let blob=null,unchangedRemoteBlob=false;if(r.blob instanceof Blob){blob=r.blob;delete r.blob;if(remoteBlobRefs.has(blob)){unchangedRemoteBlob=true;blob=null}}const id=String(r.id??r.key??'');if(!id)throw new Error('Storage ID missing');const fileName=String(blob?.name||r.name||r.fileName||'Record');const size=Number(blob?.size)||0;const sizeText=size>=1048576?(size/1048576).toFixed(1)+' MB':size>=1024?(size/1024).toFixed(0)+' KB':'';const isFileUpload=!!blob;const pid=progressBegin(isFileUpload?'file':'text',isFileUpload?'File Upload':'Record Save',isFileUpload?(fileName+(sizeText?' • '+sizeText:'')):(unchangedRemoteBlob?'Sirf details save ho rahi hain — file dobara upload nahi hogi.':'Record Main PC par save ho raha hai…'));try{if(blob){progressUpdate(pid,3,'Raw file stream prepare ho rahi hai: '+fileName);const meta={db,store,id,record:r,clientId,blobType:blob.type||r.type||'application/octet-stream'};try{await xhrBinaryPost('/api/blob/put-binary',meta,blob,q=>{const pct=5+Math.round(Math.max(0,Math.min(1,q))*88);progressUpdate(pid,pct,q<1?('Direct upload ho raha hai: '+fileName):'Upload complete — D: drive commit ka wait…')})}catch(e){if(e?.status!==404)throw e;const payload={db,store,id,record:r,clientId,blobType:meta.blobType};progressUpdate(pid,8,'Compatibility upload mode…');const ab=await blob.arrayBuffer();let binary='';const bytes=new Uint8Array(ab),chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));payload.blobBase64=btoa(binary);await fileJson('/api/blob/put',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}}else{const payload={db,store,id,record:r,clientId};progressUpdate(pid,40,unchangedRemoteBlob?'File same hai — details update ho rahi hain…':'Record prepare ho raha hai…');progressUpdate(pid,65,'Details dedicated File Service ko bheji ja rahi hain…');await fileJson('/api/blob/put',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});progressUpdate(pid,90,'SQLite metadata commit complete…')}blobCacheUpsert(db,store,r);markSavedNow();progressUpdate(pid,98,'Main PC ne save confirm kar diya — screen ready ho rahi hai…');await new Promise(res=>requestAnimationFrame(res));progressFinish(pid,true,isFileUpload?('✓ '+fileName+' Saved — Ready'):'✓ Details Saved — Ready');return obj}catch(e){progressFinish(pid,false,isFileUpload?('Upload Pending/Failed: '+fileName):'Record Save Pending/Failed');throw e}};
+ window.vihanBlobDelete=async function(db,store,id){if(OFFLINE){offlineWriteNotice('Offline Read-Only: file delete nahi ho sakta.');throw new Error('Offline Read-Only: Main PC band hai, file delete nahi ho sakti.')}await fileJson('/api/blob/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({db,store,id,clientId})});blobCacheDelete(db,store,id);markSavedNow();return true};
+-function ensureUi(){if(document.getElementById('vihanServiceBadge'))return;const style=document.createElement('style');style.textContent=`#vihanServiceBadge{position:fixed;right:14px;bottom:12px;z-index:2147483000;border:1px solid #b9c8df;border-radius:999px;padding:7px 11px;background:#fff;color:#334155;font:600 12px "Segoe UI",Arial,sans-serif;box-shadow:0 4px 20px #0002;cursor:pointer}#vihanServiceBadge.ok{border-color:#a7dec0;color:#146c3a;background:#f0fff6}#vihanServiceBadge.off{border-color:#efb8b8;color:#a11f1f;background:#fff4f4}#vihanServiceBadge.pending{border-color:#f2c46d;color:#8a5200;background:#fff9e8}#vihanSysModal{position:fixed;inset:0;z-index:2147483001;background:#0008;display:none;align-items:center;justify-content:center;padding:18px}#vihanSysModal.open{display:flex}#vihanSysCard{width:min(560px,96vw);background:#fff;border-radius:16px;padding:20px;font:14px "Segoe UI",Arial,sans-serif;color:#0f172a;box-shadow:0 20px 70px #0005}#vihanSysCard h2{margin:0 0 6px}#vihanSysCard .grid{display:grid;grid-template-columns:150px 1fr;gap:8px;margin:14px 0}#vihanSysCard button{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;margin:4px;background:#e9f0fb}#vihanSysCard button.primary{background:#315bea;color:#fff}#vihanSaveProgress{position:fixed;right:14px;bottom:52px;width:min(410px,calc(100vw - 28px));z-index:2147483003;background:#fff;border:1px solid #b9c8df;border-radius:12px;padding:10px 12px;box-shadow:0 10px 30px #0002;font:13px "Segoe UI",Arial,sans-serif;color:#172033;display:none}#vihanSaveProgress.done{border-color:#9ed8b8}#vihanSaveProgress.error{border-color:#efb8b8;background:#fff8f8}.vihanProgressTop{display:flex;align-items:center;gap:10px}.vihanProgressTitle{font-weight:700;flex:1}.vihanProgressPct{font-weight:800;color:#2457d6;min-width:48px;text-align:right}.vihanSaveProgress.error .vihanProgressPct{color:#b42318}.vihanProgressDetail{margin-top:3px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vihanProgressBar{height:8px;background:#e7edf6;border-radius:999px;overflow:hidden;margin-top:8px}.vihanProgressBarFill{height:100%;width:0;background:#315bea;border-radius:999px;transition:width .15s linear}#vihanSaveProgress.done .vihanProgressBarFill{background:#159447}#vihanSaveProgress.error .vihanProgressBarFill{background:#d92d20}.vihanToast{position:fixed;left:50%;bottom:55px;transform:translateX(-50%);z-index:2147483002;padding:9px 13px;border-radius:9px;background:#0f172a;color:white;font:600 12px "Segoe UI",Arial;box-shadow:0 6px 20px #0003}.vihanToast.warn{background:#92400e}.vihanToast.ok{background:#166534}`;document.head.appendChild(style);const b=document.createElement('button');b.id='vihanServiceBadge';b.type='button';b.onclick=openSystem;b.textContent='Main Service…';document.body.appendChild(b);const pg=document.createElement('div');pg.id='vihanSaveProgress';pg.innerHTML='<div class="vihanProgressTop"><div class="vihanProgressTitle">Saving</div><div class="vihanProgressPct">0%</div></div><div class="vihanProgressDetail"></div><div class="vihanProgressBar"><div class="vihanProgressBarFill"></div></div>';document.body.appendChild(pg);renderProgress();const m=document.createElement('div');m.id='vihanSysModal';m.innerHTML=`<div id="vihanSysCard"><h2>Vihan Enterprices</h2><div style="color:#64748b">Multi-PC Central Service</div><div class="grid"><b>App Version</b><span>${APP_VERSION}</span><b>Connection</b><span id="vihanConn">Checking…</span><b>Save Status</b><span id="vihanSaveState">Checking…</span><b>Unsaved / Pending</b><span id="vihanPending">0 — sab saved</span><b>Last Saved</b><span id="vihanLastSaved">-</span><b>Server</b><span id="vihanServer">-</span><b>Backup Location</b><span id="vihanBackupPath">Checking…</span><b>Last Sync</b><span id="vihanLast">-</span></div><div><button class="primary" id="vihanBackup">Backup Now</button><button id="vihanSaveNow">Save Pending Now</button><button id="vihanRefresh">Refresh Data</button><button id="vihanOfflineAdmin">Offline PC Access</button><button id="vihanClose">Close</button></div><p style="margin:10px 0 0;color:#64748b;font-size:12px">v1.0.36: Main PC band hone par chune hue Client PC par offline Read-Only copy chalti hai (roz raat 8 baje sync). Offline PC Access ab bina Admin Key ke Main PC ke app se chalta hai. Company 2 sidebar ek hi stable direct router se chalta hai. Inquiry, Counter Account File, Day Book, Bank Book, Cash Main Counter, Data Entry, 4x6 Photo, All Documents aur All Software ek dusre par turant switch honge. "Unsaved / Pending = 0" ka matlab sab changes Main PC par save hain. Central SQLite data D:\Vihan Enterprices\Data me save hota hai.</p></div>`;m.onclick=e=>{if(e.target===m)m.classList.remove('open')};document.body.appendChild(m);document.getElementById('vihanClose').onclick=()=>m.classList.remove('open');{const oa=document.getElementById('vihanOfflineAdmin');if(oa){if(OFFLINE)oa.style.display='none';else oa.onclick=()=>window.open('https://vihan-offline-admin.invalid/launch','_blank')}}document.getElementById('vihanRefresh').onclick=()=>location.href='/';document.getElementById('vihanSaveNow').onclick=async()=>{const ok=await flushPending();showToast(ok?'Pending data save ho gaya.':'Kuch data abhi pending hai.',''+(ok?'ok':'warn'))};document.getElementById('vihanBackup').onclick=async()=>{const btn=document.getElementById('vihanBackup');btn.disabled=true;btn.textContent='Backup…';try{const d=await fileJson('/api/backup',{method:'POST'});showToast('Backup ban gaya: '+(d.path||d.file||''),'ok')}catch(e){showToast('Backup nahi bana: '+e.message,'warn')}finally{btn.disabled=false;btn.textContent='Backup Now'}};updateBadge()}
++function ensureUi(){if(document.getElementById('vihanServiceBadge'))return;const style=document.createElement('style');style.textContent=`#vihanServiceBadge{position:fixed;right:14px;bottom:12px;z-index:2147483000;border:1px solid #b9c8df;border-radius:999px;padding:7px 11px;background:#fff;color:#334155;font:600 12px "Segoe UI",Arial,sans-serif;box-shadow:0 4px 20px #0002;cursor:pointer}#vihanServiceBadge.ok{border-color:#a7dec0;color:#146c3a;background:#f0fff6}#vihanServiceBadge.off{border-color:#efb8b8;color:#a11f1f;background:#fff4f4}#vihanServiceBadge.pending{border-color:#f2c46d;color:#8a5200;background:#fff9e8}#vihanSysModal{position:fixed;inset:0;z-index:2147483001;background:#0008;display:none;align-items:center;justify-content:center;padding:18px}#vihanSysModal.open{display:flex}#vihanSysCard{width:min(560px,96vw);background:#fff;border-radius:16px;padding:20px;font:14px "Segoe UI",Arial,sans-serif;color:#0f172a;box-shadow:0 20px 70px #0005}#vihanSysCard h2{margin:0 0 6px}#vihanSysCard .grid{display:grid;grid-template-columns:150px 1fr;gap:8px;margin:14px 0}#vihanSysCard button{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;margin:4px;background:#e9f0fb}#vihanSysCard button.primary{background:#315bea;color:#fff}#vihanSaveProgress{position:fixed;right:14px;bottom:52px;width:min(410px,calc(100vw - 28px));z-index:2147483003;background:#fff;border:1px solid #b9c8df;border-radius:12px;padding:10px 12px;box-shadow:0 10px 30px #0002;font:13px "Segoe UI",Arial,sans-serif;color:#172033;display:none}#vihanSaveProgress.done{border-color:#9ed8b8}#vihanSaveProgress.error{border-color:#efb8b8;background:#fff8f8}.vihanProgressTop{display:flex;align-items:center;gap:10px}.vihanProgressTitle{font-weight:700;flex:1}.vihanProgressPct{font-weight:800;color:#2457d6;min-width:48px;text-align:right}.vihanSaveProgress.error .vihanProgressPct{color:#b42318}.vihanProgressDetail{margin-top:3px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vihanProgressBar{height:8px;background:#e7edf6;border-radius:999px;overflow:hidden;margin-top:8px}.vihanProgressBarFill{height:100%;width:0;background:#315bea;border-radius:999px;transition:width .15s linear}#vihanSaveProgress.done .vihanProgressBarFill{background:#159447}#vihanSaveProgress.error .vihanProgressBarFill{background:#d92d20}.vihanToast{position:fixed;left:50%;bottom:55px;transform:translateX(-50%);z-index:2147483002;padding:9px 13px;border-radius:9px;background:#0f172a;color:white;font:600 12px "Segoe UI",Arial;box-shadow:0 6px 20px #0003}.vihanToast.warn{background:#92400e}.vihanToast.ok{background:#166534}`;document.head.appendChild(style);const b=document.createElement('button');b.id='vihanServiceBadge';b.type='button';b.onclick=openSystem;b.textContent='Main Service…';document.body.appendChild(b);const pg=document.createElement('div');pg.id='vihanSaveProgress';pg.innerHTML='<div class="vihanProgressTop"><div class="vihanProgressTitle">Saving</div><div class="vihanProgressPct">0%</div></div><div class="vihanProgressDetail"></div><div class="vihanProgressBar"><div class="vihanProgressBarFill"></div></div>';document.body.appendChild(pg);renderProgress();const m=document.createElement('div');m.id='vihanSysModal';m.innerHTML=`<div id="vihanSysCard"><h2>Vihan Enterprices</h2><div style="color:#64748b">Multi-PC Central Service</div><div class="grid"><b>App Version</b><span>${APP_VERSION}</span><b>Connection</b><span id="vihanConn">Checking…</span><b>Save Status</b><span id="vihanSaveState">Checking…</span><b>Unsaved / Pending</b><span id="vihanPending">0 — sab saved</span><b>Last Saved</b><span id="vihanLastSaved">-</span><b>Server</b><span id="vihanServer">-</span><b>Backup Location</b><span id="vihanBackupPath">Checking…</span><b>Last Sync</b><span id="vihanLast">-</span></div><div><button class="primary" id="vihanBackup">Backup Now</button><button id="vihanSaveNow">Save Pending Now</button><button id="vihanResolve" hidden>Resolve Save Conflicts</button><button id="vihanRefresh">Refresh Data</button><button id="vihanOfflineAdmin">Offline PC Access</button><button id="vihanClose">Close</button></div><p style="margin:10px 0 0;color:#64748b;font-size:12px">v1.0.37: Main PC band hone par chune hue Client PC par offline Read-Only copy chalti hai (roz raat 8 baje sync). Offline PC Access ab bina Admin Key ke Main PC ke app se chalta hai. Company 2 sidebar ek hi stable direct router se chalta hai. Inquiry, Counter Account File, Day Book, Bank Book, Cash Main Counter, Data Entry, 4x6 Photo, All Documents aur All Software ek dusre par turant switch honge. "Unsaved / Pending = 0" ka matlab sab changes Main PC par save hain. Central SQLite data D:\Vihan Enterprices\Data me save hota hai.</p></div>`;m.onclick=e=>{if(e.target===m)m.classList.remove('open')};document.body.appendChild(m);document.getElementById('vihanResolve').onclick=()=>window.vihanResolveConflicts();document.getElementById('vihanClose').onclick=()=>m.classList.remove('open');{const oa=document.getElementById('vihanOfflineAdmin');if(oa){if(OFFLINE)oa.style.display='none';else oa.onclick=()=>window.open('https://vihan-offline-admin.invalid/launch','_blank')}}document.getElementById('vihanRefresh').onclick=()=>location.href='/';document.getElementById('vihanSaveNow').onclick=async()=>{const ok=await flushPending();showToast(ok?'Pending data save ho gaya.':'Kuch data abhi pending hai.',''+(ok?'ok':'warn'))};document.getElementById('vihanBackup').onclick=async()=>{const btn=document.getElementById('vihanBackup');btn.disabled=true;btn.textContent='Backup…';try{const d=await fileJson('/api/backup',{method:'POST'});showToast('Backup ban gaya: '+(d.path||d.file||''),'ok')}catch(e){showToast('Backup nahi bana: '+e.message,'warn')}finally{btn.disabled=false;btn.textContent='Backup Now'}};updateBadge()}
+ async function openSystem(){document.getElementById('vihanSysModal')?.classList.add('open');try{const d=await api('/api/status');document.getElementById('vihanServer').textContent=(d.serverName||'-')+' • '+(d.serverIp||'');document.getElementById('vihanConn').textContent=OFFLINE?'Offline copy — Read Only':'Connected';const bp=document.getElementById('vihanBackupPath');if(bp)bp.textContent=d.backupPath||'-';online=true}catch(e){document.getElementById('vihanConn').textContent='Disconnected';const bp=document.getElementById('vihanBackupPath');if(bp)bp.textContent='-';online=false}updateBadge()}
+-function updateBadge(){const b=document.getElementById('vihanServiceBadge');const pc=pendingCount();if(!b)return;
++function updateBadge(){const resolveButton=document.getElementById('vihanResolve');if(resolveButton)resolveButton.hidden=!Object.values(pending).some(r=>r.conflict);const b=document.getElementById('vihanServiceBadge');const pc=pendingCount();if(!b)return;
+   if(OFFLINE){b.classList.remove('ok','pending');b.classList.add('off');b.textContent='● OFFLINE — Read Only';const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t};set('vihanConn','Offline copy — Read Only');set('vihanSaveState','Read Only — kuch save nahi hoga');set('vihanPending','0');set('vihanLastSaved','-');set('vihanLast',offlineSavedLabel().text);const sb=document.getElementById('vihanSaveNow');if(sb)sb.disabled=true;return}
+   const activeOps=(typeof progressOps!=='undefined')?[...progressOps.values()].filter(x=>x&&x.state==='active').length:0;const busy=saving||activeOps>0;b.classList.toggle('ok',online&&pc===0&&!busy);b.classList.toggle('off',!online);b.classList.toggle('pending',pc>0||busy);b.textContent=pc>0?(online?(saving?'● Saving… '+pc:'● '+pc+' Save Pending'):('● '+pc+' Save Pending')):(busy?'● Saving / Uploading…':(online?'● Main Service Connected ✓ Saved':'● Main Service Disconnected'));const l=document.getElementById('vihanLast');if(l)l.textContent=lastSync?new Date(lastSync).toLocaleTimeString('en-IN'):'-';const c=document.getElementById('vihanConn');if(c)c.textContent=online?'Connected':'Disconnected';const p=document.getElementById('vihanPending');if(p)p.textContent=pc===0?'0 — sab saved':String(pc)+' item';const st=document.getElementById('vihanSaveState');if(st)st.textContent=!online?(pc>0?'Disconnected — '+pc+' pending':'Disconnected'):(busy?(activeOps>0?'Saving / Uploading…':'Saving to Main PC…'):(pc>0?pc+' change pending':'All Saved ✓'));const ls=document.getElementById('vihanLastSaved');if(ls)ls.textContent=lastServerSaveAt?new Date(lastServerSaveAt).toLocaleString('en-IN'):'Is session me abhi save nahi hua';const sb=document.getElementById('vihanSaveNow');if(sb){sb.disabled=(pc===0&&!saving);sb.textContent=pc>0?('Save Pending Now ('+pc+')'):(saving?'Saving…':'No Pending Save')}}
+ function showToast(msg,kind=''){if(!document.body)return;let x=document.createElement('div');x.className='vihanToast '+kind;x.textContent=msg;document.body.appendChild(x);setTimeout(()=>x.remove(),2600)}
+--- a/installer/EasyUninstall.ps1
++++ b/installer/EasyUninstall.ps1
+@@ -2,14 +2,26 @@
+ $ErrorActionPreference='Stop'
+ Add-Type -AssemblyName System.Windows.Forms
+ $p='Vihan Enterprices'
++$identity=New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
++if((Test-Path (Join-Path (Join-Path $env:ProgramData $p) 'server.json')) -and !$identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
++  $child=Start-Process powershell.exe -Verb RunAs -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+$PSCommandPath+'"')) -PassThru -Wait
++  exit $child.ExitCode
++}
++
+ $a=[System.Windows.Forms.MessageBox]::Show('Remove Vihan Enterprices software from this PC? Your accounts and database are kept unless you separately choose to delete them.','Vihan Enterprices','YesNo','Warning')
+-if($a -ne 'Yes'){exit 0}
++if($a -ne 'Yes'){exit 2}
+ $d=[System.Windows.Forms.MessageBox]::Show('Delete ALL Vihan database, backups and attachments too? Choose NO to keep all data.','KEEP DATA OR DELETE DATA?','YesNo','Warning')
+ $purge=$d -eq 'Yes'
+-if($purge){$c=[System.Windows.Forms.MessageBox]::Show('PERMANENTLY DELETE database and backups? This cannot be undone.','FINAL CONFIRMATION','YesNo','Error');if($c -ne 'Yes'){exit 0}}
++if($purge){$c=[System.Windows.Forms.MessageBox]::Show('PERMANENTLY DELETE database and backups? This cannot be undone.','FINAL CONFIRMATION','YesNo','Error');if($c -ne 'Yes'){exit 2}}
+ foreach($task in @('Vihan Enterprices Main Service','Vihan Enterprices File Service')) { & schtasks /End /TN $task 2>$null | Out-Null; & schtasks /Delete /TN $task /F 2>$null | Out-Null }
+ Get-Process -Name 'Vihan Enterprices' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+ $dest=Join-Path $env:LOCALAPPDATA $p
++$binding=Join-Path (Join-Path $env:APPDATA $p) 'installation.json'
++if(Test-Path $binding){$saved=Get-Content $binding -Raw|ConvertFrom-Json;if($saved.root){$dest=[string]$saved.root}}
++elseif(Test-Path 'D:\Vihan Enterprices\Software\app\index.html'){$dest='D:\Vihan Enterprices\Software'}
++$allowedRoots=@((Join-Path $env:LOCALAPPDATA $p),'D:\Vihan Enterprices\Software')
++if($dest -notin $allowedRoots){throw 'Unrecognized installation root; refusing automatic removal. Database and backups were not deleted.'}
++
+ if(Test-Path $dest){Remove-Item -LiteralPath $dest -Recurse -Force -ErrorAction Stop}
+ foreach($link in @((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Vihan Enterprices.lnk'),(Join-Path ([Environment]::GetFolderPath('CommonDesktopDirectory')) 'Vihan Enterprices.lnk'),(Join-Path ([Environment]::GetFolderPath('StartMenu')) 'Programs\Vihan Enterprices'))){if(Test-Path $link){Remove-Item -LiteralPath $link -Recurse -Force}}
+ if($purge){foreach($path in @('D:\Vihan Enterprices\Data','D:\Vihan Enterprices\Backups','C:\Vihan Enterprices\Data','C:\Vihan Enterprices\Backups',(Join-Path $env:APPDATA $p),(Join-Path $env:ProgramData $p))){if(Test-Path $path){Remove-Item -LiteralPath $path -Recurse -Force}}}
+--- a/installer/Install.ps1
++++ b/installer/Install.ps1
+@@ -5,7 +5,7 @@
+ $ErrorActionPreference='Stop'
+ Add-Type -AssemblyName System.Windows.Forms
+ $Product='Vihan Enterprices'
+-$Version='1.0.36'
++$Version='1.0.37'
+ $ElectronVersion='38.2.0'
+ $ElectronSha256='4382B317DBBBC0BBF8A301304749324B88207218AAC240B670F1C1247C2A02B0'
+ $ElectronUrls=@(
+@@ -13,7 +13,19 @@
+   'https://npmmirror.com/mirrors/electron/v38.2.0/electron-v38.2.0-win32-x64.zip'
+ )
+ $Source=Split-Path $PSScriptRoot -Parent
+-$Dest=Join-Path $env:LOCALAPPDATA $Product
++$LegacyDest=Join-Path $env:LOCALAPPDATA $Product
++$Dest='D:\Vihan Enterprices\Software'
++# Existing installations are retained in-place. A path migration needs a
++# separately approved backup/migration plan, never an installer side effect.
++if(Test-Path (Join-Path $LegacyDest 'app\index.html')){$Dest=$LegacyDest}
++$InstallBinding=Join-Path (Join-Path $env:APPDATA $Product) 'installation.json'
++if(Test-Path $InstallBinding){
++  $binding=Get-Content $InstallBinding -Raw|ConvertFrom-Json
++  if($binding.root -and [string]$binding.root -notin @($LegacyDest,'D:\Vihan Enterprices\Software')){throw 'Unrecognized installation binding. Existing files were not moved or overwritten.'}
++  if($binding.root -and (Test-Path (Join-Path ([string]$binding.root) 'app\index.html'))){$Dest=[string]$binding.root}
++}
++if($Dest -like 'D:*' -and !(Test-Path 'D:\')){throw 'D: drive is unavailable. Installation stopped; no silent software/data fallback.'}
++
+ $LogDir=$Dest
+ $Log=Join-Path $LogDir 'install.log'
+ $DesktopRuntime=Join-Path $Dest 'desktop-runtime'
+@@ -153,25 +165,25 @@
+ 
+   $serverConfig=Join-Path (Join-Path $env:ProgramData $Product) 'server.json'
+   if(Test-Path $serverConfig){
+-    if(!(Test-Path 'D:\')){throw 'Ye Main PC hai aur D: drive available nahi hai. v1.0.36 central data D:\Vihan Enterprices\Data me rakhega. D: drive connect/enable karke setup dobara chalayein.'}
++    if(!(Test-Path 'D:\')){throw 'Ye Main PC hai aur D: drive available nahi hai. v1.0.37 central data D:\Vihan Enterprices\Data me rakhega. D: drive connect/enable karke setup dobara chalayein.'}
+     try{
+       $repair=Join-Path $Dest 'runtime\RepairMainService.ps1'
+       if(Test-Path $repair){
+         Write-Log 'Main PC detected: ensuring auto-start + repairing central service.'
+         $rp=Start-Process powershell.exe -Verb RunAs -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+$repair+'"'),'-NoPrompt') -PassThru -Wait
+-        if($rp.ExitCode -ne 0){Write-Log ('Main service repair returned code '+$rp.ExitCode)}
++        if($rp.ExitCode -ne 0){throw ('Main service repair returned code '+$rp.ExitCode)}
+       }else{
+         Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+(Join-Path $Dest 'runtime\MainService.ps1')+'"'))
+       }
+-    }catch{Write-Log ('Main service repair warning: '+$_.Exception.Message)}
++    }catch{throw ('Main service repair failed: '+$_.Exception.Message)}
+     try{
+       $updateDir='D:\\Vihan Enterprices\\Updates';$latest=Join-Path $updateDir 'latest.json'
+       if(Test-Path $latest){
+         try{
+           $st=Get-Content $latest -Raw|ConvertFrom-Json
+-          $published=[version]([string]$st.version);$current=[version]'1.0.36'
++          $published=[version]([string]$st.version);$current=[version]'1.0.37'
+           if($published -le $current){
+-            $arch=Join-Path $updateDir ('latest_archived_before_v1.0.36_'+(Get-Date -Format 'yyyyMMdd_HHmmss')+'.json')
++            $arch=Join-Path $updateDir ('latest_archived_before_v1.0.37_'+(Get-Date -Format 'yyyyMMdd_HHmmss')+'.json')
+             Move-Item -LiteralPath $latest -Destination $arch -Force
+             Write-Log ('Archived stale central update '+[string]$st.version+' -> '+$arch)
+           }
+@@ -180,6 +192,8 @@
+     }catch{Write-Log ('Central update cleanup warning: '+$_.Exception.Message)}
+   }
+   [pscustomobject]@{version=$Version;updatedAt=(Get-Date).ToString('o')}|ConvertTo-Json|Set-Content -Encoding UTF8 (Join-Path $Dest 'installed_version.json')
++  New-Item -ItemType Directory -Force -Path (Split-Path $InstallBinding -Parent)|Out-Null
++  [pscustomobject]@{root=$Dest;updatedAt=(Get-Date).ToString('o')}|ConvertTo-Json|Set-Content -Encoding UTF8 $InstallBinding
+   Write-Log 'Setup completed successfully.'
+   try{if(Test-Path $DesktopExe){Start-Process -FilePath $DesktopExe -WorkingDirectory $DesktopRuntime|Out-Null;Write-Log 'Desktop app relaunched after recovery/update.'}}catch{Write-Log ('Desktop relaunch warning: '+$_.Exception.Message)}
+   exit 0
+--- a/manifest.json
++++ b/manifest.json
+@@ -0,0 +1,5 @@
++{
++  "product": "Vihan Enterprices",
++  "appVersion": "1.0.37",
++  "description": "Existing application audit repairs; no automatic production data migration"
++}
+--- a/runtime/ApplyRemoteRestore.ps1
++++ b/runtime/ApplyRemoteRestore.ps1
+@@ -2,8 +2,11 @@
+ $ErrorActionPreference='Stop'
+ $Product='Vihan Enterprices'
+ $Base=Join-Path $env:ProgramData $Product
+-$Data='D:\Vihan Enterprices\Data'
+-$BackupDir='D:\Vihan Enterprices\Backups'
++. (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++. (Join-Path $PSScriptRoot 'ArchiveSafety.ps1')
++$server=Get-Content (Join-Path $Base 'server.json') -Raw|ConvertFrom-Json
++$paths=Get-VihanStoragePaths $server
++$Data=$paths.Data;$BackupDir=$paths.Backup
+ $Inbox=Join-Path $Base 'RestoreInbox'
+ $Status=Join-Path $Inbox 'restore-status.json'
+ $MainTask='Vihan Enterprices Main Service'
+@@ -11,33 +14,13 @@
+ function Write-State([string]$state,[string]$detail){
+   [pscustomobject]@{status=$state;detail=$detail;updatedAt=(Get-Date).ToString('o')} | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 $Status
+ }
+-function Stop-Tracked([string]$file){
+-  if(!(Test-Path $file)){return}
+-  try{
+-    $pidValue=[int](Get-Content $file -Raw)
+-    $process=Get-Process -Id $pidValue -ErrorAction SilentlyContinue
+-    if($process -and $process.ProcessName -match '^(powershell|pwsh)$'){Stop-Process -Id $pidValue -Force -ErrorAction SilentlyContinue}
+-  }catch{}
+-}
+ $stage=Join-Path $Inbox ('validated_'+[guid]::NewGuid().ToString('N'))
+-$prev=$Data+'_before_restore_'+(Get-Date -Format 'yyyyMMdd_HHmmss')
+-$switched=$false
++$prev=$Data+'_before_restore_'+(Get-Date -Format 'yyyyMMdd_HHmmss')+'_'+[guid]::NewGuid().ToString('N')
++$switched=$false;$restoreFailed=$false
+ try{
+   if(!(Test-Path $Archive)){throw 'Uploaded archive not found'}
+   New-Item -ItemType Directory -Path $stage -Force | Out-Null
+-  Add-Type -AssemblyName System.IO.Compression.FileSystem
+-  $zip=[IO.Compression.ZipFile]::OpenRead($Archive)
+-  try{
+-    foreach($entry in $zip.Entries){
+-      $name=$entry.FullName.Replace('\','/')
+-      if($name.StartsWith('/') -or $name -match '(^|/)\.\.(/|$)' -or $name -match '^[A-Za-z]:'){throw 'Unsafe archive file path'}
+-      if(!$name -or $name.EndsWith('/')){continue}
+-      $target=[IO.Path]::GetFullPath((Join-Path $stage $name))
+-      if(!$target.StartsWith(([IO.Path]::GetFullPath($stage)+'\'),[StringComparison]::OrdinalIgnoreCase)){throw 'Archive path escape detected'}
+-      New-Item -ItemType Directory -Path (Split-Path $target -Parent) -Force | Out-Null
+-      [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$target,$true)
+-    }
+-  }finally{$zip.Dispose()}
++  Expand-VihanArchive $Archive $stage
+   $manifest=Join-Path $stage 'backup_manifest.json'
+   $dbFile=Join-Path $stage 'VihanEnterprices.db'
+   if(!(Test-Path $manifest) -or !(Test-Path $dbFile)){throw 'Archive missing manifest or SQLite DB'}
+@@ -45,11 +28,28 @@
+   if([string]$meta.product -ne $Product){throw 'Not a Vihan Enterprices backup'}
+   $stream=[IO.File]::OpenRead($dbFile)
+   try{$sig=New-Object byte[] 16;[void]$stream.Read($sig,0,16);if([Text.Encoding]::ASCII.GetString($sig) -ne "SQLite format 3`0"){throw 'Not a valid SQLite database'}}finally{$stream.Dispose()}
++  # Recover any WAL included by older official backups in the isolated staging
++  # copy, validate actual SQLite integrity/schema and attachments before stopping
++  # services or replacing a single byte of live data.
++  if(-not ('VihanSqliteDb' -as [type])){Add-Type -Path (Join-Path $PSScriptRoot 'VihanSqlite.cs')}
++  $check=New-Object VihanSqliteDb -ArgumentList $dbFile
++  try{
++    if($check.ScalarText('PRAGMA quick_check','') -ne 'ok'){throw 'Backup SQLite integrity check failed'}
++    foreach($table in @('meta','kv','blob_meta')){
++      if($check.ScalarLong("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name="+[VihanSqliteDb]::Quote($table),0) -ne 1){throw ('Backup schema missing '+$table)}
++    }
++    if($check.ScalarLong("SELECT CAST(v AS INTEGER) FROM meta WHERE k='schema_version'",0) -gt 2){throw 'Backup database schema is newer than this application'}
++    foreach($row in $check.Query("SELECT blob_file FROM blob_meta WHERE blob_file IS NOT NULL AND blob_file<>''")){
++      $file=[string]$row['blob_file']
++      if([IO.Path]::GetFileName($file) -ne $file -or !(Test-Path -LiteralPath (Join-Path (Join-Path $stage 'Blobs') $file))){throw 'Backup contains a missing or unsafe attachment reference'}
++    }
++    $check.Exec('PRAGMA wal_checkpoint(TRUNCATE);')
++  }finally{$check.Dispose()}
+   Write-State 'validated' 'Backup validated, stopping services'
+   try{Stop-ScheduledTask -TaskName $MainTask -ErrorAction SilentlyContinue}catch{}
+   try{Stop-ScheduledTask -TaskName $FilesTask -ErrorAction SilentlyContinue}catch{}
+-  Stop-Tracked (Join-Path $Base 'service.pid')
+-  Stop-Tracked (Join-Path $Base 'file_service.pid')
++  Stop-VihanTrackedService (Join-Path $Base 'service.pid') (Join-Path $PSScriptRoot 'MainService.ps1')
++  Stop-VihanTrackedService (Join-Path $Base 'file_service.pid') (Join-Path $PSScriptRoot 'FileService.ps1')
+   Start-Sleep -Seconds 2
+   if(Test-Path $Data){Move-Item -LiteralPath $Data -Destination $prev -ErrorAction Stop}
+   $switched=$true
+@@ -58,7 +58,7 @@
+   $blobs=Join-Path $stage 'Blobs'
+   if(Test-Path $blobs){Copy-Item -LiteralPath $blobs -Destination (Join-Path $Data 'Blobs') -Recurse -Force}
+   else{New-Item -ItemType Directory -Path (Join-Path $Data 'Blobs') -Force | Out-Null}
+-  # WAL/shm are not restored. Backup writer checkpoints before copying main db.
++  # Staged WAL, if supplied by an older backup, was recovered and checkpointed above.
+   Write-State 'complete' ('Restored. Previous data retained: '+$prev)
+ }catch{
+   $detail=$_.Exception.ToString()
+@@ -66,9 +66,12 @@
+     try{if(Test-Path $Data){Remove-Item $Data -Recurse -Force};if(Test-Path $prev){Move-Item $prev $Data}}catch{$detail+='; rollback failed: '+$_.Exception.Message}
+   }
+   Write-State 'failed' $detail
++  $restoreFailed=$true
+ }finally{
+   try{Start-ScheduledTask -TaskName $MainTask -ErrorAction SilentlyContinue}catch{}
+   try{Start-ScheduledTask -TaskName $FilesTask -ErrorAction SilentlyContinue}catch{}
+   Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+   Remove-Item $Archive -Force -ErrorAction SilentlyContinue
+ }
++
++if($restoreFailed){exit 1}
+--- a/runtime/ApplyUpdate.ps1
++++ b/runtime/ApplyUpdate.ps1
+@@ -1,22 +1,17 @@
+-$ErrorActionPreference='Stop';Add-Type -AssemblyName System.Windows.Forms
++$ErrorActionPreference='Stop'
++Add-Type -AssemblyName System.Windows.Forms
+ $Product='Vihan Enterprices';$Root=Split-Path $PSScriptRoot -Parent
+-$d=New-Object System.Windows.Forms.OpenFileDialog;$d.Title='Vihan Enterprices Update Package Select Karein';$d.Filter='Vihan Update (*.veupdate;*.zip)|*.veupdate;*.zip';if($d.ShowDialog() -ne 'OK'){exit}
+-$stage=Join-Path $env:TEMP ('VihanUpdate_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
+-$zipForExpand=Join-Path $env:TEMP ('VihanManualUpdate_'+[guid]::NewGuid().ToString('N')+'.zip')
+-try{
+-  Copy-Item -LiteralPath $d.FileName -Destination $zipForExpand -Force
+-  Expand-Archive -Path $zipForExpand -DestinationPath $stage -Force
+-  $mf=Join-Path $stage 'manifest.json';if(!(Test-Path $mf)){throw 'Update manifest missing'}
+-  $m=Get-Content $mf -Raw|ConvertFrom-Json;if($m.product -ne $Product){throw 'Ye Vihan Enterprices update package nahi hai'}
+-  $app=Join-Path $stage 'app';if(!(Test-Path $app)){throw 'Update app files missing'}
+-  Copy-Item (Join-Path $app '*') (Join-Path $Root 'app') -Recurse -Force
+-  if(Test-Path (Join-Path $stage 'runtime')){Copy-Item (Join-Path $stage 'runtime\*') (Join-Path $Root 'runtime') -Recurse -Force}
+-  $hostSrc=Join-Path $Root 'runtime\electron-app'
+-  $hostDest=Join-Path $Root 'desktop-runtime\resources\app'
+-  if((Test-Path $hostSrc) -and (Test-Path (Join-Path $Root 'desktop-runtime\Vihan Enterprices.exe'))){
+-    if(Test-Path $hostDest){Remove-Item $hostDest -Recurse -Force -ErrorAction SilentlyContinue}
+-    New-Item -ItemType Directory -Force -Path $hostDest|Out-Null
+-    Copy-Item (Join-Path $hostSrc '*') $hostDest -Recurse -Force
+-  }
+-  [System.Windows.Forms.MessageBox]::Show(('Update complete: '+$m.appVersion+"`nPurana data/service file safe hai.`nDesktop app runtime aur Main/Client setting preserve hai."),$Product)|Out-Null
+-}finally{Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue;Remove-Item $zipForExpand -Force -ErrorAction SilentlyContinue}
++$dialog=New-Object System.Windows.Forms.OpenFileDialog
++$dialog.Title='Vihan Enterprices Update Package select karein'
++$dialog.Filter='Vihan Update (*.veupdate;*.zip)|*.veupdate;*.zip'
++if($dialog.ShowDialog() -ne 'OK'){exit 0}
++$main=Test-Path (Join-Path (Join-Path $env:ProgramData $Product) 'server.json')
++# Run the same rollback-capable updater for manual and automatic updates.
++$tempUpdater=Join-Path $env:TEMP ('VihanManualUpdater_'+[guid]::NewGuid().ToString('N')+'.ps1')
++Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'AutoUpdater.ps1') -Destination $tempUpdater
++$argsList=@('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+$tempUpdater+'"'),'-PackagePath',('"'+$dialog.FileName+'"'),'-InstallRoot',('"'+$Root+'"'),'-DelaySeconds','0')
++if($main){$argsList+='-MainPc';$child=Start-Process powershell.exe -Verb RunAs -ArgumentList $argsList -PassThru -Wait}
++else{$child=Start-Process powershell.exe -ArgumentList $argsList -PassThru -Wait}
++Remove-Item -LiteralPath $tempUpdater -Force -ErrorAction SilentlyContinue
++if($child.ExitCode -ne 0){[System.Windows.Forms.MessageBox]::Show('Update failed. Review auto_update.log and rollback status.',$Product,'OK','Error')|Out-Null;exit 1}
++[System.Windows.Forms.MessageBox]::Show('Update completed. Data and connection configuration were retained.',$Product,'OK','Information')|Out-Null
+--- a/runtime/ArchiveSafety.ps1
++++ b/runtime/ArchiveSafety.ps1
+@@ -0,0 +1,24 @@
++function Expand-VihanArchive([string]$Archive,[string]$Destination){
++  Add-Type -AssemblyName System.IO.Compression.FileSystem
++  $root=[IO.Path]::GetFullPath($Destination).TrimEnd([IO.Path]::DirectorySeparatorChar)+[IO.Path]::DirectorySeparatorChar
++  $zip=[IO.Compression.ZipFile]::OpenRead($Archive)
++  try{
++    $entries=New-Object 'System.Collections.Generic.List[object]'
++    $seen=New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
++    foreach($entry in $zip.Entries){
++      $name=$entry.FullName.Replace('\','/')
++      if(!$name -or $name.StartsWith('/') -or $name.Contains(':')){throw 'Unsafe archive path'}
++      $parts=$name.TrimEnd('/').Split('/')
++      foreach($part in $parts){if(!$part -or $part -eq '.' -or $part -eq '..' -or $part.TrimEnd('.',' ') -ne $part -or $part -match '^(?i:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)'){throw 'Unsafe archive path component'}}
++      $relative=($parts -join [IO.Path]::DirectorySeparatorChar)
++      $target=[IO.Path]::GetFullPath([IO.Path]::Combine($root,$relative))
++      if(!$target.StartsWith($root,[StringComparison]::OrdinalIgnoreCase) -or !$seen.Add($target)){throw 'Archive path escape or duplicate destination'}
++      $entries.Add([pscustomobject]@{Entry=$entry;Target=$target;Directory=$name.EndsWith('/')})
++    }
++    foreach($item in $entries){
++      if($item.Directory){[IO.Directory]::CreateDirectory($item.Target)|Out-Null;continue}
++      [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($item.Target))|Out-Null
++      [IO.Compression.ZipFileExtensions]::ExtractToFile($item.Entry,$item.Target,$false)
++    }
++  }finally{$zip.Dispose()}
++}
+--- a/runtime/AuditStorageSafe.ps1
++++ b/runtime/AuditStorageSafe.ps1
+@@ -0,0 +1,21 @@
++$ErrorActionPreference='Stop'
++$Product='Vihan Enterprices'
++$install=Split-Path $PSScriptRoot -Parent
++$base=Join-Path $env:ProgramData $Product
++$server=Join-Path $base 'server.json'
++$connection=Join-Path (Join-Path $env:APPDATA $Product) 'connection.json'
++$result=[ordered]@{product=$Product;machine=$env:COMPUTERNAME;applicationRoot=$install;dDrivePresent=(Test-Path 'D:\');serverConfigurationPresent=(Test-Path $server);connectionPresent=(Test-Path $connection);protectedAdminKeyPresent=(Test-Path (Join-Path $base 'restore-admin.key'));sqliteIntegrity='Not run on live production data';writePermission='Not inferred from file presence; verify as the service account on Windows'}
++if(Test-Path $server){
++  $config=Get-Content -LiteralPath $server -Raw|ConvertFrom-Json
++  $result.mode='Main PC';$result.configuredDataDirectory=[string]$config.dataDir;$result.configuredBackupDirectory=[string]$config.backupDir
++  if($result.dDrivePresent){
++    . (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++    $paths=Get-VihanStoragePaths $config
++    $result.database=$paths.Database;$result.blobs=$paths.Blobs;$result.backup=$paths.Backup;$result.updates=$paths.Updates
++    $result.databasePresent=Test-Path -LiteralPath $paths.Database
++    if($result.databasePresent){$result.databaseBytes=(Get-Item -LiteralPath $paths.Database).Length}
++  }
++  $result.systemConfiguration=$base;$result.mainErrorLog=Join-Path $base 'service_error.txt';$result.fileErrorLog=Join-Path $base 'file_service_error.txt'
++}else{$result.mode='Client/unconfigured PC; no local writable master is expected'}
++# No token, password, key, credential-file content or production record is emitted.
++[pscustomobject]$result|ConvertTo-Json -Depth 6
+--- a/runtime/AutoUpdater.ps1
++++ b/runtime/AutoUpdater.ps1
+@@ -7,6 +7,8 @@
+ )
+ $ErrorActionPreference='Stop'
+ $Product='Vihan Enterprices'
++. (Join-Path $InstallRoot 'runtime\StoragePaths.ps1')
++. (Join-Path $InstallRoot 'runtime\ArchiveSafety.ps1')
+ $Base=Join-Path $env:ProgramData $Product
+ $LogDir=if($MainPc){Join-Path 'D:\Vihan Enterprices' 'Updates'}else{Join-Path $InstallRoot 'updates'}
+ New-Item -ItemType Directory -Force -Path $LogDir|Out-Null
+@@ -22,12 +24,13 @@
+ function Stop-MainServices(){
+   try{Stop-ScheduledTask -TaskName 'Vihan Enterprices Main Service' -ErrorAction SilentlyContinue}catch{}
+   try{Stop-ScheduledTask -TaskName 'Vihan Enterprices File Service' -ErrorAction SilentlyContinue}catch{}
+-  foreach($pf in @('service.pid','file_service.pid')){try{$f=Join-Path $Base $pf;if(Test-Path $f){$pid=[int](Get-Content $f);$pr=Get-Process -Id $pid -ErrorAction SilentlyContinue;if($pr){Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue}}}catch{}}
++  Stop-VihanTrackedService (Join-Path $Base 'service.pid') (Join-Path $InstallRoot 'runtime\MainService.ps1')
++  Stop-VihanTrackedService (Join-Path $Base 'file_service.pid') (Join-Path $InstallRoot 'runtime\FileService.ps1')
+   Start-Sleep -Milliseconds 900
+ }
+ function Repair-Main(){
+   if(!$MainPc){return}
+-  try{$repair=Join-Path $InstallRoot 'runtime\RepairMainService.ps1';if(Test-Path $repair){& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $repair -NoPrompt;Log ('Main service repair exit '+$LASTEXITCODE)}}catch{Log ('Main service repair warning '+$_.Exception.Message)}
++  try{$repair=Join-Path $InstallRoot 'runtime\RepairMainService.ps1';if(Test-Path $repair){& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $repair -NoPrompt;if($LASTEXITCODE -ne 0){throw ('Main service repair exit '+$LASTEXITCODE)}}}catch{Log ('Main service repair error '+$_.Exception.Message);throw}
+ }
+ function Start-Desktop(){
+   $exe=DesktopExe
+@@ -36,13 +39,13 @@
+ function Backup-Current([string]$dir){
+   New-Item -ItemType Directory -Force -Path $dir|Out-Null
+   foreach($name in @('app','runtime')){ $s=Join-Path $InstallRoot $name;if(Test-Path $s){Copy-Item $s (Join-Path $dir $name) -Recurse -Force} }
+-  $mf=Join-Path $InstallRoot 'manifest.json';if(Test-Path $mf){Copy-Item $mf (Join-Path $dir 'manifest.json') -Force}
+-  $host=Join-Path $InstallRoot 'desktop-runtime\resources\app';if(Test-Path $host){Copy-Item $host (Join-Path $dir 'desktop_host') -Recurse -Force}
++  foreach($name in @('manifest.json','installed_version.json')){$file=Join-Path $InstallRoot $name;if(Test-Path $file){Copy-Item $file (Join-Path $dir $name) -Force}}
++  $desktopHost=Join-Path $InstallRoot 'desktop-runtime\resources\app';if(Test-Path $desktopHost){Copy-Item $desktopHost (Join-Path $dir 'desktop_host') -Recurse -Force}
+ }
+ function Restore-Current([string]$dir){
+   Log ('Rollback from '+$dir)
+   foreach($name in @('app','runtime')){ $s=Join-Path $dir $name;$d=Join-Path $InstallRoot $name;if(Test-Path $s){if(Test-Path $d){Remove-Item $d -Recurse -Force -ErrorAction SilentlyContinue};Copy-Item $s $d -Recurse -Force} }
+-  $mf=Join-Path $dir 'manifest.json';if(Test-Path $mf){Copy-Item $mf (Join-Path $InstallRoot 'manifest.json') -Force}
++  foreach($name in @('manifest.json','installed_version.json')){$file=Join-Path $dir $name;$target=Join-Path $InstallRoot $name;if(Test-Path $file){Copy-Item $file $target -Force}else{Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue}}
+   $hs=Join-Path $dir 'desktop_host';$hd=Join-Path $InstallRoot 'desktop-runtime\resources\app';if(Test-Path $hs){if(Test-Path $hd){Remove-Item $hd -Recurse -Force -ErrorAction SilentlyContinue};Copy-Item $hs $hd -Recurse -Force}
+ }
+ $stage=$null;$zipForExpand=$null;$rollback=$null
+@@ -52,10 +55,13 @@
+   $stage=Join-Path $env:TEMP ('VihanAutoUpdate_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
+   $zipForExpand=Join-Path $env:TEMP ('VihanAutoUpdatePkg_'+[guid]::NewGuid().ToString('N')+'.zip')
+   Copy-Item -LiteralPath $PackagePath -Destination $zipForExpand -Force
+-  Expand-Archive -LiteralPath $zipForExpand -DestinationPath $stage -Force
++  Expand-VihanArchive $zipForExpand $stage
+   $mf=Join-Path $stage 'manifest.json';if(!(Test-Path $mf)){throw 'Update manifest missing'}
+   $m=Get-Content $mf -Raw|ConvertFrom-Json;if([string]$m.product -ne $Product){throw 'Invalid Vihan update package'}
+   $ver=[string]$m.appVersion;if([string]::IsNullOrWhiteSpace($ver)){throw 'Update version missing'}
++  $parsedVersion=$null;if(![version]::TryParse($ver,[ref]$parsedVersion)){throw 'Invalid numeric update version'}
++  $diskVersionFile=Join-Path $InstallRoot 'app\version.json'
++  if(Test-Path $diskVersionFile){$diskVersion=Get-Content $diskVersionFile -Raw|ConvertFrom-Json;if($parsedVersion -le [version]([string]$diskVersion.version)){throw 'Update must be newer than the installed application; use the installer for repair'}}
+   if(!(Test-Path (Join-Path $stage 'app\index.html')) -or !(Test-Path (Join-Path $stage 'app\vihan-sync.js')) -or !(Test-Path (Join-Path $stage 'runtime\electron-app\main.js'))){throw 'Update app/runtime incomplete'}
+   Log ('Applying v'+$ver+' to '+$InstallRoot+' MainPc='+$MainPc)
+   $rollback=Join-Path $LogDir ('Rollback_Pre_'+$ver+'_'+(Get-Date -Format 'yyyyMMdd_HHmmss'))
+--- a/runtime/BlobStorage.ps1
++++ b/runtime/BlobStorage.ps1
+@@ -0,0 +1,32 @@
++# Loaded by both services. Call under the shared data-I/O mutex.
++function Save-VihanBlob($Record,[IO.Stream]$Stream=$null,[long]$ExpectedLength=-1){
++  $dbn=[string]$Record.db;$store=[string]$Record.store;$itemId=[string]$Record.id
++  foreach($part in @($dbn,$store,$itemId)){if([string]::IsNullOrWhiteSpace($part) -or $part.Contains('|')){throw 'Invalid attachment identity'}}
++  $key=Blob-Key $dbn $store $itemId
++  $old=$db.Query('SELECT blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $key)+' LIMIT 1')
++  $oldFile=if($old.Count){[string]$old[0]['blob_file']}else{''}
++  $file=$oldFile;$type=if($old.Count){[string]$old[0]['blob_type']}else{''}
++  $newFile=$null
++  try{
++    if($null -ne $Stream -or $Record.PSObject.Properties['blobBase64']){
++      $file=(Hash-Key $key)+'_'+[guid]::NewGuid().ToString('N')+'.bin'
++      $newFile=Join-Path $BlobDir $file;$temp=$newFile+'.tmp'
++      try{
++        if($null -ne $Stream){Save-StreamToFile $Stream $temp;if($ExpectedLength -ge 0 -and (Get-Item -LiteralPath $temp).Length -ne $ExpectedLength){throw 'Incomplete attachment upload'}}
++        else{[IO.File]::WriteAllBytes($temp,[Convert]::FromBase64String([string]$Record.blobBase64))}
++        Move-Item -LiteralPath $temp -Destination $newFile -ErrorAction Stop
++      }finally{Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue}
++      $type=[string]$Record.blobType
++    }
++    $recordJson=$Record.record|ConvertTo-Json -Depth 100 -Compress
++    $db.Exec('INSERT OR REPLACE INTO blob_meta(blob_key,db_name,store_name,item_id,record_json,blob_file,blob_type,updated_at) VALUES('+(Q $key)+','+(Q $dbn)+','+(Q $store)+','+(Q $itemId)+','+(Q $recordJson)+','+(Q $file)+','+(Q $type)+','+(Q ((Get-Date).ToString('o')))+');')
++  }catch{if($newFile){Remove-Item -LiteralPath $newFile -Force -ErrorAction SilentlyContinue};throw}
++  # Metadata commit succeeded; only now can the previously referenced file go.
++  if($newFile -and $oldFile -and $oldFile -ne $file){Remove-Item -LiteralPath (Join-Path $BlobDir $oldFile) -Force -ErrorAction SilentlyContinue}
++}
++function Remove-VihanBlob($Record){
++  $key=Blob-Key ([string]$Record.db) ([string]$Record.store) ([string]$Record.id)
++  $rows=$db.Query('SELECT blob_file FROM blob_meta WHERE blob_key='+(Q $key)+' LIMIT 1')
++  $db.Exec('DELETE FROM blob_meta WHERE blob_key='+(Q $key)+';')
++  if($rows.Count -and $rows[0]['blob_file']){Remove-Item -LiteralPath (Join-Path $BlobDir ([string]$rows[0]['blob_file'])) -Force -ErrorAction SilentlyContinue}
++}
+--- a/runtime/FileService.ps1
++++ b/runtime/FileService.ps1
+@@ -1,22 +1,31 @@
+ param([int]$Port=17868)
+ $ErrorActionPreference='Stop'
+-$Product='Vihan Enterprices';$AppVersion='1.0.36'
++trap {try{$errorRoot=Join-Path $env:ProgramData 'Vihan Enterprices';New-Item -ItemType Directory -Force -Path $errorRoot|Out-Null;Set-Content -LiteralPath (Join-Path $errorRoot 'file_service_error.txt') -Value $_.Exception.ToString() -Encoding UTF8}catch{};exit 4}
++$Product='Vihan Enterprices';$AppVersion='1.0.37'
+ $InstallRoot=Split-Path $PSScriptRoot -Parent
+ $Base=Join-Path $env:ProgramData $Product
+ $DBase='D:\Vihan Enterprices';$DataDir=Join-Path $DBase 'Data';$BlobDir=Join-Path $DataDir 'Blobs'
+ $PreferredBackupDir=Join-Path $DBase 'Backups';$FallbackBackupDir=Join-Path $Base 'Backups'
+ $ConfigFile=Join-Path $Base 'server.json';$DbFile=Join-Path $DataDir 'VihanEnterprices.db';$PidFile=Join-Path $Base 'file_service.pid';$UpdateDir=Join-Path $DBase 'Updates';$UpdatePkgDir=Join-Path $UpdateDir 'Packages';$UpdateStateFile=Join-Path $UpdateDir 'latest.json';$UpdateClientsFile=Join-Path $UpdateDir 'clients.json'
+ if(!(Test-Path 'D:\')){exit 5}
+-New-Item -ItemType Directory -Force -Path $Base,$DataDir,$BlobDir,$PreferredBackupDir,$FallbackBackupDir,$UpdateDir,$UpdatePkgDir|Out-Null
++New-Item -ItemType Directory -Force -Path $Base,$UpdateDir,$UpdatePkgDir|Out-Null
+ if(!(Test-Path $ConfigFile)){exit 2}
+ $config=Get-Content $ConfigFile -Raw|ConvertFrom-Json;$Token=[string]$config.token;if($config.filePort){$Port=[int]$config.filePort}
+-$BackupDir=if($config.backupDir){[string]$config.backupDir}else{$PreferredBackupDir};try{New-Item -ItemType Directory -Force -Path $BackupDir|Out-Null}catch{$BackupDir=$FallbackBackupDir;New-Item -ItemType Directory -Force -Path $BackupDir|Out-Null}
++. (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++. (Join-Path $PSScriptRoot 'ArchiveSafety.ps1')
++$paths=Get-VihanStoragePaths $config
++$DataDir=$paths.Data;$BlobDir=$paths.Blobs;$DbFile=$paths.Database;$BackupDir=$paths.Backup
++if([string]::IsNullOrWhiteSpace($Token)){throw 'Main service token is missing'}
++# Main Service alone initializes a new database. File Service must never create one.
++for($i=0;$i -lt 30 -and !(Test-Path -LiteralPath $DbFile);$i++){Start-Sleep -Milliseconds 500}
++if(!(Test-Path -LiteralPath $DbFile)){throw 'Configured SQLite database is missing; File Service will not create an empty replacement.'}
++New-Item -ItemType Directory -Force -Path $BlobDir,$BackupDir|Out-Null
++$created=$false;$mutex=New-Object System.Threading.Mutex($true,'Global\VihanEnterpricesFileService',[ref]$created);if(!$created){exit 0}
+ Set-Content -Path $PidFile -Value $PID -Encoding ASCII
+-$created=$false;$mutex=New-Object System.Threading.Mutex($true,'Global\VihanEnterpricesFileService',[ref]$created);if(!$created){exit 0}
+ try{$bridge=Join-Path $PSScriptRoot 'VihanSqlite.cs';if(-not ('VihanSqliteDb' -as [type])){Add-Type -Path $bridge};$db=New-Object -TypeName VihanSqliteDb -ArgumentList $DbFile}catch{try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{};Remove-Item $PidFile -Force -ErrorAction SilentlyContinue;exit 4}
+ function Q([object]$s){if($null -eq $s){return 'NULL'};return [VihanSqliteDb]::Quote([string]$s)}
+ $db.Exec("CREATE TABLE IF NOT EXISTS blob_meta(blob_key TEXT PRIMARY KEY,db_name TEXT NOT NULL,store_name TEXT NOT NULL,item_id TEXT NOT NULL,record_json TEXT NOT NULL,blob_file TEXT,blob_type TEXT,updated_at TEXT);CREATE INDEX IF NOT EXISTS idx_blob_store ON blob_meta(db_name,store_name);CREATE INDEX IF NOT EXISTS idx_blob_store_updated ON blob_meta(db_name,store_name,updated_at);")
+-function Set-Cors($ctx){$o=[string]$ctx.Request.Headers['Origin'];if($o){$ctx.Response.Headers['Access-Control-Allow-Origin']=$o;$ctx.Response.Headers['Vary']='Origin';$ctx.Response.Headers['Access-Control-Allow-Credentials']='true'};$ctx.Response.Headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS';$ctx.Response.Headers['Access-Control-Allow-Headers']='Content-Type, Cache-Control, X-Vihan-Admin, X-Vihan-Token, X-Vihan-PC, X-Vihan-Version';$ctx.Response.Headers['Cache-Control']='no-store'}
++function Set-Cors($ctx){$o=[string]$ctx.Request.Headers['Origin'];if($o){$ctx.Response.Headers['Access-Control-Allow-Origin']=$o;$ctx.Response.Headers['Vary']='Origin';$ctx.Response.Headers['Access-Control-Allow-Credentials']='true'};$ctx.Response.Headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS';$ctx.Response.Headers['Access-Control-Allow-Headers']='Content-Type, Cache-Control, X-Vihan-Admin, X-Vihan-Restore-Key, X-Vihan-Token, X-Vihan-PC, X-Vihan-Version';$ctx.Response.Headers['Cache-Control']='no-store'}
+ function Send-Bytes($ctx,[byte[]]$bytes,$type='application/octet-stream',$status=200){Set-Cors $ctx;$ctx.Response.StatusCode=$status;$ctx.Response.ContentType=$type;$ctx.Response.ContentLength64=$bytes.Length;$ctx.Response.OutputStream.Write($bytes,0,$bytes.Length);$ctx.Response.OutputStream.Close()}
+ function Send-Text($ctx,$text,$type='text/plain; charset=utf-8',$status=200){$b=[Text.Encoding]::UTF8.GetBytes([string]$text);Send-Bytes $ctx $b $type $status}
+ function Send-Json($ctx,$obj,$status=200){$json=$obj|ConvertTo-Json -Depth 100 -Compress;Send-Text $ctx $json 'application/json; charset=utf-8' $status}
+@@ -42,11 +51,13 @@
+ function Validate-UpdatePackage([string]$path){
+   $stage=Join-Path $env:TEMP ('VihanUpdateValidate_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
+   try{
+-    Expand-Archive -LiteralPath $path -DestinationPath $stage -Force
++    Expand-VihanArchive $path $stage
+     $mf=Join-Path $stage 'manifest.json';if(!(Test-Path $mf)){throw 'Update manifest missing'}
+     $m=Get-Content $mf -Raw|ConvertFrom-Json
+     if([string]$m.product -ne $Product){throw 'Ye Vihan Enterprices update package nahi hai'}
+     if([string]::IsNullOrWhiteSpace([string]$m.appVersion)){throw 'Update version missing'}
++    $parsedVersion=$null;if(![version]::TryParse([string]$m.appVersion,[ref]$parsedVersion)){throw 'Invalid numeric update version'}
++    $m.appVersion=$parsedVersion.ToString()
+     if(!(Test-Path (Join-Path $stage 'app')) -or !(Test-Path (Join-Path $stage 'runtime'))){throw 'Update app/runtime files missing'}
+     if((Compare-Version ([string]$m.appVersion) $AppVersion) -le 0){throw ('Update version '+[string]$m.appVersion+' current server '+$AppVersion+' se naya nahi hai')}
+     return $m
+@@ -75,12 +86,9 @@
+   return $false
+ }
+ function Make-Backup(){
+-  $stamp=Get-Date -Format 'yyyy-MM-dd_HH-mm-ss';$stage=Join-Path $env:TEMP ('VihanBackup_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
++  $stamp=(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss')+'_'+[guid]::NewGuid().ToString('N');$stage=Join-Path $env:TEMP ('VihanBackup_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
+   try{
+-    # Create a consistent master DB before copying. File compression remains on this dedicated service.
+-    try{$db.Exec('PRAGMA wal_checkpoint(TRUNCATE);')}catch{}
+-    [IO.File]::Copy($DbFile,(Join-Path $stage 'VihanEnterprices.db'),$true)
+-    $wal=$DbFile+'-wal';$shm=$DbFile+'-shm';if(Test-Path $wal){[IO.File]::Copy($wal,(Join-Path $stage 'VihanEnterprices.db-wal'),$true)};if(Test-Path $shm){[IO.File]::Copy($shm,(Join-Path $stage 'VihanEnterprices.db-shm'),$true)}
++    $db.BackupTo((Join-Path $stage 'VihanEnterprices.db'))
+     if(Test-Path $BlobDir){Copy-Item $BlobDir -Destination (Join-Path $stage 'Blobs') -Recurse -Force}
+     [pscustomobject]@{product=$Product;appVersion=$AppVersion;createdAt=(Get-Date).ToString('o');server=$env:COMPUTERNAME;persistence='SQLite';database='VihanEnterprices.db'}|ConvertTo-Json -Depth 20|Set-Content -Encoding UTF8 (Join-Path $stage 'backup_manifest.json')
+     Add-Type -AssemblyName System.IO.Compression.FileSystem;$zip=Join-Path $BackupDir ('Vihan_Enterprices_Backup_'+$stamp+'.zip');[IO.Compression.ZipFile]::CreateFromDirectory($stage,$zip,[IO.Compression.CompressionLevel]::Optimal,$false);Get-ChildItem $BackupDir -Filter '*.zip'|Sort-Object LastWriteTime -Descending|Select-Object -Skip 30|Remove-Item -Force -ErrorAction SilentlyContinue;return $zip
+@@ -92,11 +100,18 @@
+   try{$testListener.Start();$listener=$testListener;$Port=[int]$candidate;$ready=$true;break}catch{try{$testListener.Close()}catch{}}
+ }
+ if(!$ready){try{$db.Dispose()}catch{};exit 3}
+-try{$config.filePort=$Port;$config|ConvertTo-Json -Depth 30|Set-Content -Encoding UTF8 $ConfigFile}catch{}
++try{$config=Update-VihanServerConfig $ConfigFile @{filePort=$Port}}catch{throw 'Could not persist File Service port; startup stopped'}
+ 
++. (Join-Path $PSScriptRoot 'BlobStorage.ps1')
++$dataIoMutex=New-Object Threading.Mutex($false,'Global\VihanEnterpricesDataIO')
++$dataIoHeld=$false
+ while($listener.IsListening){
+   try{
+     $ctx=$listener.GetContext();$req=$ctx.Request;$path=$req.Url.AbsolutePath;$method=$req.HttpMethod.ToUpperInvariant()
++    if(($method -eq 'POST' -and $path.StartsWith('/api/blob/')) -or $path.StartsWith('/api/backup')){
++      try{$dataIoHeld=$dataIoMutex.WaitOne(30000)}catch [Threading.AbandonedMutexException]{$dataIoHeld=$true}
++      if(!$dataIoHeld){throw 'Attachment/backup operation is busy; retry after the current operation finishes'}
++    }
+     if($method -eq 'OPTIONS'){Set-Cors $ctx;$ctx.Response.StatusCode=204;$ctx.Response.Close();continue}
+     if($path -eq '/health'){Send-Json $ctx ([pscustomobject]@{ok=$true;product=$Product;version=$AppVersion;service='files';port=$Port});continue}
+     if(!(Authorized $ctx)){Send-Json $ctx ([pscustomobject]@{error='Service authorization required'}) 401;continue}
+@@ -104,7 +119,7 @@
+     if($path -eq '/api/update/heartbeat' -and $method -eq 'POST'){$b=Read-Body $ctx;Register-UpdateClient $b;Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
+     if($path -eq '/api/update/package' -and $method -eq 'GET'){$up=Read-UpdateState;$fp=[string]$up.packagePath;if([string]::IsNullOrWhiteSpace($fp) -or !(Test-Path $fp)){Send-Json $ctx ([pscustomobject]@{error='Update package not found'}) 404;continue};Send-FileStream $ctx $fp 'application/octet-stream';continue}
+     if($path -eq '/api/update/publish' -and $method -eq 'POST'){
+-      if([string]$req.Headers['X-Vihan-Admin'] -ne '1'){Send-Json $ctx ([pscustomobject]@{error='Admin authorization required'}) 403;continue}
++      if(!(Test-VihanAdminKey ([string]$req.Headers['X-Vihan-Restore-Key']) (Join-Path $Base 'restore-admin.key'))){Send-Json $ctx ([pscustomobject]@{error='Admin authorization required'}) 403;continue}
+       $tmp=Join-Path $UpdatePkgDir ('incoming_'+[guid]::NewGuid().ToString('N')+'.zip')
+       try{
+         Save-StreamToFile $req.InputStream $tmp
+@@ -131,12 +146,20 @@
+       $bf=[string]$rows[0]['blob_file'];if([string]::IsNullOrWhiteSpace($bf)){Send-Json $ctx ([pscustomobject]@{error='No file'}) 404;continue}
+       Send-FileStream $ctx (Join-Path $BlobDir $bf) ([string]$rows[0]['blob_type']);continue
+     }
+-    if($path -eq '/api/blob/put-binary' -and $method -eq 'POST'){$stream=$req.InputStream;$head=Read-ExactBytes $stream 4;$metaLen=[BitConverter]::ToInt32($head,0);if($metaLen -le 0 -or $metaLen -gt 4194304){throw 'Binary metadata invalid.'};$mb=Read-ExactBytes $stream $metaLen;$b=([Text.Encoding]::UTF8.GetString($mb))|ConvertFrom-Json;$dbn=[string]$b.db;$store=[string]$b.store;$id=[string]$b.id;if([string]::IsNullOrWhiteSpace($dbn) -or [string]::IsNullOrWhiteSpace($store) -or [string]::IsNullOrWhiteSpace($id)){throw 'Blob identity missing.'};$k=Blob-Key $dbn $store $id;$blobFile=(Hash-Key $k)+'.bin';$final=Join-Path $BlobDir $blobFile;$tmp=$final+'.tmp.'+$PID+'.'+[guid]::NewGuid().ToString('N');try{Save-StreamToFile $stream $tmp;if(Test-Path $final){[IO.File]::Replace($tmp,$final,$null)}else{Move-Item -LiteralPath $tmp -Destination $final -Force}}catch{Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue;throw};$blobType=[string]$b.blobType;$recJson=($b.record|ConvertTo-Json -Depth 100 -Compress);$db.Exec('INSERT OR REPLACE INTO blob_meta(blob_key,db_name,store_name,item_id,record_json,blob_file,blob_type,updated_at) VALUES('+(Q $k)+','+(Q $dbn)+','+(Q $store)+','+(Q $id)+','+(Q $recJson)+','+(Q $blobFile)+','+(Q $blobType)+','+(Q ((Get-Date).ToString('o')))+');');Send-Json $ctx ([pscustomobject]@{ok=$true;mode='raw-binary';service='files'});continue}
++    if($path -eq '/api/blob/put-binary' -and $method -eq 'POST'){
++      $head=Read-ExactBytes $req.InputStream 4;$metaLength=[BitConverter]::ToInt32($head,0)
++      if($metaLength -le 0 -or $metaLength -gt 4194304){throw 'Invalid attachment metadata length'}
++      $metadata=Read-ExactBytes $req.InputStream $metaLength
++      $record=([Text.Encoding]::UTF8.GetString($metadata))|ConvertFrom-Json
++      $expected=if($req.ContentLength64 -ge 0){$req.ContentLength64-4-$metaLength}else{-1}
++      Save-VihanBlob $record $req.InputStream $expected
++      Send-Json $ctx ([pscustomobject]@{ok=$true;mode='raw-binary'});continue
++    }
+     if($path -eq '/api/blob/get'){$dbn=[string]$req.QueryString['db'];$store=[string]$req.QueryString['store'];$id=[string]$req.QueryString['id'];$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT record_json,blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -eq 0){Send-Json $ctx ([pscustomobject]@{error='Not found'}) 404;continue};$x=$rows[0];$b64='';$bf=[string]$x['blob_file'];if($bf){$fp=Join-Path $BlobDir $bf;if(Test-Path $fp){$b64=[Convert]::ToBase64String([IO.File]::ReadAllBytes($fp))}};$rec=$null;try{$rec=[string]$x['record_json']|ConvertFrom-Json}catch{};Send-Json $ctx ([pscustomobject]@{record=$rec;blobBase64=$b64;blobType=[string]$x['blob_type']});continue}
+-    if($path -eq '/api/blob/put' -and $method -eq 'POST'){$b=Read-Body $ctx;$dbn=[string]$b.db;$store=[string]$b.store;$id=[string]$b.id;$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');$blobFile=if($rows.Count){[string]$rows[0]['blob_file']}else{''};$blobType=if($rows.Count){[string]$rows[0]['blob_type']}else{''};if($b.blobBase64){$blobFile=(Hash-Key $k)+'.bin';[IO.File]::WriteAllBytes((Join-Path $BlobDir $blobFile),[Convert]::FromBase64String([string]$b.blobBase64));$blobType=[string]$b.blobType};$recJson=($b.record|ConvertTo-Json -Depth 100 -Compress);$db.Exec('INSERT OR REPLACE INTO blob_meta(blob_key,db_name,store_name,item_id,record_json,blob_file,blob_type,updated_at) VALUES('+(Q $k)+','+(Q $dbn)+','+(Q $store)+','+(Q $id)+','+(Q $recJson)+','+(Q $blobFile)+','+(Q $blobType)+','+(Q ((Get-Date).ToString('o')))+');');Send-Json $ctx ([pscustomobject]@{ok=$true;service='files'});continue}
+-    if($path -eq '/api/blob/delete' -and $method -eq 'POST'){$b=Read-Body $ctx;$k=Blob-Key ([string]$b.db) ([string]$b.store) ([string]$b.id);$rows=$db.Query('SELECT blob_file FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -and $rows[0]['blob_file']){Remove-Item (Join-Path $BlobDir ([string]$rows[0]['blob_file'])) -Force -ErrorAction SilentlyContinue};$db.Exec('DELETE FROM blob_meta WHERE blob_key='+(Q $k)+';');Send-Json $ctx ([pscustomobject]@{ok=$true;service='files'});continue}
++    if($path -eq '/api/blob/put' -and $method -eq 'POST'){$b=Read-Body $ctx;Save-VihanBlob $b;Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
++    if($path -eq '/api/blob/delete' -and $method -eq 'POST'){$b=Read-Body $ctx;Remove-VihanBlob $b;Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
+     if($path -eq '/api/backup' -and $method -eq 'POST'){$zip=Make-Backup;Send-Json $ctx ([pscustomobject]@{ok=$true;file=[IO.Path]::GetFileName($zip);path=$zip;backupPath=$BackupDir;service='files'});continue}
+     Send-Json $ctx ([pscustomobject]@{error='Not Found'}) 404
+-  }catch{try{Send-Json $ctx ([pscustomobject]@{error=$_.Exception.Message}) 500}catch{}}
++  }catch{try{Send-Json $ctx ([pscustomobject]@{error=$_.Exception.Message}) 500}catch{}}finally{if($dataIoHeld){$dataIoMutex.ReleaseMutex();$dataIoHeld=$false}}
+ }
+-try{$db.Dispose()}catch{};try{$listener.Stop();$listener.Close()}catch{};try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{};Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
++try{$dataIoMutex.Dispose()}catch{};try{$db.Dispose()}catch{};try{$listener.Stop();$listener.Close()}catch{};try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{};Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
+--- a/runtime/FirstSetup.ps1
++++ b/runtime/FirstSetup.ps1
+@@ -1,7 +1,7 @@
+ param([switch]$MakeMain,[switch]$ClientOnly)
+ $ErrorActionPreference='Stop'
+ Add-Type -AssemblyName System.Windows.Forms
+-$Product='Vihan Enterprices';$Version='1.0.36';$Port=17867;$FilePort=17868
++$Product='Vihan Enterprices';$Version='1.0.37';$Port=17867;$FilePort=17868
+ $ClientDir=Join-Path $env:APPDATA $Product
+ New-Item -ItemType Directory -Force -Path $ClientDir|Out-Null
+ $Conn=Join-Path $ClientDir 'connection.json'
+@@ -29,7 +29,7 @@
+ function Test-Service($c){
+   $urls=@();if($c.serverIpUrl){$urls+=[string]$c.serverIpUrl};if($c.serverUrl -and $c.serverUrl -ne $c.serverIpUrl){$urls+=[string]$c.serverUrl}
+   foreach($u in $urls){
+-    try{$r=Invoke-WebRequest -UseBasicParsing -Uri ($u.TrimEnd('/')+'/health') -TimeoutSec 4;if($r.StatusCode -eq 200){return $u.TrimEnd('/')}}catch{}
++    try{$r=Invoke-WebRequest -UseBasicParsing -Uri ($u.TrimEnd('/')+'/health') -TimeoutSec 4;if($r.StatusCode -eq 200){$health=$r.Content|ConvertFrom-Json;if($health.product -eq $Product -and !$health.offline -and $health.service -ne 'files'){return $u.TrimEnd('/')}}}catch{}
+   }
+   return $null
+ }
+@@ -72,13 +72,25 @@
+   $backupDir=$preferredBackup
+   $serverJson=Join-Path $Base 'server.json'
+   if(Test-Path $serverJson){
+-    try{$old=Get-Content $serverJson -Raw|ConvertFrom-Json}catch{$old=$null}
++    try{$old=Get-Content $serverJson -Raw|ConvertFrom-Json}catch{throw 'Existing server.json is invalid. Repair configuration from a verified backup; refusing to replace connection identity.'}
+   }
+   if($old -and $old.token){$token=[string]$old.token}else{
+     $rng=New-Object Security.Cryptography.RNGCryptoServiceProvider;$bytes=New-Object byte[] 32;$rng.GetBytes($bytes);$rng.Dispose();$token=[Convert]::ToBase64String($bytes).TrimEnd('=').Replace('+','-').Replace('/','_')
+   }
++  if($old){
++    . (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++    $paths=Get-VihanStoragePaths $old;$dataDir=$paths.Data;$backupDir=$paths.Backup
++  }
++  $initialize=if($old){$old.initializeDatabase -eq $true}else{$true}
++  if($initialize){
++    foreach($folder in @($dataDir,(Join-Path $Base 'Data'))){
++      foreach($name in @('VihanEnterprices.db','storage.json','storage.wal','blobmeta.json')){
++        if(Test-Path (Join-Path $folder $name)){throw 'Existing data found without configuration. Recover server.json first; no automatic migration or database initialization.'}
++      }
++    }
++  }
+   $ip=Pick-IPv4;$hostName=$env:COMPUTERNAME;$serverUrl="http://${hostName}:$Port";$serverIpUrl="http://${ip}:$Port"
+-  $cfg=[pscustomobject]@{product=$Product;appVersion=$Version;serverName=$hostName;serverIp=$ip;port=$Port;filePort=$FilePort;token=$token;dataDir=$dataDir;backupDir=$backupDir;createdAt=(Get-Date).ToString('o')}
++  $cfg=[pscustomobject]@{product=$Product;appVersion=$Version;serverName=$hostName;serverIp=$ip;port=$Port;filePort=$FilePort;token=$token;dataDir=$dataDir;backupDir=$backupDir;initializeDatabase=$initialize;createdAt=(Get-Date).ToString('o')}
+   $cfg|ConvertTo-Json|Set-Content -Encoding UTF8 $serverJson
+   $client=[pscustomobject]@{product=$Product;appVersion=$Version;serverUrl=$serverUrl;serverIpUrl=$serverIpUrl;serverName=$hostName;serverIp=$ip;port=$Port;filePort=$FilePort;token=$token;dataDir=$dataDir;backupDir=$backupDir;createdAt=(Get-Date).ToString('o')}
+   Save-Client $client
+@@ -99,6 +111,7 @@
+   $repair=Join-Path $PSScriptRoot 'RepairMainService.ps1'
+   if(Test-Path $repair){
+     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $repair -NoPrompt
++    if($LASTEXITCODE -ne 0){throw ('Main/File service repair failed with exit code '+$LASTEXITCODE)}
+   }else{
+     Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+(Join-Path $PSScriptRoot 'MainService.ps1')+'"'))
+   }
+--- a/runtime/MainService.ps1
++++ b/runtime/MainService.ps1
+@@ -1,6 +1,7 @@
+ param([int]$Port=17867)
+ $ErrorActionPreference='Stop'
+-$Product='Vihan Enterprices'; $AppVersion='1.0.36'
++trap {try{$errorRoot=Join-Path $env:ProgramData 'Vihan Enterprices';New-Item -ItemType Directory -Force -Path $errorRoot|Out-Null;Set-Content -LiteralPath (Join-Path $errorRoot 'service_error.txt') -Value $_.Exception.ToString() -Encoding UTF8}catch{};exit 4}
++$Product='Vihan Enterprices'; $AppVersion='1.0.37'
+ $InstallRoot=Split-Path $PSScriptRoot -Parent
+ $AppRoot=Join-Path $InstallRoot 'app'
+ $Base=Join-Path $env:ProgramData 'Vihan Enterprices'
+@@ -14,10 +15,11 @@
+   Set-Content (Join-Path $Base 'service_error.txt') 'Main PC D: drive available nahi hai. Vihan Enterprices central data D:\Vihan Enterprices\Data me rakha gaya hai.' -Encoding UTF8
+   exit 5
+ }
+-New-Item -ItemType Directory -Force -Path $Base,$DataDir,$BlobDir,$PreferredBackupDir,$FallbackBackupDir,$UpdateDir | Out-Null
++New-Item -ItemType Directory -Force -Path $Base,$UpdateDir | Out-Null
+ if(!(Test-Path $ConfigFile)){exit 2}
+ $config=Get-Content $ConfigFile -Raw | ConvertFrom-Json
+ $Token=[string]$config.token
++if($config.port){$Port=[int]$config.port}
+ $AdminSecretFile=Join-Path $Base 'restore-admin.key'
+ if(!(Test-Path $AdminSecretFile)){
+   $rng=[Security.Cryptography.RandomNumberGenerator]::Create();$bytes=New-Object byte[] 32
+@@ -29,44 +31,29 @@
+ $RestoreAdminSecret=[IO.File]::ReadAllText($AdminSecretFile).Trim()
+ 
+ 
+-function Migrate-OldDataToD(){
+-  try{
+-    $destDb=Join-Path $DataDir 'VihanEnterprices.db'
+-    $destLegacy=Join-Path $DataDir 'storage.json'
+-    if((Test-Path $destDb) -or (Test-Path $destLegacy)){return}
+-    if(!(Test-Path $OldDataDir)){return}
+-    $hasOld=(Test-Path (Join-Path $OldDataDir 'VihanEnterprices.db')) -or (Test-Path (Join-Path $OldDataDir 'storage.json')) -or (Test-Path (Join-Path $OldDataDir 'storage.wal'))
+-    if(!$hasOld){return}
+-    Copy-Item (Join-Path $OldDataDir '*') -Destination $DataDir -Recurse -Force -ErrorAction Stop
+-    $note=@"
+-Vihan Enterprices v1.0.24
+-Live central data ab D:\Vihan Enterprices\Data me hai.
+-Ye C-drive folder sirf pre-migration safety copy hai; service is folder me ab live data write nahi karti.
+-Migrated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+-"@
+-    Set-Content (Join-Path $OldDataDir 'DATA_MOVED_TO_D.txt') $note -Encoding UTF8 -ErrorAction SilentlyContinue
+-    Set-Content (Join-Path $Base 'data_migration_v1013.log') ("Old data copied safely to D drive at "+(Get-Date).ToString('o')) -Encoding UTF8
+-  }catch{
+-    Set-Content (Join-Path $Base 'service_error.txt') ("D-drive data migration failed:`r`n"+$_.Exception.ToString()) -Encoding UTF8
+-    throw
+-  }
+-}
+-Migrate-OldDataToD
++. (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++$paths=Get-VihanStoragePaths $config
++$DataDir=$paths.Data;$BlobDir=$paths.Blobs;$DbFile=$paths.Database;$PreferredBackupDir=$paths.Backup
++$LegacyStateFile=Join-Path $DataDir 'storage.json';$LegacyWalFile=Join-Path $DataDir 'storage.wal';$LegacyBlobMetaFile=Join-Path $DataDir 'blobmeta.json'
++$allowCreate=Assert-VihanDatabaseStart $config $DbFile $OldDataDir
++New-Item -ItemType Directory -Force -Path $DataDir,$BlobDir|Out-Null
+ function Resolve-BackupDir(){
+-  $candidate=[string]$config.backupDir
+-  if([string]::IsNullOrWhiteSpace($candidate)){$candidate=$PreferredBackupDir}
+-  try{$drive=[IO.Path]::GetPathRoot($candidate);if([string]::IsNullOrWhiteSpace($drive) -or !(Test-Path $drive)){throw "Backup drive available nahi hai: $drive"};New-Item -ItemType Directory -Force -Path $candidate|Out-Null;return $candidate}
+-  catch{New-Item -ItemType Directory -Force -Path $FallbackBackupDir|Out-Null;return $FallbackBackupDir}
++  $candidate=$paths.Backup
++  if(!(Test-Path ([IO.Path]::GetPathRoot($candidate)))){throw "Configured backup drive is unavailable: $candidate"}
++  New-Item -ItemType Directory -Force -Path $candidate|Out-Null
++  return $candidate
+ }
+ $BackupDir=Resolve-BackupDir
++$created=$false; $mutex=New-Object System.Threading.Mutex($true,'Global\VihanEnterpricesMainService',[ref]$created); if(!$created){exit 0}
+ Set-Content -Path $PidFile -Value $PID -Encoding ASCII
+-$created=$false; $mutex=New-Object System.Threading.Mutex($true,'Global\VihanEnterpricesMainService',[ref]$created); if(!$created){exit 0}
+ 
+ try{
+   $bridge=Join-Path $PSScriptRoot 'VihanSqlite.cs'
+   if(!(Test-Path $bridge)){throw "SQLite bridge missing: $bridge"}
+   if(-not ('VihanSqliteDb' -as [type])){Add-Type -Path $bridge}
+-  $db=New-Object -TypeName VihanSqliteDb -ArgumentList $DbFile
++  $db=New-Object -TypeName VihanSqliteDb -ArgumentList $DbFile,$allowCreate
++  if($db.ScalarText("PRAGMA quick_check",'') -ne 'ok'){throw 'SQLite integrity check failed; service startup stopped'}
++$config=Update-VihanServerConfig $ConfigFile @{initializeDatabase=$false}
+ }catch{
+   Set-Content (Join-Path $Base 'service_error.txt') ("SQLite start error:`r`n"+$_.Exception.ToString()) -Encoding UTF8
+   try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{}
+@@ -80,6 +67,7 @@
+ function Row-Record($r){if(!$r){return $null};return [pscustomobject]@{value=[string]$r['value'];deleted=([int]$r['deleted'] -ne 0);keyRev=[int64]$r['key_rev'];updatedAt=[string]$r['updated_at'];clientId=[string]$r['client_id']}}
+ function Get-CurrentRecord([string]$key){$rows=$db.Query("SELECT value,deleted,key_rev,updated_at,client_id,revision FROM kv WHERE key="+(Q $key)+" LIMIT 1");if($rows.Count -eq 0){return $null};return (Row-Record $rows[0])}
+ 
++if($db.ScalarLong("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='meta'",0) -gt 0 -and $db.ScalarLong("SELECT CAST(v AS INTEGER) FROM meta WHERE k='schema_version'",0) -gt 2){throw 'Unsupported newer database schema; no downgrade or reset performed'}
+ $db.Exec(@"
+ CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT NOT NULL);
+ INSERT OR IGNORE INTO meta(k,v) VALUES('revision','0');
+@@ -227,7 +215,7 @@
+   try{$buf=New-Object byte[] 1048576;while(($n=$fs.Read($buf,0,$buf.Length)) -gt 0){$ctx.Response.OutputStream.Write($buf,0,$n)}}finally{$fs.Dispose();$ctx.Response.OutputStream.Close()}
+ }
+ function Authorized($ctx){$c=$ctx.Request.Cookies['VE_AUTH'];$h=[string]$ctx.Request.Headers['X-Vihan-Token'];return (($c -and $c.Value -eq $Token) -or ($h -eq $Token))}
+-function Safe-Static($ctx,$rel){$rel=$rel.Replace('/','\').TrimStart('\');$full=[IO.Path]::GetFullPath((Join-Path $AppRoot $rel));$root=[IO.Path]::GetFullPath($AppRoot);if(!$full.StartsWith($root,[StringComparison]::OrdinalIgnoreCase) -or !(Test-Path $full)){Send-Text $ctx 'Not Found' 'text/plain' 404;return};$ext=[IO.Path]::GetExtension($full).ToLowerInvariant();$types=@{'.html'='text/html; charset=utf-8';'.js'='application/javascript; charset=utf-8';'.css'='text/css; charset=utf-8';'.json'='application/json; charset=utf-8';'.png'='image/png';'.jpg'='image/jpeg';'.jpeg'='image/jpeg';'.svg'='image/svg+xml';'.ico'='image/x-icon'};$type=$types[$ext];if(!$type){$type='application/octet-stream'};Send-Bytes $ctx ([IO.File]::ReadAllBytes($full)) $type 200}
++function Safe-Static($ctx,$rel){$rel=$rel.Replace('/','\').TrimStart('\');$full=[IO.Path]::GetFullPath((Join-Path $AppRoot $rel));$root=[IO.Path]::GetFullPath($AppRoot).TrimEnd('\')+'\';if(!$full.StartsWith($root,[StringComparison]::OrdinalIgnoreCase) -or !(Test-Path $full)){Send-Text $ctx 'Not Found' 'text/plain' 404;return};$ext=[IO.Path]::GetExtension($full).ToLowerInvariant();$types=@{'.html'='text/html; charset=utf-8';'.js'='application/javascript; charset=utf-8';'.css'='text/css; charset=utf-8';'.json'='application/json; charset=utf-8';'.png'='image/png';'.jpg'='image/jpeg';'.jpeg'='image/jpeg';'.svg'='image/svg+xml';'.ico'='image/x-icon'};$type=$types[$ext];if(!$type){$type='application/octet-stream'};Send-Bytes $ctx ([IO.File]::ReadAllBytes($full)) $type 200}
+ 
+ function Read-UpdateState(){
+   if(!(Test-Path $UpdateStateFile)){return [pscustomobject]@{available=$false;version=$AppVersion}}
+@@ -274,15 +262,15 @@
+ }
+ 
+ function Plan-Ops($ops,$clientId){
+-  $results=@();$planned=@();$nextRevision=Get-Revision
++  $results=@();$planned=@();$pendingRecords=@{};$nextRevision=Get-Revision
+   foreach($op in @($ops)){
+     if($null -eq $op){continue};$key=[string]$op.key;if([string]::IsNullOrWhiteSpace($key)){continue}
+-    $cur=Get-CurrentRecord $key;$curRev=if($cur){[int64]$cur.keyRev}else{0};$expected=[int64]$op.expectedRev;$seq=[int64]$op.seq
++    $cur=if($pendingRecords.ContainsKey($key)){$pendingRecords[$key]}else{Get-CurrentRecord $key};$curRev=if($cur){[int64]$cur.keyRev}else{0};$expected=[int64]$op.expectedRev;$seq=[int64]$op.seq
+     if($expected -ne $curRev){$results+=,[pscustomobject]@{key=$key;seq=$seq;ok=$false;conflict=$true;current=$cur;revision=(Get-Revision)};continue}
+     $nextRevision++
+     $isRemove=([string]$op.op -eq 'remove');$newKeyRev=$curRev+1;$newValue=if($isRemove){''}else{[string]$op.value}
+     $ch=[pscustomobject]@{revision=$nextRevision;key=$key;value=$newValue;deleted=$isRemove;keyRev=$newKeyRev;updatedAt=(Get-Date).ToString('o');clientId=[string]$clientId}
+-    $planned+=,$ch;$results+=,[pscustomobject]@{key=$key;seq=$seq;ok=$true;conflict=$false;keyRev=$newKeyRev;revision=$nextRevision}
++    $pendingRecords[$key]=$ch;$planned+=,$ch;$results+=,[pscustomobject]@{key=$key;seq=$seq;ok=$true;conflict=$false;keyRev=$newKeyRev;revision=$nextRevision}
+   }
+   return [pscustomobject]@{planned=$planned;results=$results;revision=$nextRevision}
+ }
+@@ -317,10 +305,9 @@
+   return [pscustomobject]@{full=$false;revision=$rev;changes=$arr}
+ }
+ function Make-Backup(){
+-  $stamp=Get-Date -Format 'yyyy-MM-dd_HH-mm-ss';$stage=Join-Path $env:TEMP ('VihanBackup_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
+-  try{
+-    $db.Exec('PRAGMA wal_checkpoint(TRUNCATE);')
+-    [IO.File]::Copy($DbFile,(Join-Path $stage 'VihanEnterprices.db'),$true)
++  $stamp=(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss')+'_'+[guid]::NewGuid().ToString('N');$stage=Join-Path $env:TEMP ('VihanBackup_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null
++  try{
++    $db.BackupTo((Join-Path $stage 'VihanEnterprices.db'))
+     if(Test-Path $BlobDir){Copy-Item $BlobDir -Destination (Join-Path $stage 'Blobs') -Recurse -Force}
+     $manifest=[pscustomobject]@{product=$Product;appVersion=$AppVersion;createdAt=(Get-Date).ToString('o');server=$env:COMPUTERNAME;persistence='SQLite';database='VihanEnterprices.db'}
+     $manifest|ConvertTo-Json -Depth 20|Set-Content -Encoding UTF8 (Join-Path $stage 'backup_manifest.json')
+@@ -339,23 +326,28 @@
+ }
+ if(!$bound){Set-Content (Join-Path $Base 'service_error.txt') ($bindErrors -join [Environment]::NewLine);try{$db.Dispose()}catch{};exit 3}
+ try{
+-  $config.port=$Port
+-  if(!$config.filePort){$config.filePort=$Port+1}
+-  $config|ConvertTo-Json -Depth 30|Set-Content -Encoding UTF8 $ConfigFile
++  $config=Update-VihanServerConfig $ConfigFile @{port=$Port}
+   $localConn=Join-Path $env:APPDATA 'Vihan Enterprices\connection.json'
+   if(Test-Path $localConn){$cc=Get-Content $localConn -Raw|ConvertFrom-Json;$cc.port=$Port;$cc.filePort=$Port+1;$cc.serverUrl="http://$($config.serverName):$Port";$cc.serverIpUrl="http://$($config.serverIp):$Port";$cc|ConvertTo-Json -Depth 30|Set-Content -Encoding UTF8 $localConn}
+ }catch{Set-Content (Join-Path $Base 'service_port_update_warning.txt') $_.Exception.ToString()}
+ 
++. (Join-Path $PSScriptRoot 'BlobStorage.ps1')
++$dataIoMutex=New-Object Threading.Mutex($false,'Global\VihanEnterpricesDataIO')
++$dataIoHeld=$false
+ $stop=$false
+ while($listener.IsListening -and !$stop){
+   try{
+     $ctx=$listener.GetContext();$req=$ctx.Request;$path=$req.Url.AbsolutePath;$method=$req.HttpMethod.ToUpperInvariant()
++    if(($method -eq 'POST' -and $path.StartsWith('/api/blob/')) -or $path.StartsWith('/api/backup')){
++      try{$dataIoHeld=$dataIoMutex.WaitOne(30000)}catch [Threading.AbandonedMutexException]{$dataIoHeld=$true}
++      if(!$dataIoHeld){throw 'Attachment/backup operation is busy; retry after the current operation finishes'}
++    }
+     if($path -eq '/health'){Send-Json $ctx ([pscustomobject]@{ok=$true;product=$Product;version=$AppVersion;serverName=$env:COMPUTERNAME;port=$Port;persistence='SQLite'});continue}
+     if($path -eq '/connect'){$q=$req.QueryString['token'];if($q -ne $Token){Send-Text $ctx 'Invalid service file.' 'text/plain; charset=utf-8' 403;continue};$cookie=New-Object Net.Cookie('VE_AUTH',$Token,'/');$cookie.HttpOnly=$true;$ctx.Response.Cookies.Add($cookie);$ctx.Response.StatusCode=302;$ctx.Response.RedirectLocation='/';$ctx.Response.Close();continue}
+     if(!(Authorized $ctx)){Send-Text $ctx 'Service authorization required. Open app using Vihan Enterprices shortcut.' 'text/plain; charset=utf-8' 401;continue}
+     if($path -eq '/' -or $path -eq '/index.html'){Safe-Static $ctx 'bootstrap.html';continue}
+     if($path.StartsWith('/app/')){Safe-Static $ctx $path.Substring(5);continue}
+-    if($path -eq '/api/status'){$up=Read-UpdateState;Send-Json $ctx ([pscustomobject]@{ok=$true;product=$Product;version=$AppVersion;serverName=$env:COMPUTERNAME;serverIp=[string]$config.serverIp;revision=(Get-Revision);dataPath=$DataDir;databasePath=$DbFile;backupPath=$BackupDir;preferredBackupPath=$PreferredBackupDir;persistence='SQLite WAL + synchronous FULL';fileServicePort=([int]$config.filePort);antiFreeze='Dedicated File Service';centralUpdate=$true;latestUpdateVersion=[string]$up.version;updatePath=$UpdateDir});continue}
++    if($path -eq '/api/status'){$up=Read-UpdateState;Send-Json $ctx ([pscustomobject]@{ok=$true;product=$Product;version=$AppVersion;serverName=$env:COMPUTERNAME;serverIp=[string]$config.serverIp;revision=(Get-Revision);dataPath=$DataDir;databasePath=$DbFile;backupPath=$BackupDir;preferredBackupPath=$PreferredBackupDir;persistence='SQLite WAL + synchronous FULL';fileServicePort=([int](Get-Content $ConfigFile -Raw|ConvertFrom-Json).filePort);antiFreeze='Dedicated File Service';centralUpdate=$true;latestUpdateVersion=[string]$up.version;updatePath=$UpdateDir});continue}
+     if($path -eq '/api/update/status'){$up=Read-UpdateState;$clients=Read-UpdateClients;Send-Json $ctx ([pscustomobject]@{ok=$true;currentServerVersion=$AppVersion;latest=$up;clients=$clients;updatePath=$UpdateDir});continue}
+     if($path -eq '/api/snapshot'){Send-Json $ctx (Get-Snapshot);continue}
+     if($path -eq '/api/storage/changes'){$since=[int64]0;[void][int64]::TryParse([string]$req.QueryString['since'],[ref]$since);Send-Json $ctx (Get-ChangesSince $since);continue}
+@@ -366,14 +358,17 @@
+     if($path -eq '/api/blob/meta'){$dbn=[string]$req.QueryString['db'];$store=[string]$req.QueryString['store'];$id=[string]$req.QueryString['id'];$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT record_json,blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -eq 0){Send-Json $ctx ([pscustomobject]@{error='Not found'}) 404;continue};$x=$rows[0];$rec=$null;try{$rec=[string]$x['record_json']|ConvertFrom-Json}catch{};$bf=[string]$x['blob_file'];$has=$false;if($bf){$has=Test-Path (Join-Path $BlobDir $bf)};Send-Json $ctx ([pscustomobject]@{record=$rec;hasBlob=$has;blobType=[string]$x['blob_type']});continue}
+     if($path -eq '/api/blob/file'){$dbn=[string]$req.QueryString['db'];$store=[string]$req.QueryString['store'];$id=[string]$req.QueryString['id'];$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -eq 0){Send-Json $ctx ([pscustomobject]@{error='Not found'}) 404;continue};$bf=[string]$rows[0]['blob_file'];if([string]::IsNullOrWhiteSpace($bf)){Send-Json $ctx ([pscustomobject]@{error='No file'}) 404;continue};Send-FileStream $ctx (Join-Path $BlobDir $bf) ([string]$rows[0]['blob_type']);continue}
+     if($path -eq '/api/blob/put-binary' -and $method -eq 'POST'){
+-      $stream=$req.InputStream;$head=Read-ExactBytes $stream 4;$metaLen=[BitConverter]::ToInt32($head,0);if($metaLen -le 0 -or $metaLen -gt 4194304){throw 'Binary metadata invalid.'};$mb=Read-ExactBytes $stream $metaLen;$mtext=[Text.Encoding]::UTF8.GetString($mb);$b=$mtext|ConvertFrom-Json
+-      $dbn=[string]$b.db;$store=[string]$b.store;$id=[string]$b.id;if([string]::IsNullOrWhiteSpace($dbn) -or [string]::IsNullOrWhiteSpace($store) -or [string]::IsNullOrWhiteSpace($id)){throw 'Blob identity missing.'};$k=Blob-Key $dbn $store $id;$blobFile=(Hash-Key $k)+'.bin';$final=Join-Path $BlobDir $blobFile;$tmp=$final+'.tmp.'+$PID+'.'+[guid]::NewGuid().ToString('N')
+-      try{Save-StreamToFile $stream $tmp;if(Test-Path $final){[IO.File]::Replace($tmp,$final,$null)}else{Move-Item -LiteralPath $tmp -Destination $final -Force}}catch{Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue;throw}
+-      $blobType=[string]$b.blobType;$recJson=($b.record|ConvertTo-Json -Depth 100 -Compress);$sql='INSERT OR REPLACE INTO blob_meta(blob_key,db_name,store_name,item_id,record_json,blob_file,blob_type,updated_at) VALUES('+(Q $k)+','+(Q $dbn)+','+(Q $store)+','+(Q $id)+','+(Q $recJson)+','+(Q $blobFile)+','+(Q $blobType)+','+(Q ((Get-Date).ToString('o')))+');';$db.Exec($sql);Send-Json $ctx ([pscustomobject]@{ok=$true;mode='raw-binary'});continue
++      $head=Read-ExactBytes $req.InputStream 4;$metaLength=[BitConverter]::ToInt32($head,0)
++      if($metaLength -le 0 -or $metaLength -gt 4194304){throw 'Invalid attachment metadata length'}
++      $metadata=Read-ExactBytes $req.InputStream $metaLength
++      $record=([Text.Encoding]::UTF8.GetString($metadata))|ConvertFrom-Json
++      $expected=if($req.ContentLength64 -ge 0){$req.ContentLength64-4-$metaLength}else{-1}
++      Save-VihanBlob $record $req.InputStream $expected
++      Send-Json $ctx ([pscustomobject]@{ok=$true;mode='raw-binary'});continue
+     }
+     if($path -eq '/api/blob/get'){$dbn=[string]$req.QueryString['db'];$store=[string]$req.QueryString['store'];$id=[string]$req.QueryString['id'];$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT record_json,blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -eq 0){Send-Json $ctx ([pscustomobject]@{error='Not found'}) 404;continue};$x=$rows[0];$b64='';$bf=[string]$x['blob_file'];if($bf){$fp=Join-Path $BlobDir $bf;if(Test-Path $fp){$b64=[Convert]::ToBase64String([IO.File]::ReadAllBytes($fp))}};$rec=$null;try{$rec=[string]$x['record_json']|ConvertFrom-Json}catch{};Send-Json $ctx ([pscustomobject]@{record=$rec;blobBase64=$b64;blobType=[string]$x['blob_type']});continue}
+-    if($path -eq '/api/blob/put' -and $method -eq 'POST'){$b=Read-Body $ctx;$dbn=[string]$b.db;$store=[string]$b.store;$id=[string]$b.id;$k=Blob-Key $dbn $store $id;$rows=$db.Query('SELECT blob_file,blob_type FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');$blobFile=if($rows.Count){[string]$rows[0]['blob_file']}else{''};$blobType=if($rows.Count){[string]$rows[0]['blob_type']}else{''};if($b.blobBase64){$blobFile=(Hash-Key $k)+'.bin';[IO.File]::WriteAllBytes((Join-Path $BlobDir $blobFile),[Convert]::FromBase64String([string]$b.blobBase64));$blobType=[string]$b.blobType};$recJson=($b.record|ConvertTo-Json -Depth 100 -Compress);$sql='INSERT OR REPLACE INTO blob_meta(blob_key,db_name,store_name,item_id,record_json,blob_file,blob_type,updated_at) VALUES('+(Q $k)+','+(Q $dbn)+','+(Q $store)+','+(Q $id)+','+(Q $recJson)+','+(Q $blobFile)+','+(Q $blobType)+','+(Q ((Get-Date).ToString('o')))+');';$db.Exec($sql);Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
+-    if($path -eq '/api/blob/delete' -and $method -eq 'POST'){$b=Read-Body $ctx;$k=Blob-Key ([string]$b.db) ([string]$b.store) ([string]$b.id);$rows=$db.Query('SELECT blob_file FROM blob_meta WHERE blob_key='+(Q $k)+' LIMIT 1');if($rows.Count -and $rows[0]['blob_file']){Remove-Item (Join-Path $BlobDir ([string]$rows[0]['blob_file'])) -Force -ErrorAction SilentlyContinue};$db.Exec('DELETE FROM blob_meta WHERE blob_key='+(Q $k)+';');Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
++    if($path -eq '/api/blob/put' -and $method -eq 'POST'){$b=Read-Body $ctx;Save-VihanBlob $b;Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
++    if($path -eq '/api/blob/delete' -and $method -eq 'POST'){$b=Read-Body $ctx;Remove-VihanBlob $b;Send-Json $ctx ([pscustomobject]@{ok=$true});continue}
+     # ---- v1.0.35 offline copy (Client PCs): permission, incremental data, attachment list. Big files use the File Service. ----
+     if($path -eq '/api/offline/permission'){$pc=[string]$req.QueryString['pc'];Send-Json $ctx ([pscustomobject]@{ok=$true;pc=$pc;allowed=(Test-OfflineAllowed $pc)});continue}
+     if($path -eq '/api/offline/data'){
+@@ -397,7 +392,7 @@
+     }
+     if($path -eq '/api/offline/clients'){
+       # Admin only (same key as Backup Restore: C:\ProgramData\Vihan Enterprices\restore-admin.key)
+-      # v1.0.36: allowed from the Main PC itself (its own app window) with a valid service login, or with the admin key.
++      # v1.0.37: allowed from the Main PC itself (its own app window) with a valid service login, or with the admin key.
+       $provided=[string]$req.Headers['X-Vihan-Restore-Key']
+       $keyOk=((-not [string]::IsNullOrWhiteSpace($provided)) -and ($provided -ceq $RestoreAdminSecret))
+       if((-not $keyOk) -and (-not (Test-LocalRequest $req))){Send-Json $ctx ([pscustomobject]@{error='Ye setting sirf Main PC par, Main PC ke app se badli ja sakti hai.';mainOnly=$true}) 403;continue}
+@@ -455,6 +450,6 @@
+     }
+     if($path -eq '/api/backup' -and $method -eq 'POST'){$zip=Make-Backup;Send-Json $ctx ([pscustomobject]@{ok=$true;file=[IO.Path]::GetFileName($zip);path=$zip;backupPath=$BackupDir});continue}
+     Send-Text $ctx 'Not Found' 'text/plain; charset=utf-8' 404
+-  }catch{try{Send-Json $ctx ([pscustomobject]@{error=$_.Exception.Message}) 500}catch{}}
+-}
+-try{$db.Exec('PRAGMA wal_checkpoint(TRUNCATE);')}catch{};try{$db.Dispose()}catch{};try{$listener.Stop();$listener.Close()}catch{};try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{};Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
++  }catch{try{Send-Json $ctx ([pscustomobject]@{error=$_.Exception.Message}) 500}catch{}}finally{if($dataIoHeld){$dataIoMutex.ReleaseMutex();$dataIoHeld=$false}}
++}
++try{$db.Exec('PRAGMA wal_checkpoint(TRUNCATE);')}catch{};try{$dataIoMutex.Dispose()}catch{};try{$db.Dispose()}catch{};try{$listener.Stop();$listener.Close()}catch{};try{$mutex.ReleaseMutex();$mutex.Dispose()}catch{};Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
+--- a/runtime/RepairMainService.ps1
++++ b/runtime/RepairMainService.ps1
+@@ -22,17 +22,14 @@
+ 
+ try{
+   if(!(Test-Path 'D:\')){throw 'Main PC me D: drive available nahi hai. Central data D:\Vihan Enterprices\Data me configured hai.'}
+-  $dBase='D:\Vihan Enterprices';$dataDir=Join-Path $dBase 'Data';$backupDir=Join-Path $dBase 'Backups'
+-  New-Item -ItemType Directory -Force -Path $dataDir,$backupDir|Out-Null
+-  try{
+-    $fresh=Get-Content $ServerJson -Raw|ConvertFrom-Json
+-    if($fresh.PSObject.Properties['dataDir']){$fresh.dataDir=$dataDir}else{$fresh|Add-Member -NotePropertyName dataDir -NotePropertyValue $dataDir}
+-    if($fresh.PSObject.Properties['backupDir']){$fresh.backupDir=$backupDir}else{$fresh|Add-Member -NotePropertyName backupDir -NotePropertyValue $backupDir}
+-    if($fresh.PSObject.Properties['appVersion']){$fresh.appVersion='1.0.36'}else{$fresh|Add-Member -NotePropertyName appVersion -NotePropertyValue '1.0.36'}
+-    if($fresh.PSObject.Properties['filePort']){$fresh.filePort=$FilePort}else{$fresh|Add-Member -NotePropertyName filePort -NotePropertyValue $FilePort}
+-    $fresh|ConvertTo-Json -Depth 20|Set-Content -Encoding UTF8 $ServerJson
+-    Log ('Central data path set to '+$dataDir)
+-  }catch{throw ('server.json D-drive path update nahi hua: '+$_.Exception.Message)}
++  . (Join-Path $PSScriptRoot 'StoragePaths.ps1')
++  $fresh=Get-Content $ServerJson -Raw|ConvertFrom-Json
++  $paths=Get-VihanStoragePaths $fresh
++  $dataDir=$paths.Data;$backupDir=$paths.Backup
++  # Repair must not relocate data or overwrite the operator's configured paths.
++  [void](Assert-VihanDatabaseStart $fresh $paths.Database (Join-Path $Base 'Data'))
++  New-Item -ItemType Directory -Force -Path $backupDir|Out-Null
++  Log ('Configured central database retained: '+$paths.Database)
+   $script=Join-Path $PSScriptRoot 'MainService.ps1'
+   if(!(Test-Path $script)){throw "MainService.ps1 nahi mila: $script"}
+   $fileScript=Join-Path $PSScriptRoot 'FileService.ps1'
+@@ -71,17 +68,8 @@
+   # Update/migration ke dauran Task Scheduler purani service ko dobara auto-restart na kare.
+   try{Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue;Stop-ScheduledTask -TaskName $FileTaskName -ErrorAction SilentlyContinue;Start-Sleep -Milliseconds 500}catch{}
+ 
+-  # Purani service process ko safe tarike se stop karein.
+-  $pidFile=Join-Path $Base 'service.pid'
+-  if(Test-Path $pidFile){
+-    try{
+-      $oldPid=[int](Get-Content $pidFile -ErrorAction Stop)
+-      $old=Get-Process -Id $oldPid -ErrorAction SilentlyContinue
+-      if($old -and $old.ProcessName -match '^(powershell|pwsh)$'){Stop-Process -Id $oldPid -Force -ErrorAction SilentlyContinue;Start-Sleep -Milliseconds 600}
+-    }catch{}
+-  }
+-  $filePidFile=Join-Path $Base 'file_service.pid'
+-  if(Test-Path $filePidFile){try{$oldFilePid=[int](Get-Content $filePidFile -ErrorAction Stop);$oldFile=Get-Process -Id $oldFilePid -ErrorAction SilentlyContinue;if($oldFile -and $oldFile.ProcessName -match '^(powershell|pwsh)$'){Stop-Process -Id $oldFilePid -Force -ErrorAction SilentlyContinue;Start-Sleep -Milliseconds 300}}catch{}}
++  Stop-VihanTrackedService (Join-Path $Base 'service.pid') $script
++  Stop-VihanTrackedService (Join-Path $Base 'file_service.pid') $fileScript
+ 
+   # Boot-time SYSTEM task: Windows lock screen, sign-out, ya restart ke baad login se pehle bhi chalegi.
+   try{
+@@ -115,7 +103,7 @@
+   try{
+     $task=Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+     $info=Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction SilentlyContinue
+-    $status=[pscustomobject]@{version='1.0.36';mode='SYSTEM_AT_STARTUP_CENTRAL_AUTO_UPDATE_ANTI_FREEZE';taskState=[string]$task.State;lastRunTime=$info.LastRunTime;lastTaskResult=$info.LastTaskResult;port=$Port;filePort=$FilePort;updatedAt=(Get-Date).ToString('o')}
++    $status=[pscustomobject]@{version='1.0.37';mode='SYSTEM_AT_STARTUP_CENTRAL_AUTO_UPDATE_ANTI_FREEZE';taskState=[string]$task.State;lastRunTime=$info.LastRunTime;lastTaskResult=$info.LastTaskResult;port=$Port;filePort=$FilePort;updatedAt=(Get-Date).ToString('o')}
+     $status|ConvertTo-Json|Set-Content -Encoding UTF8 (Join-Path $Base 'service_mode.json')
+   }catch{}
+ 
+--- a/runtime/ResetConnection.ps1
++++ b/runtime/ResetConnection.ps1
+@@ -1 +1,12 @@
+-$p=Join-Path $env:APPDATA 'Vihan Enterprices\connection.json';Remove-Item $p -Force -ErrorAction SilentlyContinue;& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'FirstSetup.ps1')+$ErrorActionPreference='Stop'
++$Product='Vihan Enterprices'
++$server=Join-Path (Join-Path $env:ProgramData $Product) 'server.json'
++if(Test-Path $server){
++  # Main role and master identity must never be erased by a Client reset tool.
++  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'RepairMainService.ps1') -NoPrompt
++  exit $LASTEXITCODE
++}
++# FirstSetup -ClientOnly replaces the connection only after a valid service file
++# is selected. Cancel leaves the existing working connection intact.
++& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'FirstSetup.ps1') -ClientOnly
++exit $LASTEXITCODE
+--- a/runtime/RestoreBackup.ps1
++++ b/runtime/RestoreBackup.ps1
+@@ -1,13 +1,21 @@
+-$ErrorActionPreference='Stop';Add-Type -AssemblyName System.Windows.Forms
+-$Product='Vihan Enterprices';$Base=Join-Path $env:ProgramData $Product;$DBase='D:\Vihan Enterprices';if(!(Test-Path 'D:\')){[System.Windows.Forms.MessageBox]::Show('D: drive available nahi hai. Restore cancel kiya gaya.',$Product,'OK','Error')|Out-Null;exit 2};$Data=Join-Path $DBase 'Data';$Pid=Join-Path $Base 'service.pid';$TaskName='Vihan Enterprices Main Service'
+-$d=New-Object System.Windows.Forms.OpenFileDialog;$d.Title='Vihan Enterprices Backup ZIP Select Karein';$d.Filter='Vihan Backup (*.zip)|*.zip'
+-$serverJson=Join-Path $Base 'server.json';try{if(Test-Path $serverJson){$sc=Get-Content $serverJson -Raw|ConvertFrom-Json;if($sc.backupDir -and (Test-Path ([string]$sc.backupDir))){$d.InitialDirectory=[string]$sc.backupDir}}}catch{}
+-if($d.ShowDialog() -ne 'OK'){exit}
+-if([System.Windows.Forms.MessageBox]::Show('Restore se current central data replace hoga. Continue?',$Product,'YesNo','Warning') -ne 'Yes'){exit}
+-try{Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue}catch{}
+-if(Test-Path $Pid){try{$id=[int](Get-Content $Pid -Raw);Stop-Process -Id $id -Force -ErrorAction SilentlyContinue;Start-Sleep 1}catch{}}
+-$stage=Join-Path $env:TEMP ('VihanRestore_'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Force -Path $stage|Out-Null;Expand-Archive -Path $d.FileName -DestinationPath $stage -Force
+-if(!(Test-Path (Join-Path $stage 'backup_manifest.json'))){throw 'Invalid Vihan backup'}
+-$pre=Join-Path $DBase ('PreRestore_'+(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'));if(Test-Path $Data){Move-Item $Data $pre -Force};New-Item -ItemType Directory -Force -Path $Data|Out-Null;Copy-Item (Join-Path $stage '*') $Data -Recurse -Force;Remove-Item (Join-Path $Data 'backup_manifest.json') -Force -ErrorAction SilentlyContinue;Remove-Item $stage -Recurse -Force
+-try{Start-ScheduledTask -TaskName $TaskName -ErrorAction Stop}catch{Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+(Join-Path $PSScriptRoot 'MainService.ps1')+'"'))}
+-[System.Windows.Forms.MessageBox]::Show("Backup restore complete.`n`nSQLite backup ho to direct open hoga. Purana JSON backup ho to service usko automatically SQLite me migrate karegi.`n`nApp dobara open karein.",$Product)|Out-Null
++$ErrorActionPreference='Stop'
++Add-Type -AssemblyName System.Windows.Forms
++$Product='Vihan Enterprices'
++$Base=Join-Path $env:ProgramData $Product
++$identity=New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
++if(!$identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
++  $child=Start-Process powershell.exe -Verb RunAs -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',('"'+$PSCommandPath+'"')) -PassThru -Wait
++  exit $child.ExitCode
++}
++$dialog=New-Object System.Windows.Forms.OpenFileDialog
++$dialog.Title='Vihan Enterprices complete SQLite backup select karein'
++$dialog.Filter='Vihan Backup (*.zip)|*.zip'
++if($dialog.ShowDialog() -ne 'OK'){exit 0}
++if([System.Windows.Forms.MessageBox]::Show('Restore replaces all companies central data. The existing data directory will be retained for rollback. Continue?',$Product,'YesNo','Warning') -ne 'Yes'){exit 0}
++# Preserve the selected archive. The shared validated worker only removes its inbox copy.
++$inbox=Join-Path $Base 'RestoreInbox';New-Item -ItemType Directory -Force -Path $inbox|Out-Null
++$copy=Join-Path $inbox ([guid]::NewGuid().ToString('N')+'.zip')
++Copy-Item -LiteralPath $dialog.FileName -Destination $copy
++& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'ApplyRemoteRestore.ps1') -Archive $copy
++if($LASTEXITCODE -ne 0){[System.Windows.Forms.MessageBox]::Show('Restore failed. Review restore-status.json. Existing data was retained or rollback was attempted.',$Product,'OK','Error')|Out-Null;exit 1}
++[System.Windows.Forms.MessageBox]::Show('Restore completed. Reopen the app and verify all companies and attachments.',$Product,'OK','Information')|Out-Null
+--- a/runtime/StoragePaths.ps1
++++ b/runtime/StoragePaths.ps1
+@@ -0,0 +1,55 @@
++# Shared, non-migrating Main/File/restore storage contract.
++function Assert-VihanAbsolutePath([string]$Path,[string]$Label,[switch]$DDrive){
++  if([string]::IsNullOrWhiteSpace($Path) -or $Path -notmatch '^[A-Za-z]:[\\/]' -or $Path -match '(^|[\\/])\.\.([\\/]|$)'){
++    throw "$Label must be an absolute Windows path without parent traversal."
++  }
++  if($DDrive -and $Path -notmatch '^[Dd]:[\\/]'){throw "$Label is not on D:. No automatic database migration is permitted. Review the existing configuration and backup first."}
++  return $Path.TrimEnd('\','/')
++}
++function Get-VihanStoragePaths($Config){
++  $data=if($Config.dataDir){[string]$Config.dataDir}else{'D:\Vihan Enterprices\Data'}
++  $backup=if($Config.backupDir){[string]$Config.backupDir}else{'D:\Vihan Enterprices\Backups'}
++  $data=Assert-VihanAbsolutePath $data 'Central data directory' -DDrive
++  $backup=Assert-VihanAbsolutePath $backup 'Backup directory'
++  [pscustomobject]@{Data=$data;Database=(Join-Path $data 'VihanEnterprices.db');Blobs=(Join-Path $data 'Blobs');Backup=$backup;Updates='D:\Vihan Enterprices\Updates'}
++}
++function Assert-VihanDatabaseStart($Config,[string]$Database,[string]$LegacyDirectory){
++  if([string]::IsNullOrWhiteSpace([string]$Config.token)){throw 'Main service token is missing; run the supported setup/recovery workflow.'}
++  if(Test-Path -LiteralPath $Database){return $false}
++  if($Config.initializeDatabase -ne $true){throw "Configured database is missing: $Database. Refusing to create an empty replacement. Restore the correct drive/data or explicitly initialize a new installation."}
++  foreach($folder in @((Split-Path $Database -Parent),$LegacyDirectory)){
++    foreach($name in @('VihanEnterprices.db','storage.json','storage.wal','blobmeta.json')){
++      if($folder -and (Test-Path -LiteralPath (Join-Path $folder $name))){throw 'Existing/legacy data detected. Automatic initialization or migration is blocked; make a verified backup and approve a migration first.'}
++    }
++  }
++  return $true
++}
++function Update-VihanServerConfig([string]$Path,[hashtable]$Changes){
++  $lock=New-Object Threading.Mutex($false,'Global\VihanEnterpricesConfigIO');$held=$false
++  try{
++    try{$held=$lock.WaitOne(15000)}catch [Threading.AbandonedMutexException]{$held=$true}
++    if(!$held){throw 'Server configuration is busy'}
++    $latest=Get-Content -LiteralPath $Path -Raw|ConvertFrom-Json
++    foreach($name in $Changes.Keys){$latest|Add-Member -NotePropertyName $name -NotePropertyValue $Changes[$name] -Force}
++    $temporary=$Path+'.tmp.'+[guid]::NewGuid().ToString('N')
++    try{$latest|ConvertTo-Json -Depth 30|Set-Content -Encoding UTF8 $temporary;Move-Item -LiteralPath $temporary -Destination $Path -Force}finally{Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue}
++    return $latest
++  }finally{if($held){$lock.ReleaseMutex()};$lock.Dispose()}
++}
++function Stop-VihanTrackedService([string]$PidFile,[string]$ExpectedScript){
++  if(!(Test-Path -LiteralPath $PidFile)){return}
++  $servicePid=[int](Get-Content -LiteralPath $PidFile -Raw)
++  $process=Get-Process -Id $servicePid -ErrorAction SilentlyContinue
++  if(!$process){return}
++  if($servicePid -eq $PID){throw 'Refusing to stop the current maintenance process'}
++  $details=Get-CimInstance Win32_Process -Filter ('ProcessId='+$servicePid) -ErrorAction Stop
++  if(!$details -or [string]::IsNullOrWhiteSpace([string]$details.CommandLine) -or ([string]$details.CommandLine).IndexOf($ExpectedScript,[StringComparison]::OrdinalIgnoreCase) -lt 0){throw 'Stale PID belongs to another process; no process was stopped'}
++  Stop-Process -Id $servicePid -Force -ErrorAction Stop
++  Wait-Process -Id $servicePid -Timeout 10 -ErrorAction SilentlyContinue
++  if(Get-Process -Id $servicePid -ErrorAction SilentlyContinue){throw 'Service process did not stop; data replacement is blocked'}
++}
++function Test-VihanAdminKey([string]$Provided,[string]$KeyFile){
++  if([string]::IsNullOrWhiteSpace($Provided) -or !(Test-Path -LiteralPath $KeyFile)){return $false}
++  $expected=[IO.File]::ReadAllText($KeyFile).Trim()
++  return (![string]::IsNullOrWhiteSpace($expected) -and $Provided -ceq $expected)
++}
+--- a/runtime/VihanSqlite.cs
++++ b/runtime/VihanSqlite.cs
+@@ -2,6 +2,8 @@
+ using System.Collections.Generic;
+ using System.Runtime.InteropServices;
+ using System.Text;
++using System.IO;
++using System.Threading;
+ 
+ public sealed class VihanSqliteDb : IDisposable
+ {
+@@ -40,6 +42,13 @@
+     [DllImport("winsqlite3.dll", CallingConvention = CallingConvention.Cdecl)]
+     static extern void sqlite3_free(IntPtr p);
+ 
++    [DllImport("winsqlite3.dll", CallingConvention = CallingConvention.Cdecl)]
++    static extern IntPtr sqlite3_backup_init(IntPtr dest, byte[] destName, IntPtr source, byte[] sourceName);
++    [DllImport("winsqlite3.dll", CallingConvention = CallingConvention.Cdecl)]
++    static extern int sqlite3_backup_step(IntPtr backup, int pages);
++    [DllImport("winsqlite3.dll", CallingConvention = CallingConvention.Cdecl)]
++    static extern int sqlite3_backup_finish(IntPtr backup);
++
+     static byte[] Utf8Z(string s)
+     {
+         if (s == null) s = "";
+@@ -65,12 +74,59 @@
+         return _db == IntPtr.Zero ? "SQLite error" : (PtrUtf8(sqlite3_errmsg(_db)) ?? "SQLite error");
+     }
+ 
+-    public VihanSqliteDb(string path)
+-    {
++    public VihanSqliteDb(string path) : this(path, false) { }
++
++    public VihanSqliteDb(string path, bool allowCreate)
++    {
++        if (!Path.IsPathRooted(path)) throw new ArgumentException("SQLite path must be absolute");
++        if (!allowCreate && !File.Exists(path)) throw new FileNotFoundException("Configured SQLite database missing; refusing to create an empty replacement", path);
+         int rc = sqlite3_open16(path, out _db);
+-        if (rc != SQLITE_OK || _db == IntPtr.Zero) throw new Exception("SQLite open failed: " + Error());
+-        sqlite3_busy_timeout(_db, 8000);
+-        Exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA temp_store=MEMORY; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=8000; PRAGMA cache_size=-16384; PRAGMA wal_autocheckpoint=1000; PRAGMA mmap_size=134217728;");
++        if (rc != SQLITE_OK || _db == IntPtr.Zero)
++        {
++            string message = Error();
++            if (_db != IntPtr.Zero) { sqlite3_close_v2(_db); _db = IntPtr.Zero; }
++            throw new Exception("SQLite open failed: " + message);
++        }
++        try
++        {
++            sqlite3_busy_timeout(_db, 8000);
++            Exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA temp_store=MEMORY; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=8000; PRAGMA cache_size=-16384; PRAGMA wal_autocheckpoint=1000; PRAGMA mmap_size=134217728;");
++        }
++        catch { Dispose(); throw; }
++    }
++
++    // SQLite's backup API captures a consistent committed image even when a
++    // different service is writing the WAL. Copying .db/.wal files cannot do this.
++    public void BackupTo(string path)
++    {
++        if (!Path.IsPathRooted(path) || File.Exists(path)) throw new ArgumentException("Backup destination must be a new absolute file");
++        lock (_gate)
++        {
++            IntPtr dest = IntPtr.Zero, backup = IntPtr.Zero;
++            bool complete = false;
++            try
++            {
++                int rc = sqlite3_open16(path, out dest);
++                if (rc != SQLITE_OK) throw new Exception("Cannot open backup destination");
++                backup = sqlite3_backup_init(dest, Utf8Z("main"), _db, Utf8Z("main"));
++                if (backup == IntPtr.Zero) throw new Exception("SQLite backup initialization failed");
++                int attempts = 0;
++                do
++                {
++                    rc = sqlite3_backup_step(backup, -1);
++                    if (rc == 5 || rc == 6) Thread.Sleep(100);
++                } while ((rc == 5 || rc == 6) && ++attempts < 80);
++                int finished = sqlite3_backup_finish(backup); backup = IntPtr.Zero;
++                if (rc != SQLITE_DONE || finished != SQLITE_OK) throw new Exception("SQLite backup did not complete");
++                complete = true;
++            }
++            finally
++            {
++                if (backup != IntPtr.Zero) sqlite3_backup_finish(backup);
++                if (dest != IntPtr.Zero) sqlite3_close_v2(dest);
++                if (!complete && File.Exists(path)) File.Delete(path);
++            }
++        }
+     }
+ 
+     public void Exec(string sql)
+@@ -83,6 +139,12 @@
+             {
+                 string msg = err != IntPtr.Zero ? PtrUtf8(err) : Error();
+                 if (err != IntPtr.Zero) sqlite3_free(err);
++                if (sql.TrimStart().StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase))
++                {
++                    IntPtr rollbackError;
++                    sqlite3_exec(_db, Utf8Z("ROLLBACK;"), IntPtr.Zero, IntPtr.Zero, out rollbackError);
++                    if (rollbackError != IntPtr.Zero) sqlite3_free(rollbackError);
++                }
+                 throw new Exception("SQLite exec failed: " + msg);
+             }
+         }
+--- a/runtime/electron-app/download.js
++++ b/runtime/electron-app/download.js
+@@ -0,0 +1,24 @@
++'use strict';
++const fs=require('fs'),path=require('path'),http=require('http'),https=require('https'),crypto=require('crypto');
++const {pipeline}=require('stream/promises');
++async function downloadWithToken(url,token,destination,onProgress,expectedSha256){
++  if(!/^[a-f0-9]{64}$/i.test(String(expectedSha256||'')))throw new Error('Update checksum is missing or invalid');
++  const parsed=new URL(url);if(!['http:','https:'].includes(parsed.protocol))throw new Error('Unsupported download protocol');
++  fs.mkdirSync(path.dirname(destination),{recursive:true});
++  const temporary=destination+'.part.'+crypto.randomBytes(6).toString('hex');let response;
++  try{
++    response=await new Promise((resolve,reject)=>{
++      const req=(parsed.protocol==='https:'?https:http).get(parsed,{timeout:120000,headers:{'X-Vihan-Token':String(token||''),'Cache-Control':'no-store'}},resolve);
++      req.on('timeout',()=>req.destroy(new Error('Update download timeout')));req.on('error',reject);
++    });
++    if(response.statusCode!==200){response.resume();throw new Error('Update download HTTP '+response.statusCode)}
++    let bytes=0;const expectedSize=Number(response.headers['content-length']||0),hash=crypto.createHash('sha256');
++    response.on('data',chunk=>{bytes+=chunk.length;hash.update(chunk);if(onProgress)onProgress(bytes,expectedSize)});
++    await pipeline(response,fs.createWriteStream(temporary));
++    if(expectedSize&&bytes!==expectedSize)throw new Error('Incomplete update download');
++    if(hash.digest('hex').toLowerCase()!==expectedSha256.toLowerCase())throw new Error('Update checksum mismatch');
++    const fd=fs.openSync(temporary,'r+');try{fs.fsyncSync(fd)}finally{fs.closeSync(fd)}
++    fs.renameSync(temporary,destination);return destination;
++  }catch(error){if(response)response.destroy();try{fs.unlinkSync(temporary)}catch{}throw error}
++}
++module.exports={downloadWithToken};
+--- a/runtime/electron-app/main.js
++++ b/runtime/electron-app/main.js
+@@ -7,9 +7,10 @@
+ const crypto = require('crypto');
+ const { spawn } = require('child_process');
+ const { createOfflineManager } = require('./offline');
++const { downloadWithToken } = require('./download');
+ 
+ const PRODUCT = 'Vihan Enterprices';
+-const APP_VERSION = '1.0.36';
++const APP_VERSION = '1.0.37';
+ const DEFAULT_PORT = 17867;
+ let mainWindow = null;
+ let retryTimer = null;
+@@ -90,13 +91,8 @@
+   return out;
+ }
+ function isTrustedMediaUrl(raw) {
+-  try {
+-    const u = new URL(String(raw || ''));
+-    if (u.protocol === 'https:') return true;
+-    if (u.protocol !== 'http:') return false;
+-    if (u.hostname === '127.0.0.1' || u.hostname === 'localhost' || u.hostname === '::1') return true;
+-    return trustedMediaOriginsNow().has(u.origin);
+-  } catch { return false; }
++  try { const u = new URL(String(raw || '')); return /^https?:$/.test(u.protocol) && trustedMediaOriginsNow().has(u.origin); }
++  catch { return false; }
+ }
+ function cameraOriginNeedsRestart(base) {
+   try {
+@@ -175,7 +171,7 @@
+       res.on('data', d => { if (body.length < 4096) body += d; });
+       res.on('end', () => {
+         if (res.statusCode !== 200) return resolve(null);
+-        try { resolve(JSON.parse(body || '{}')); } catch { resolve({ ok: true }); }
++        try { resolve(JSON.parse(body || '{}')); } catch { resolve(null); }
+       });
+     });
+     req.on('timeout', () => { req.destroy(); resolve(null); });
+@@ -185,7 +181,7 @@
+ 
+ async function checkUrl(base, timeoutMs = 1200) {
+   const h = await getHealth(base, timeoutMs);
+-  return !!(h && h.ok !== false);
++  return !!(h && h.ok !== false && h.product === PRODUCT && !h.offline && h.service !== 'files');
+ }
+ 
+ function isLocalMain(c) {
+@@ -362,7 +358,6 @@
+ function localDiskVersion(){try{const x=readJson(path.join(localInstallRoot(),'app','version.json'));return String((x&&x.version)||APP_VERSION)}catch{return APP_VERSION}}
+ function fileServiceBase(mainBase,c){try{const u=new URL(mainBase);u.port=String(Number((c&&c.filePort)||((Number(u.port)||DEFAULT_PORT)+1)));return u.origin}catch{return mainBase}}
+ function tokenRequestJson(url,token,method='GET',body=null){return new Promise((resolve,reject)=>{let u;try{u=new URL(url)}catch(e){return reject(e)};const lib=u.protocol==='https:'?https:http;const payload=body==null?null:Buffer.from(JSON.stringify(body));const req=lib.request(u,{method,timeout:3500,headers:{'X-Vihan-Token':String(token||''),'Cache-Control':'no-store',...(payload?{'Content-Type':'application/json','Content-Length':String(payload.length)}:{})}},res=>{let txt='';res.setEncoding('utf8');res.on('data',d=>{if(txt.length<1024*1024)txt+=d});res.on('end',()=>{let data=null;try{data=JSON.parse(txt||'{}')}catch{};if(res.statusCode>=200&&res.statusCode<300)resolve(data||{});else reject(new Error((data&&data.error)||('HTTP '+res.statusCode)))})});req.on('timeout',()=>{req.destroy(new Error('Update service timeout'))});req.on('error',reject);if(payload)req.write(payload);req.end()})}
+-function downloadWithToken(url,token,dest,onProgress){return new Promise((resolve,reject)=>{let u;try{u=new URL(url)}catch(e){return reject(e)};const lib=u.protocol==='https:'?https:http;const req=lib.request(u,{method:'GET',timeout:120000,headers:{'X-Vihan-Token':String(token||''),'Cache-Control':'no-store'}},res=>{if(res.statusCode!==200){res.resume();return reject(new Error('Update download HTTP '+res.statusCode))}fs.mkdirSync(path.dirname(dest),{recursive:true});const tmp=dest+'.part';const out=fs.createWriteStream(tmp);let got=0,total=Number(res.headers['content-length']||0);res.on('data',d=>{got+=d.length;if(onProgress)onProgress(got,total)});res.pipe(out);out.on('finish',()=>out.close(()=>{try{fs.renameSync(tmp,dest);resolve(dest)}catch(e){reject(e)}}));out.on('error',reject)});req.on('timeout',()=>{req.destroy(new Error('Update download timeout'))});req.on('error',reject);req.end()})}
+ function updateHtml(title,detail){return `<!doctype html><html><head><meta charset="utf-8"><title>${PRODUCT}</title><style>body{margin:0;font-family:Segoe UI,Arial;background:#eef4fb;min-height:100vh;display:grid;place-items:center;color:#172033}.card{width:min(620px,90vw);background:#fff;border:1px solid #dbe4ef;border-radius:18px;padding:34px;text-align:center;box-shadow:0 18px 60px #0001}.logo{width:74px;height:74px;border-radius:20px;background:#e8f0ff;color:#315bea;font-size:28px;font-weight:800;display:grid;place-items:center;margin:auto}.bar{height:10px;background:#e7edf6;border-radius:99px;overflow:hidden;margin-top:18px}.fill{height:100%;width:100%;background:#315bea;animation:pulse 1s infinite alternate}@keyframes pulse{from{opacity:.45}to{opacity:1}}.muted{color:#667085;line-height:1.6}</style></head><body><div class="card"><div class="logo">VE</div><h2>${title}</h2><p class="muted">${detail}</p><div class="bar"><div class="fill"></div></div><p class="muted">Data, permissions aur connection safe rahenge.</p></div></body></html>`}
+ async function heartbeatUpdateService(base,c,status='running'){
+   try{
+@@ -388,6 +383,10 @@
+   // Main PC updates are applied once by the SYSTEM File Service updater.
+   // Do not launch a second desktop updater from the Main PC app (race/partial-update risk).
+   if(isLocalMain(c)){try{await heartbeatUpdateService(base,c,'main-update-managed-by-service')}catch{};return false}
++  // Never reload a client with unacknowledged saves/conflicts to apply an update.
++  if(mainWindow&&!mainWindow.isDestroyed()){
++    try{const state=await Promise.race([mainWindow.webContents.executeJavaScript('window.vihanBeforeAppClose ? window.vihanBeforeAppClose() : Promise.resolve({pending:0})',true),new Promise(r=>setTimeout(()=>r(null),5200))]);if(!state||Number(state.pending)>0){await heartbeatUpdateService(base,c,'update-waiting-for-pending-saves');return false}}catch{return false}
++  }
+   autoUpdating=true;
+   try{
+     if(mainWindow&&!mainWindow.isDestroyed()){
+@@ -395,8 +394,8 @@
+       await mainWindow.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(updateHtml('Vihan Enterprices Update','v'+latest+' download/install ho raha hai. App automatically restart hogi…')))
+     }
+     const dir=path.join(localInstallRoot(),'updates');fs.mkdirSync(dir,{recursive:true});const pkg=path.join(dir,'Vihan_Enterprices_Update_v'+latest+'.veupdate');
+-    await downloadWithToken(fb+'/api/update/package',c.token,pkg);
+-    const expected=String(st?.latest?.sha256||'').toUpperCase();if(expected){const actual=crypto.createHash('sha256').update(fs.readFileSync(pkg)).digest('hex').toUpperCase();if(actual!==expected)throw new Error('Update checksum match nahi hua')}
++    const expected=String(st?.latest?.sha256||'');
++    await downloadWithToken(fb+'/api/update/package',c.token,pkg,null,expected);
+     const src=path.join(localInstallRoot(),'runtime','AutoUpdater.ps1');if(!fs.existsSync(src))throw new Error('AutoUpdater missing');const temp=path.join(os.tmpdir(),'VihanAutoUpdater_'+Date.now()+'.ps1');fs.copyFileSync(src,temp);
+     const exe=process.execPath;const ps=path.join(process.env.SystemRoot||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
+     const child=spawn(ps,['-NoProfile','-ExecutionPolicy','Bypass','-File',temp,'-PackagePath',pkg,'-InstallRoot',localInstallRoot(),'-RelaunchExe',exe,'-DelaySeconds','2'],{detached:true,windowsHide:true,stdio:'ignore'});child.unref();
+@@ -437,6 +436,8 @@
+   }
+   currentBase = base;
+   offlineActive = false;
++  try{const status=await tokenRequestJson(base+'/api/status',c.token);const port=Number(status.fileServicePort);if(Number.isInteger(port)&&port>0&&port<=65535&&port!==Number(c.filePort)){c.filePort=port;fs.writeFileSync(connectionPath(),JSON.stringify(c,null,2),'utf8')}}catch{}
++
+   if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+ 
+   if (await maybeAutoUpdate(base, c)) return;
+@@ -491,7 +492,7 @@
+   mainWindow.maximize();
+   mainWindow.once('ready-to-show', () => mainWindow && mainWindow.show());
+ 
+-  // v1.0.36: "Offline PC Access" opens a small in-app window (page served by the Main Service).
++  // v1.0.37: "Offline PC Access" opens a small in-app window (page served by the Main Service).
+   // No Admin Key, no UAC, no PowerShell: the Main Service itself only accepts permission changes
+   // that arrive from the Main PC (loopback / its own address) with a valid service login.
+   const OFFLINE_ADMIN_URL = 'https://vihan-offline-admin.invalid/launch';
+--- a/runtime/electron-app/offline.js
++++ b/runtime/electron-app/offline.js
+@@ -253,7 +253,7 @@
+       const entry = { db: String(it.db), store: String(it.store), id: String(it.id), updatedAt: String(it.updatedAt || ''), blobType: String(it.blobType || ''), size: Number(it.size || 0), hasBlob: false, file: '', record, skipped: false };
+       if (it.hasBlob && entry.size > MAX_BLOB_BYTES) { entry.skipped = true; items[key] = entry; continue; }
+       items[key] = entry;
+-      if (it.hasBlob) todo.push({ key, entry });
++      if (it.hasBlob) todo.push({ key, entry, previous: old });
+     }
+     let done = 0, failed = 0, missing = 0, bytes = 0;
+     let next = 0;
+@@ -268,7 +268,7 @@
+           e.file = name; e.hasBlob = true; done++;
+         } catch (err) {
+           if (err && err.status === 404) { missing++; e.hasBlob = false; fileLog('Attachment Main PC par nahi mila: ' + job.key); }
+-          else { failed++; e.updatedAt = ''; fileLog('Attachment download fail: ' + job.key + ' - ' + (err && err.message)); }
++          else { failed++; e.updatedAt = ''; if(job.previous&&job.previous.file&&fs.existsSync(path.join(P.files(),job.previous.file)))items[job.key]={...job.previous,updatedAt:''}; fileLog('Attachment download fail: ' + job.key + ' - ' + (err && err.message)); }
+         }
+         if ((done + failed + missing) % 20 === 0) { try { saveIndex({ items }); } catch {} }
+         await sleep(30); // keep the Main PC light
+--- a/runtime/electron-app/package.json
++++ b/runtime/electron-app/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "vihan-enterprices-desktop",
+-  "version": "1.0.36",
++  "version": "1.0.37",
+   "description": "Vihan Enterprices Desktop App",
+   "main": "main.js",
+   "productName": "Vihan Enterprices",
+--- a/tests/archive_safety.integration.ps1
++++ b/tests/archive_safety.integration.ps1
+@@ -0,0 +1,12 @@
++$ErrorActionPreference='Stop';$Root=Split-Path $PSScriptRoot -Parent
++. (Join-Path $Root 'runtime/ArchiveSafety.ps1')
++$temp=Join-Path ([IO.Path]::GetTempPath()) ('VihanArchiveAudit_'+[guid]::NewGuid().ToString('N'));[IO.Directory]::CreateDirectory($temp)|Out-Null
++function Make-Archive([string]$Name,[string[]]$Entries){$file=Join-Path $temp $Name;$zip=[IO.Compression.ZipFile]::Open($file,[IO.Compression.ZipArchiveMode]::Create);try{foreach($entryName in $Entries){$entry=$zip.CreateEntry($entryName);$writer=New-Object IO.StreamWriter($entry.Open());try{$writer.Write('fixture')}finally{$writer.Dispose()}}}finally{$zip.Dispose()};return $file}
++try{
++  Add-Type -AssemblyName System.IO.Compression.FileSystem
++  $valid=Make-Archive 'valid.zip' @('app/index.html','runtime/test file.ps1');$dest=Join-Path $temp 'valid';Expand-VihanArchive $valid $dest
++  if([IO.File]::ReadAllText((Join-Path $dest 'app/index.html')) -ne 'fixture'){throw 'Valid archive failed'};'PASS Valid archive with nested paths and spaces extracts'
++  $cases=@(@('../outside.txt'),@('app\..\..\outside.txt'),@('D:\outside.txt'),@('app/file.txt','APP/FILE.TXT'),@('app/NUL.txt'))
++  $index=0
++  foreach($names in $cases){$file=Make-Archive ('bad'+$index+'.zip') $names;$dest=Join-Path $temp ('bad'+$index);$rejected=$false;try{Expand-VihanArchive $file $dest}catch{$rejected=$true};if(!$rejected){throw 'Unsafe archive was accepted'};if(Test-Path $dest){throw 'Validation wrote destination files before rejection'};'PASS Unsafe archive rejected before extraction '+$index;$index++}
++}finally{Remove-Item -LiteralPath $temp -Recurse -Force}
+--- a/tests/backend_safety.integration.ps1
++++ b/tests/backend_safety.integration.ps1
+@@ -0,0 +1,82 @@
++$ErrorActionPreference='Stop'
++$Root=Split-Path $PSScriptRoot -Parent
++$source=[IO.File]::ReadAllText((Join-Path $Root 'runtime/VihanSqlite.cs'))
++$shim=@'
++public static class AuditNativeResolver {
++ public static void Setup(){if(!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))System.Runtime.InteropServices.NativeLibrary.SetDllImportResolver(typeof(VihanSqliteDb).Assembly,(name,a,s)=>name=="winsqlite3.dll"?System.Runtime.InteropServices.NativeLibrary.Load("libsqlite3.so.0"):System.IntPtr.Zero);}
++}
++'@
++Add-Type -TypeDefinition ($source+"`n"+$shim);[AuditNativeResolver]::Setup()
++function Assert($Condition,[string]$Name){if(!$Condition){throw $Name};Write-Output ('PASS '+$Name)}
++# Extract actual service functions without starting services or touching D:.
++$tokens=$null;$parseErrors=$null;$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $Root 'runtime/MainService.ps1'),[ref]$tokens,[ref]$parseErrors)
++foreach($name in @('Q','B','Get-Revision','Row-Record','Get-CurrentRecord','Plan-Ops','Commit-Plan','Get-Snapshot','Get-ChangesSince','Hash-Key','Blob-Key','Save-StreamToFile')){
++  $node=$ast.Find({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name},$true)
++  if(!$node){throw ('Missing service function '+$name)};Invoke-Expression $node.Extent.Text
++}
++. (Join-Path $Root 'runtime/StoragePaths.ps1')
++. (Join-Path $Root 'runtime/BlobStorage.ps1')
++$temp=Join-Path ([IO.Path]::GetTempPath()) ('VihanBackendAudit_'+[guid]::NewGuid().ToString('N'))
++New-Item -ItemType Directory -Path $temp|Out-Null
++$BlobDir=Join-Path $temp 'Blobs';New-Item -ItemType Directory -Path $BlobDir|Out-Null
++$db=New-Object VihanSqliteDb -ArgumentList (Join-Path $temp 'test.db'),$true
++try{
++  $schema=@'
++CREATE TABLE meta(k TEXT PRIMARY KEY,v TEXT NOT NULL);INSERT INTO meta VALUES('revision','0');
++CREATE TABLE kv(key TEXT PRIMARY KEY,value TEXT NOT NULL,deleted INTEGER,key_rev INTEGER,revision INTEGER,updated_at TEXT,client_id TEXT);
++CREATE TABLE changes(revision INTEGER PRIMARY KEY,key TEXT,value TEXT,deleted INTEGER,key_rev INTEGER,updated_at TEXT,client_id TEXT);
++CREATE TABLE blob_meta(blob_key TEXT PRIMARY KEY,db_name TEXT,store_name TEXT,item_id TEXT,record_json TEXT,blob_file TEXT,blob_type TEXT,updated_at TEXT);
++'@
++  $db.Exec($schema)
++  $plan=Plan-Ops @([pscustomobject]@{key='company';value='Main saved';op='set';expectedRev=0;seq=1}) 'main';Commit-Plan $plan
++  Assert ((Get-CurrentRecord 'company').value -eq 'Main saved') 'Actual service plan/commit saves text to SQLite'
++  $conflict=Plan-Ops @([pscustomobject]@{key='company';value='stale client';op='set';expectedRev=0;seq=2}) 'client'
++  Assert ($conflict.results[0].conflict -and $conflict.planned.Count -eq 0) 'Stale client revision is rejected without overwrite'
++  $duplicate=Plan-Ops @([pscustomobject]@{key='dupe';value='one';op='set';expectedRev=0;seq=1},[pscustomobject]@{key='dupe';value='two';op='set';expectedRev=0;seq=2}) 'client'
++  Assert ($duplicate.planned.Count -eq 1 -and $duplicate.results[1].conflict) 'Duplicate same-key batch cannot bypass expected revision'
++  Commit-Plan $duplicate
++  Assert ((Get-Snapshot).items.company.value -eq 'Main saved' -and (Get-ChangesSince 0).revision -eq 2) 'Snapshot and changes include committed revisions'
++  $record=[pscustomobject]@{db='docs';store='files';id='one';record=[pscustomobject]@{name='first.txt'};blobType='text/plain';blobBase64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('original bytes'))}
++  Save-VihanBlob $record
++  $before=$db.Query("SELECT blob_file FROM blob_meta WHERE item_id='one'")[0]['blob_file']
++  Assert ([IO.File]::ReadAllText((Join-Path $BlobDir $before)) -eq 'original bytes') 'Attachment bytes and metadata commit together'
++  $replacement=[pscustomobject]@{db='docs';store='files';id='one';record=[pscustomobject]@{name='new.txt'};blobType='text/plain'}
++  $stream=New-Object IO.MemoryStream -ArgumentList (,([Text.Encoding]::UTF8.GetBytes('cut')))
++  $failed=$false;try{Save-VihanBlob $replacement $stream 100}catch{$failed=$true}finally{$stream.Dispose()}
++  Assert ($failed -and [IO.File]::ReadAllText((Join-Path $BlobDir $before)) -eq 'original bytes') 'Interrupted upload retains the existing file'
++  $db.Exec("CREATE TRIGGER refuse_replace BEFORE INSERT ON blob_meta WHEN NEW.item_id='one' BEGIN SELECT RAISE(ABORT,'injected disk/SQL failure');END;")
++  $record.blobBase64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('new bytes'))
++  $failed=$false;try{Save-VihanBlob $record}catch{$failed=$true}
++  Assert ($failed -and [IO.File]::ReadAllText((Join-Path $BlobDir $before)) -eq 'original bytes' -and (Get-ChildItem $BlobDir).Count -eq 1) 'SQL failure retains original attachment and cleans new upload'
++  $db.Exec('DROP TRIGGER refuse_replace;');Save-VihanBlob $record
++  $after=$db.Query("SELECT blob_file FROM blob_meta WHERE item_id='one'")[0]['blob_file']
++  Assert ($after -ne $before -and !(Test-Path (Join-Path $BlobDir $before))) 'Successful replacement switches metadata before removing old bytes'
++  Remove-VihanBlob $record
++  Assert ($db.ScalarLong('SELECT COUNT(*) FROM blob_meta',-1) -eq 0 -and (Get-ChildItem $BlobDir).Count -eq 0) 'Attachment delete removes metadata and bytes'
++  $missing=Join-Path $temp 'missing.db';$blocked=$false
++  try{Assert-VihanDatabaseStart ([pscustomobject]@{token='test';initializeDatabase=$false}) $missing $null}catch{$blocked=$true}
++  Assert $blocked 'Missing initialized database is blocked'
++  Assert (Assert-VihanDatabaseStart ([pscustomobject]@{token='test';initializeDatabase=$true}) $missing $null) 'Only explicit fresh initialization is allowed'
++  $legacy=Join-Path $temp 'storage.json';Set-Content $legacy '{}';$blocked=$false
++  try{Assert-VihanDatabaseStart ([pscustomobject]@{token='test';initializeDatabase=$true}) $missing $temp}catch{$blocked=$true}
++  Assert $blocked 'Legacy data prevents automatic creation/migration'
++  Assert ((Assert-VihanAbsolutePath 'D:\Custom Data\' 'Data' -DDrive) -eq 'D:\Custom Data') 'Absolute D-drive paths with spaces are retained and normalized'
++  $blocked=$false;try{Assert-VihanAbsolutePath 'C:\Other\Data' 'Data' -DDrive}catch{$blocked=$true};Assert $blocked 'Wrong-drive configuration is rejected, never silently migrated'
++  $blocked=$false;try{Assert-VihanAbsolutePath 'D:\Data\..\Other' 'Data' -DDrive}catch{$blocked=$true};Assert $blocked 'Parent traversal cannot redirect the configured data path'
++  $updaterTokens=$null;$updaterErrors=$null;$updaterAst=[Management.Automation.Language.Parser]::ParseFile((Join-Path $Root 'runtime/AutoUpdater.ps1'),[ref]$updaterTokens,[ref]$updaterErrors)
++  foreach($name in @('Backup-Current','Restore-Current')){$node=$updaterAst.Find({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true);Invoke-Expression $node.Extent.Text}
++  function Log([string]$Message){}
++  $InstallRoot=Join-Path $temp 'Software';$saved=Join-Path $temp 'Rollback'
++  New-Item -ItemType Directory -Path (Join-Path $InstallRoot 'app'),(Join-Path $InstallRoot 'runtime'),(Join-Path $InstallRoot 'desktop-runtime/resources/app') -Force|Out-Null
++  Set-Content (Join-Path $InstallRoot 'app/index.html') 'old application';Set-Content (Join-Path $InstallRoot 'runtime/worker.ps1') 'old runtime';Set-Content (Join-Path $InstallRoot 'desktop-runtime/resources/app/main.js') 'old desktop host';Set-Content (Join-Path $InstallRoot 'installed_version.json') '{"version":"old"}'
++  Backup-Current $saved
++  Set-Content (Join-Path $InstallRoot 'app/index.html') 'broken update';Set-Content (Join-Path $InstallRoot 'installed_version.json') '{"version":"new"}'
++  Restore-Current $saved
++  Assert ((Get-Content (Join-Path $InstallRoot 'app/index.html') -Raw).Trim() -eq 'old application' -and (Get-Content (Join-Path $InstallRoot 'desktop-runtime/resources/app/main.js') -Raw).Trim() -eq 'old desktop host') 'Actual updater backup/rollback restores application and desktop host'
++  Assert ((Get-Content (Join-Path $InstallRoot 'installed_version.json') -Raw|ConvertFrom-Json).version -eq 'old') 'Failed update rollback restores installed version metadata'
++  $keyFile=Join-Path $temp 'test-admin.key';Set-Content $keyFile 'Fixture-Key-Only'
++  Assert ((Test-VihanAdminKey 'Fixture-Key-Only' $keyFile) -and !(Test-VihanAdminKey 'fixture-key-only' $keyFile) -and !(Test-VihanAdminKey '' $keyFile) -and !(Test-VihanAdminKey '1' $keyFile)) 'Privileged update authorization requires the real case-sensitive key, not a boolean header'
++  $config=Join-Path $temp 'server.json';Set-Content $config '{"token":"test-identity","dataDir":"D:\\Custom Data","port":17867}'
++  $updated=Update-VihanServerConfig $config @{filePort=18081}
++  Assert ($updated.port -eq 17867 -and $updated.filePort -eq 18081 -and $updated.token -eq 'test-identity' -and $updated.dataDir -eq 'D:\Custom Data') 'Port updates preserve identity, other service port and configured data path'
++}finally{$db.Dispose();Remove-Item -LiteralPath $temp -Recurse -Force}
+--- a/tests/bootstrap_offline.test.js
++++ b/tests/bootstrap_offline.test.js
+@@ -27,7 +27,7 @@
+   sb.fetch = async (u) => { const r = await httpGet(info.origin + u, cookie); return { ok: r.status === 200, json: async () => JSON.parse(r.body) }; };
+   vm.createContext(sb);
+   await vm.runInContext('(' + 'async()=>{' + script.trim().replace(/^\(async\(\)=>\{/, '').replace(/\}\)\(\);\s*$/, '') + '})()', sb);
+-  assert.strictEqual(redirected, '/app/index.html?v=1.0.36');
++  assert.strictEqual(redirected, '/app/index.html?v=1.0.37');
+   assert.strictEqual(sb.localStorage.getItem('company_1_daybook'), '[{"a":1}]');
+   assert.strictEqual(sb.localStorage.getItem('old_stale_key'), null);
+   assert.strictEqual(sb.localStorage.getItem('__vihan_pending_ops_v110'), null, 'nothing queued for the Main PC');
+--- a/tests/camera_permissions.test.js
++++ b/tests/camera_permissions.test.js
+@@ -0,0 +1,5 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const source=fs.readFileSync(path.join(__dirname,'../runtime/electron-app/main.js'),'utf8');const start=source.indexOf('function isTrustedMediaUrl('),end=source.indexOf('function cameraOriginNeedsRestart',start);
++const sandbox={URL,trustedMediaOriginsNow:()=>new Set(['http://192.168.1.10:17867','http://127.0.0.1:17867','https://main.example'])};vm.createContext(sandbox);vm.runInContext(source.slice(start,end),sandbox);
++test('camera permission accepts configured service origins only',()=>{for(const url of ['http://192.168.1.10:17867/app/index.html','http://127.0.0.1:17867/app/index.html','https://main.example/app/index.html'])assert.equal(sandbox.isTrustedMediaUrl(url),true);for(const url of ['https://unrelated.example','http://127.0.0.1:9000','http://192.168.1.11:17867','data:text/html,example','not a url'])assert.equal(sandbox.isTrustedMediaUrl(url),false,url)});
+--- a/tests/company2_navigation.browser.test.js
++++ b/tests/company2_navigation.browser.test.js
+@@ -12,7 +12,7 @@
+  const panels=[...new Set(roots)].filter(id=>visible(document.getElementById(id)));
+  return{active,panels,selected:buttons.map(x=>x.textContent.trim()),color:buttons[0]&&getComputedStyle(buttons[0]).backgroundColor,view:document.body.getAttribute('data-v843-view'),hasContent:!!document.getElementById(expected)?.querySelector('h2,h3,form,table'),blues:[...document.querySelectorAll('#c2InquiryRuntimeV150 .nav:not(.active)')].map(b=>getComputedStyle(b).backgroundColor)};
+  },{label,labels,roots})}
+-async function check(page,label){await page.mouse.move(1420,10);await page.waitForFunction(()=>{const b=document.querySelector('#c2InquiryRuntimeV150 .nav.active');return b&&getComputedStyle(b).backgroundColor==='rgb(15, 159, 110)'},{},{timeout:1500});const s=await state(page,label);assert.deepEqual(s.selected,[label]);assert.deepEqual(s.panels,[roots[labels.indexOf(label)]]);assert.deepEqual(s.active,[labels.indexOf(label)>=6?roots[labels.indexOf(label)]:'companyHome']);assert.ok(s.hasContent);assert.equal(s.color,'rgb(15, 159, 110)');assert.ok(s.blues.every(x=>x==='rgb(53, 89, 219)'),'normal colors '+s.blues)}
++async function check(page,label){await page.mouse.move(1420,10);try{await page.waitForFunction(()=>{const b=document.querySelector('#c2InquiryRuntimeV150 .nav.active');return b&&getComputedStyle(b).backgroundColor==='rgb(15, 159, 110)'&&Array.from(document.querySelectorAll('#c2InquiryRuntimeV150 .nav:not(.active)')).every(n=>getComputedStyle(n).backgroundColor==='rgb(53, 89, 219)')},{},{timeout:5000})}catch(e){console.error('Navigation state at failure',label,JSON.stringify(await state(page,label)));throw e}const s=await state(page,label);assert.deepEqual(s.selected,[label]);assert.deepEqual(s.panels,[roots[labels.indexOf(label)]]);assert.deepEqual(s.active,[labels.indexOf(label)>=6?roots[labels.indexOf(label)]:'companyHome']);assert.ok(s.hasContent);assert.equal(s.color,'rgb(15, 159, 110)');assert.ok(s.blues.every(x=>x==='rgb(53, 89, 219)'),'normal colors '+s.blues)}
+ for(const role of ['admin','user'])test('all nine Company 2 modules: first click, all 81 transitions, rapid switching, '+role,async()=>{
+  const {page,context,errors}=await openCompany2(browser,fixture,role);
+  try{
+--- a/tests/desktop_safety.test.js
++++ b/tests/desktop_safety.test.js
+@@ -0,0 +1,12 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const source=fs.readFileSync(path.join(__dirname,'../runtime/electron-app/main.js'),'utf8');
++test('desktop refuses a wrong product, file service, offline server or failed health response',async()=>{
++ const fragment=source.slice(source.indexOf('async function checkUrl('),source.indexOf('function isLocalMain('));let health;
++ const sandbox={PRODUCT:'Vihan Enterprices',getHealth:async()=>health};vm.createContext(sandbox);vm.runInContext(fragment,sandbox);
++ for(const response of [{ok:true,product:'Other App'},{ok:true,product:'Vihan Enterprices',service:'files'},{ok:true,product:'Vihan Enterprices',offline:true},null]){health=response;assert.equal(await sandbox.checkUrl('http://fixture'),false)}health={ok:true,product:'Vihan Enterprices'};assert.equal(await sandbox.checkUrl('http://fixture'),true);
++});
++for(const state of [{pending:2},null])test('auto update does not reload a client with '+(state?'pending saves':'unknown save state'),async()=>{
++ const fragment=source.slice(source.indexOf('async function maybeAutoUpdate('),source.indexOf('function scheduleCentralUpdateChecks('));const events=[];
++ const sandbox={autoUpdating:false,APP_VERSION:'1.0.37',localDiskVersion:()=> '1.0.37',versionCompare:(a,b)=>a.localeCompare(b),fileServiceBase:x=>x,tokenRequestJson:async()=>({latest:{version:'1.0.38',sha256:'0'.repeat(64)}}),isLocalMain:()=>false,heartbeatUpdateService:async(...args)=>events.push(args[2]),mainWindow:{isDestroyed:()=>false,webContents:{executeJavaScript:async()=>state},loadURL:async()=>{throw new Error('Must not reload')}},Promise,setTimeout:()=>0,console};vm.createContext(sandbox);vm.runInContext(fragment,sandbox);assert.equal(await sandbox.maybeAutoUpdate('http://fixture',{}),false);assert.equal(sandbox.autoUpdating,false);assert.ok(events.includes('update-waiting-for-pending-saves'));
++});
+--- a/tests/full_app_audit.browser.test.js
++++ b/tests/full_app_audit.browser.test.js
+@@ -0,0 +1,94 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {chromium}=require('playwright');const {startFixture,openCompany2}=require('./helpers/company2-browser-harness');
++let browser,fixture,page,context,errors;
++test.before(async()=>browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox'],headless:true}));
++test.after(async()=>browser?.close());
++test.beforeEach(async()=>{fixture=await startFixture();({page,context,errors}=await openCompany2(browser,fixture));await page.evaluate(()=>backToAdmin())});
++test.afterEach(async()=>{await context?.close();await fixture?.close()});
++const until=(fn,arg)=>page.waitForFunction(fn,arg,{timeout:9000});
++const nav=label=>page.locator('.sidebar > button.nav').filter({hasText:label}).click();
++
++test('all Admin sections and existing static button handler targets load without undefined functions',async()=>{
++ for(const [label,id] of [['Admin Dashboard','dashboard'],['Company Management','companies'],['Staff Management','staffManagement'],['All Users','users'],['System Settings','settings']]){await nav(label);assert.ok(await page.locator('#'+id).isVisible());assert.equal(await page.locator('.sidebar .nav.active').count(),1)}
++ const controls=await page.evaluate(()=>[...document.querySelectorAll('button[onclick]')].map(b=>{const code=b.getAttribute('onclick'),target=/^\s*([\w$]+)\s*\(/.exec(code)?.[1];return{id:b.id,label:b.textContent.trim().slice(0,120),handler:code,target,type:target?(0,eval)('typeof '+target):'expression'}}));
++ const missing=controls.filter(x=>x.target&&x.type==='undefined');assert.deepEqual(missing,[]);
++ fs.writeFileSync(path.join(__dirname,'../reports/audit/control-inventory.json'),JSON.stringify(controls,null,2));assert.ok(controls.length>100);assert.deepEqual(errors,[]);
++});
++
++test('Company create/edit and Company 1/Utopiya identity survive reload without cross-company data changes',async()=>{
++ await nav('Company Management');await page.evaluate(()=>editCompany(''));await page.locator('#cName').fill('Audit Test Company');await page.locator('#cAdmin').fill('audit-admin');await page.locator('#cPass').fill('fixture-only');await page.evaluate(()=>saveCompany());await until(()=>getData().companies.some(c=>c.name==='Audit Test Company'));
++ const created=await page.evaluate(()=>getData().companies.find(c=>c.name==='Audit Test Company').id);await page.evaluate(id=>editCompany(id),created);await page.locator('#cName').fill('Edited Audit Company');await page.evaluate(()=>saveCompany());await until(()=>getData().companies.some(c=>c.name==='Edited Audit Company'));
++ await page.evaluate(id=>editCompany(id),created);await page.locator('#cName').fill('Company 2');await page.evaluate(()=>saveCompany());assert.equal(await page.evaluate(id=>getData().companies.find(c=>c.id===id).name,created),'Edited Audit Company');await page.evaluate(()=>closeModal('companyModal'));
++ const before=await page.evaluate(()=>getData().companies.find(c=>c.name==='Company 2'));
++ for(const name of ['Company 3','Company 4','Company 5','Edited Audit Company']){await page.evaluate(name=>viewCompany(getData().companies.find(c=>c.name===name).id),name);assert.ok(await page.locator('#companyHome').isVisible());assert.equal(await page.locator('#appCompany').innerText(),name);await page.locator('#backAdmin').click()}
++ await page.evaluate(()=>{const d=getData(),c=d.companies.find(c=>c.id===d.studentCompanyId);c.name='Utopiya Library';save(d);viewCompany(c.id)});assert.ok(await page.locator('.companyOnly').filter({hasText:'Students'}).isVisible());assert.deepEqual(await page.evaluate(()=>getData().companies.find(c=>c.name==='Company 2')),before);
++ assert.equal(await page.evaluate(()=>vihanWaitForSaved()),true);await page.reload();await until(()=>document.getElementById('app').style.display==='block');assert.ok(await page.locator('#companyHome').isVisible());assert.equal(await page.locator('#appCompany').innerText(),'Utopiya Library');assert.deepEqual(errors,[]);
++});
++
++test('Company 1 student validation, double-save prevention, edit/search and company data isolation',async()=>{
++ await page.evaluate(()=>viewCompany(getData().companies[0].id));await nav('Students');await page.evaluate(()=>openStudent());await page.evaluate(()=>saveStudent());assert.equal(await page.evaluate(()=>studentCompany().students.length),0);
++ await page.locator('#sName').fill('Audit Student');await page.locator('#sFather').fill('Fixture Father');await page.locator('#sPhone').fill('9876543210');await page.evaluate(()=>{saveStudent();saveStudent()});await until(()=>studentCompany().students.length===1&&!saveStudent._saving);
++ const id=await page.evaluate(()=>studentCompany().students[0].id);await page.evaluate(id=>editStudent(id),id);await page.locator('#sName').fill('Edited Student');await page.evaluate(()=>saveStudent());await until(()=>studentCompany().students[0].name==='Edited Student'&&!saveStudent._saving);await page.locator('#studentSearch').fill('missing-name');assert.ok(!(await page.locator('#students').innerText()).includes('Edited Student'));await page.locator('#studentSearch').fill('Edited Student');assert.ok((await page.locator('#students').innerText()).includes('Edited Student'));
++ assert.equal(await page.evaluate(()=>getData().companies.slice(1).reduce((n,c)=>n+c.students.length,0)),0);assert.deepEqual(errors,[]);
++});
++
++test('Company 1 Joining, Payment, Leave and Reports navigation and a linked joining/payment',async()=>{
++ await page.evaluate(()=>viewCompany(getData().companies[0].id));await nav('Students');await page.evaluate(()=>openStudent());await page.locator('#sName').fill('Fees Student');await page.evaluate(()=>saveStudent());await until(()=>!saveStudent._saving&&studentCompany().students.length===1);
++ for(const [label,id] of [['Student Joining','studentJoining'],['Student Leave','studentLeave'],['Payment In / Out','paymentIn'],['Student Report','studentReport']]){await nav(label);assert.ok(await page.locator('#'+id).isVisible());assert.equal(await page.locator('.sidebar .nav.active').count(),1)}
++ await nav('Student Joining');await page.evaluate(()=>openJoiningForm());await page.evaluate(()=>{selectedJoiningStudentId=studentCompany().students[0].id;jSheetNo.value='AUDIT-1';jJoiningDate.value='2026-10-20';jFees.value='500';jPaid.value='100';saveJoining()});await until(()=>studentCompany().joinings.length===1);assert.equal(await page.evaluate(()=>studentCompany().payments.filter(p=>p.source==='Student Joining').length),1);
++ await nav('Payment In / Out');await page.evaluate(()=>{selectedPaymentStudentId=studentCompany().students[0].id;paymentAmount.value='50';paymentDescription.value='Audit fee payment'});await page.evaluate(()=>savePaymentIn());await until(()=>studentCompany().payments.length===2);assert.equal(await page.evaluate(()=>studentCompany().payments.reduce((n,p)=>n+Number(p.amount||0),0)),150);await nav('Student Report');assert.ok((await page.locator('#studentReport').innerText()).includes('Fees Student'));assert.deepEqual(errors,[]);
++});
++
++test('Staff create/edit/tabs/delete and settings backup error reporting',async()=>{
++ await nav('Staff Management');await page.evaluate(()=>sm712ClearStaff());await page.locator('#sm712CompanyChecks input').first().check();await page.locator('#sm712Name').fill('Audit Staff');await page.locator('#sm712MonthlySalary').fill('12000');await page.evaluate(()=>sm712SaveStaff());await until(()=>sm712Data().staff.length===1);const id=await page.evaluate(()=>sm712Data().staff[0].id);await page.evaluate(id=>sm712EditStaff(id),id);await page.locator('#sm712Name').fill('Edited Staff');await page.evaluate(()=>sm712SaveStaff());assert.equal(await page.evaluate(()=>sm712Data().staff[0].name),'Edited Staff');
++ for(const tab of ['attendance','salary','permissions','activity','staff']){await page.locator('.sm712-tab').filter({hasText:({attendance:'Attendance',salary:'Salary',permissions:'Permissions',activity:'Activity Report',staff:'Add Staff / Staff List'})[tab]}).click();assert.ok(await page.locator('#sm712Panel_'+tab).isVisible())}
++ await page.evaluate(id=>sm712DeleteStaff(id),id);assert.equal(await page.evaluate(()=>sm712Data().staff.length),0);
++ await nav('System Settings');await page.route('**/api/backup',r=>r.fulfill({status:500,contentType:'application/json',body:'{"error":"injected backup disk failure"}'}));await page.evaluate(()=>ve104BackupNow());assert.ok((await page.locator('#ve104BackupMessage').innerText()).includes('injected backup disk failure'));assert.ok(!(await page.locator('#ve104BackupMessage').innerText()).includes('successfully'));assert.deepEqual(errors,[]);
++});
++
++test('successful backup response updates last-backup status without ReferenceError',async()=>{
++ await nav('System Settings');await page.route('**/api/backup',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,file:'fixture-backup.zip',backupPath:'D:\\Backups'})}));await page.evaluate(()=>ve104BackupNow());assert.ok((await page.locator('#ve104LastBackup').innerText()).includes('fixture-backup.zip'));assert.ok((await page.locator('#ve104BackupMessage').innerText()).includes('successfully'));assert.deepEqual(errors,[]);
++});
++
++test('two clients conflict: stale text is not retried over Main data and remains pending for review',async()=>{
++ const second=await openCompany2(browser,fixture);try{
++  await page.evaluate(()=>localStorage.setItem('audit_conflict','Main version'));assert.equal(await page.evaluate(()=>vihanWaitForSaved()),true);
++  await second.page.evaluate(()=>localStorage.setItem('audit_conflict','Client unsaved version'));assert.equal(await second.page.evaluate(()=>vihanFlushPending()),false);await second.page.waitForTimeout(1000);
++  assert.equal(fixture.storage.get('audit_conflict').value,'Main version');assert.equal(await second.page.evaluate(()=>localStorage.getItem('audit_conflict')),'Client unsaved version');assert.equal(await second.page.evaluate(()=>vihanConflicts().length),1);
++  assert.equal(await second.page.evaluate(()=>vihanWaitForSaved(500)),false);assert.deepEqual(second.errors,[]);
++ }finally{await second.context.close()}
++});
++
++test('user cannot directly open Admin pages or denied sidebar modules',async()=>{
++ const user=await openCompany2(browser,fixture,'user');try{
++  for(const id of ['companies','staffManagement','users','settings','auditReportV612']){await user.page.evaluate(id=>page(id),id);assert.ok(await user.page.locator('#'+id).isHidden())}
++  await user.page.evaluate(()=>{localStorage.setItem('company2_user_role_permissions_v408',JSON.stringify({user:{c2InquiryAccess:true}}));db609ApplyCompany2MainModulePermissions()});assert.ok(await user.page.locator('#allDocumentsBtnV819').isHidden());await user.page.evaluate(()=>v1033Company2Navigate('All Documents'));assert.ok(await user.page.locator('#allDocumentsPageV819').isHidden());assert.deepEqual(user.errors,[]);
++ }finally{await user.context.close()}
++});
++
++test('failed text save remains pending and never reports Main PC confirmed saved',async()=>{
++ await page.route('**/api/storage/batch',route=>route.fulfill({status:500,contentType:'application/json',body:'{"error":"injected database failure"}'}));
++ await page.evaluate(()=>localStorage.setItem('audit_failed_save','pending local data'));
++ assert.equal(await page.evaluate(()=>vihanWaitForSaved(600)),false);
++ assert.equal(await page.evaluate(()=>localStorage.getItem('audit_failed_save')),'pending local data');
++ assert.ok((await page.locator('#vihanServiceBadge').innerText()).includes('Pending'));
++ assert.ok(!fixture.storage.has('audit_failed_save'));
++});
++
++test('configured File Service on a nonadjacent port is used directly for file listing',async()=>{
++ const custom=await startFixture({nonAdjacentFilePort:true});const client=await openCompany2(browser,custom);
++ try{await client.page.locator('#allDocumentsBtnV819').click();await client.page.waitForFunction(()=>document.getElementById('v819Body')?.textContent.length>0);const lists=custom.requests.filter(x=>x.path==='/api/blob/list');assert.ok(lists.length>0);assert.ok(lists.every(x=>x.port===custom.filePort));assert.notEqual(custom.filePort,Number(new URL(custom.url).port)+1);assert.deepEqual(client.errors,[])}finally{await client.context.close();await custom.close()}
++});
++for(const keepLocal of [true,false])test('conflict resolution applies only explicit operator choice: '+(keepLocal?'keep local':'keep Main'),async()=>{
++ const second=await openCompany2(browser,fixture);
++ try{await page.evaluate(()=>localStorage.setItem('audit_choice','Main version'));assert.equal(await page.evaluate(()=>vihanWaitForSaved()),true);await second.page.evaluate(()=>localStorage.setItem('audit_choice','Local version'));await second.page.evaluate(()=>vihanFlushPending());assert.equal(await second.page.evaluate(()=>vihanConflicts().length),1);
++ const result=await second.page.evaluate(async keep=>{const previous=window.confirm;window.confirm=()=>true;let calls=0;if(!keep)window.confirm=()=>++calls>1;try{return await vihanResolveConflicts()}finally{window.confirm=previous}},keepLocal);assert.equal(result,true);assert.equal(fixture.storage.get('audit_choice').value,keepLocal?'Local version':'Main version');assert.equal(await second.page.evaluate(()=>vihanConflicts().length),0);assert.equal(await second.page.evaluate(()=>localStorage.getItem('audit_choice')),keepLocal?'Local version':'Main version');assert.deepEqual(second.errors,[]);
++ }finally{await second.context.close()}
++});
++
++test('Staff attendance update is idempotent and salary/payment ledger balances match saved entries',async()=>{
++ await nav('Staff Management');await page.evaluate(()=>sm712ClearStaff());await page.locator('#sm712CompanyChecks input').first().check();await page.locator('#sm712Name').fill('Payroll Fixture');await page.locator('#sm712MonthlySalary').fill('12000');await page.locator('#sm712SalaryBasis').selectOption('30');await page.evaluate(()=>sm712SaveStaff());const id=await page.evaluate(()=>sm712Data().staff[0].id);
++ await page.locator('.sm712-tab').filter({hasText:'Attendance'}).click();await page.locator('#sm729SummaryBtn').click();await page.locator('#sm729Date').fill('2026-10-20');await page.locator('#sm729Staff').selectOption(id);await page.locator('#sm729StatusButtons [data-status="Present"]').click();await page.evaluate(()=>{sm729SaveSummary();sm729SaveSummary()});assert.equal(await page.evaluate(()=>sm712Data().attendance.length),1);assert.equal(await page.evaluate(()=>sm712Data().attendance[0].status),'Present');
++ await page.locator('.sm712-tab').filter({hasText:'Salary',exact:true}).click();await page.evaluate(id=>{sm712SalaryMonth.value='2026-10';sm712SalaryStaff.value=id;sm712Bonus.value='0';sm712Advance.value='0';sm712Deduction.value='0';sm712PaidAmount.value='100';sm712SaveSalary()},id);assert.equal(await page.evaluate(()=>sm712Data().salary[0].net),400);assert.equal(await page.evaluate(()=>sm712Data().salary[0].paid),100);assert.equal(await page.evaluate(()=>sm712Data().salary[0].balance),300);assert.deepEqual(errors,[]);
++});
+--- a/tests/helpers/company2-browser-harness.js
++++ b/tests/helpers/company2-browser-harness.js
+@@ -3,18 +3,18 @@
+ // it does not replace or claim to exercise Windows MainService/SQLite.
+ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+ const root=path.resolve(__dirname,'../..');
+-async function startFixture(){
++async function startFixture(options={}){
+  const storage=new Map(),blobs=new Map(),changes=[],requests=[];let revision=0,listDelay=0;
+  const blobKey=(db,store,id)=>JSON.stringify([db,store,String(id)]);
+  const handler=async(req,res)=>{
+-  const u=new URL(req.url,'http://fixture'),p=u.pathname;requests.push({method:req.method,path:p});
++  const u=new URL(req.url,'http://fixture'),p=u.pathname;requests.push({method:req.method,path:p,port:req.socket.localPort});
+   res.setHeader('Access-Control-Allow-Origin',req.headers.origin||'*');res.setHeader('Access-Control-Allow-Credentials','true');res.setHeader('Access-Control-Allow-Headers','Content-Type, Cache-Control');
+   if(req.method==='OPTIONS'){res.writeHead(204);return res.end()}
+   const json=(d,status=200)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(d))};
+   const chunks=[];for await(const c of req)chunks.push(c);const raw=Buffer.concat(chunks);let body={};
+   if(raw.length&&p!=='/api/blob/put-binary')try{body=JSON.parse(raw.toString())}catch{}
+   if(p==='/api/storage/batch'){
+-   const results=body.ops.map(op=>{const rec={key:op.key,value:op.value,deleted:op.op==='remove',keyRev:(storage.get(op.key)?.keyRev||0)+1,revision:++revision,clientId:body.clientId};storage.set(op.key,rec);changes.push(rec);return{key:op.key,seq:op.seq,ok:true,keyRev:rec.keyRev,revision}});return json({ok:true,results,revision});
++   const results=body.ops.map(op=>{const current=storage.get(op.key);if(Number(op.expectedRev||0)!==Number(current?.keyRev||0))return{key:op.key,seq:op.seq,ok:false,conflict:true,current:current||null,revision};const rec={key:op.key,value:op.value,deleted:op.op==='remove',keyRev:(storage.get(op.key)?.keyRev||0)+1,revision:++revision,clientId:body.clientId};storage.set(op.key,rec);changes.push(rec);return{key:op.key,seq:op.seq,ok:true,keyRev:rec.keyRev,revision}});return json({ok:true,results,revision});
+   }
+   if(p==='/api/snapshot')return json({revision,items:Object.fromEntries(storage),keyRevs:Object.fromEntries([...storage].map(([k,v])=>[k,v.keyRev]))});
+   if(p==='/api/storage/changes')return json({revision,changes:changes.filter(x=>x.revision>Number(u.searchParams.get('since')||0))});
+@@ -31,19 +31,19 @@
+    const b=blobs.get(blobKey(u.searchParams.get('db'),u.searchParams.get('store'),u.searchParams.get('id')));if(!b)return json({error:'not found'},404);
+    if(p.endsWith('/meta'))return json({record:b.record,hasBlob:!!b.bytes});res.setHeader('Content-Type',b.blobType||'application/octet-stream');return res.end(b.bytes);
+   }
+-  if(p==='/api/status')return json({ok:true,serverName:'TEST FIXTURE',persistence:'HTTP contract fixture (not SQLite)'});
++  if(p==='/api/status')return json({ok:true,serverName:'TEST FIXTURE',persistence:'HTTP contract fixture (not SQLite)',fileServicePort:file.address().port});
+   if(p==='/health')return json({ok:true,product:'Vihan Enterprices'});
+   if(p==='/api/update/status')return json({latest:{available:false},clients:[]});
+   if(p.startsWith('/api/'))return json({error:'Unimplemented fixture API: '+p},404);
+-  let relative=p==='/'?'app/index.html':p.replace(/^\//,'');const file=path.resolve(root,relative);
+-  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);return res.end('not found')}
+-  res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':'text/html');res.end(fs.readFileSync(file));
++  let relative=p==='/'?'app/index.html':p.replace(/^\//,'');const staticFile=path.resolve(root,relative);
++  if(!staticFile.startsWith(root+path.sep)||!fs.existsSync(staticFile)||!fs.statSync(staticFile).isFile()){res.writeHead(404);return res.end('not found')}
++  res.setHeader('Content-Type',staticFile.endsWith('.js')?'text/javascript':'text/html');res.end(fs.readFileSync(staticFile));
+  };
+  const main=http.createServer((req,res)=>handler(req,res).catch(e=>{res.statusCode=500;res.end(e.message)}));
+  await new Promise(r=>main.listen(0,'127.0.0.1',r));const port=main.address().port;
+  const file=http.createServer((req,res)=>handler(req,res).catch(e=>{res.statusCode=500;res.end(e.message)}));
+- await new Promise((r,j)=>{file.once('error',j);file.listen(port+1,'127.0.0.1',r)});
+- return{url:'http://127.0.0.1:'+port,storage,blobs,requests,setListDelay:n=>listDelay=n,close:async()=>{main.closeAllConnections();file.closeAllConnections();await Promise.all([new Promise(r=>main.close(r)),new Promise(r=>file.close(r))])}};
++ await new Promise((r,j)=>{file.once('error',j);file.listen(options.nonAdjacentFilePort?0:port+1,'127.0.0.1',r)});
++ return{url:'http://127.0.0.1:'+port,filePort:file.address().port,storage,blobs,requests,setListDelay:n=>listDelay=n,close:async()=>{main.closeAllConnections();file.closeAllConnections();await Promise.all([new Promise(r=>main.close(r)),new Promise(r=>file.close(r))])}};
+ }
+ async function openCompany2(browser,fixture,type='admin'){
+  const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
+--- a/tests/offline.test.js
++++ b/tests/offline.test.js
+@@ -243,3 +243,16 @@
+   assert.strictEqual(st.offline, true); assert.ok(st.savedAt);
+   om.stopServer(); s.close();
+ });
++
++test('sync: failed refresh of an existing attachment retains its previous bytes and index reference',async()=>{
++ const model=freshModel(),{s,base}=await mockMain(model),dir=tmp(),manager=mkManager(dir);
++ try{
++  assert.equal((await manager.syncOnce({base,fileBase:base,token:TOKEN})).ok,true);
++  const key='docsDB|files|f1',before=manager._internals.loadIndex().items[key],oldBytes=fs.readFileSync(path.join(manager._paths.files(),before.file));
++  model.blobs[0].updatedAt='2026-10-20T12:00:00Z';model.blobs[0].bytes=Buffer.from('new remote content');model.failBlob=true;
++  const failed=await manager.syncOnce({base,fileBase:base,token:TOKEN});assert.equal(failed.ok,false);
++  const retained=manager._internals.loadIndex().items[key];assert.equal(retained.file,before.file);assert.deepEqual(fs.readFileSync(path.join(manager._paths.files(),retained.file)),oldBytes);
++  model.failBlob=false;assert.equal((await manager.syncOnce({base,fileBase:base,token:TOKEN})).ok,true);
++  assert.deepEqual(fs.readFileSync(path.join(manager._paths.files(),manager._internals.loadIndex().items[key].file)),model.blobs[0].bytes);
++ }finally{s.closeAllConnections();await new Promise(r=>s.close(r));fs.rmSync(dir,{recursive:true,force:true})}
++});
+--- a/tests/powershell_backend.test.js
++++ b/tests/powershell_backend.test.js
+@@ -0,0 +1,6 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),cp=require('node:child_process'),path=require('node:path');
++const executable=process.env.PWSH_PATH||'pwsh';
++for(const [file,min] of [['sqlite_bridge.integration.ps1',15],['backend_safety.integration.ps1',15],['powershell_syntax.integration.ps1',1],['archive_safety.integration.ps1',6]])test('PowerShell/SQLite integration: '+file,{skip:!process.env.PWSH_PATH&&cp.spawnSync(executable,['--version']).error?'PowerShell 7 is not installed':false},()=>{
++ const run=cp.spawnSync(executable,['-NoLogo','-NoProfile','-File',path.join(__dirname,file)],{encoding:'utf8',timeout:60000});assert.equal(run.status,0,run.stdout+'\n'+run.stderr);const lines=run.stdout.trim().split('\n').filter(Boolean);assert.ok(lines.length>=min,run.stdout);console.log(lines.join('\n'));
++});
+--- a/tests/powershell_syntax.integration.ps1
++++ b/tests/powershell_syntax.integration.ps1
+@@ -0,0 +1,12 @@
++$ErrorActionPreference='Stop'
++$Root=Split-Path $PSScriptRoot -Parent
++$count=0
++Get-ChildItem $Root -Recurse -Filter *.ps1|ForEach-Object{
++  $tokens=$null;$errors=$null
++  $ast=[Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors)
++  if($errors.Count){throw ($_.Name+': '+($errors.Message -join '; '))}
++  $bad=$ast.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -match '^(PID|Host|HOME|PSVersionTable|PSScriptRoot|PSCommandPath)$'},$true)
++  if($bad.Count){throw ($_.Name+': assignment to a reserved PowerShell variable')}
++  $count++
++}
++Write-Output ('PASS '+$count+' PowerShell files parse; no reserved-variable assignments')
+--- a/tests/sqlite_bridge.integration.ps1
++++ b/tests/sqlite_bridge.integration.ps1
+@@ -0,0 +1,43 @@
++param([string]$Root=(Split-Path $PSScriptRoot -Parent))
++$ErrorActionPreference='Stop'
++$source=[IO.File]::ReadAllText((Join-Path $Root 'runtime/VihanSqlite.cs'))
++$harness=@'
++public static class SqliteAuditTests {
++  static System.Collections.Generic.List<string> passed = new System.Collections.Generic.List<string>();
++  static void Check(bool ok,string name){if(!ok)throw new System.Exception(name);passed.Add(name);}
++  public static string Run(string dir){
++    if(!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
++      System.Runtime.InteropServices.NativeLibrary.SetDllImportResolver(typeof(VihanSqliteDb).Assembly,(name,assembly,search)=>name=="winsqlite3.dll"?System.Runtime.InteropServices.NativeLibrary.Load("libsqlite3.so.0"):System.IntPtr.Zero);
++    string file=System.IO.Path.Combine(dir,"Hindi space परीक्षण.db");
++    bool blocked=false;try{using(var unexpected=new VihanSqliteDb(file)){} }catch(System.IO.FileNotFoundException){blocked=true;}
++    Check(blocked&&!System.IO.File.Exists(file),"Missing configured database cannot silently become an empty database");
++    using(var db=new VihanSqliteDb(file,true)){
++      db.Exec("CREATE TABLE entries(id INTEGER PRIMARY KEY,name TEXT);CREATE TABLE counters(id INTEGER PRIMARY KEY,n INTEGER);INSERT INTO counters VALUES(1,0),(2,0);");
++      db.Exec("INSERT INTO entries VALUES(1,"+VihanSqliteDb.Quote("नाम O'Brien")+");");
++      Check(db.ScalarText("SELECT name FROM entries WHERE id=1","")=="नाम O'Brien","Unicode, spaces and quoted data save/read");
++      bool failed=false;try{db.Exec("BEGIN IMMEDIATE;INSERT INTO entries VALUES(2,'must rollback');INSERT INTO missing_table VALUES(1);COMMIT;");}catch{failed=true;}
++      Check(failed&&db.ScalarLong("SELECT COUNT(*) FROM entries WHERE id=2",-1)==0,"Failed group commit rolls back all partial writes");
++      db.Exec("BEGIN IMMEDIATE;INSERT INTO entries VALUES(3,'after failure');COMMIT;");
++      Check(db.ScalarLong("SELECT COUNT(*) FROM entries",0)==2,"Connection can save after a failed transaction");
++      var writer=System.Threading.Tasks.Task.Run(()=>{using(var other=new VihanSqliteDb(file)){for(int i=0;i<60;i++)other.Exec("BEGIN IMMEDIATE;UPDATE counters SET n=n+1 WHERE id=1;UPDATE counters SET n=n+1 WHERE id=2;COMMIT;");}});
++      for(int i=0;i<4;i++){
++        string backup=System.IO.Path.Combine(dir,"snapshot_"+i+".db");db.BackupTo(backup);
++        using(var snapshot=new VihanSqliteDb(backup)){
++          Check(snapshot.ScalarText("PRAGMA quick_check","")=="ok","SQLite snapshot integrity "+i);
++          Check(snapshot.ScalarLong("SELECT n FROM counters WHERE id=1",-1)==snapshot.ScalarLong("SELECT n FROM counters WHERE id=2",-2),"Backup is transaction-consistent during another connection's writes "+i);
++        }
++      }
++      writer.GetAwaiter().GetResult();
++      Check(db.ScalarLong("SELECT n FROM counters WHERE id=1",0)==60,"Concurrent writer commits survive");
++      bool overwrite=false;try{db.BackupTo(System.IO.Path.Combine(dir,"snapshot_0.db"));}catch(System.ArgumentException){overwrite=true;}
++      Check(overwrite,"Backup refuses an existing destination");
++    }
++    using(var reopened=new VihanSqliteDb(file))Check(reopened.ScalarLong("SELECT COUNT(*) FROM entries",0)==2&&reopened.ScalarLong("SELECT n FROM counters WHERE id=1",0)==60,"Database save/reopen persistence");
++    return string.Join("\n",passed);
++  }
++}
++'@
++Add-Type -TypeDefinition ($source+"`n"+$harness)
++$temp=Join-Path ([IO.Path]::GetTempPath()) ('VihanSqliteAudit_'+[guid]::NewGuid().ToString('N'))
++New-Item -ItemType Directory -Path $temp|Out-Null
++try{[SqliteAuditTests]::Run($temp)}finally{Remove-Item -LiteralPath $temp -Recurse -Force}
+--- a/tests/sync_js_offline.test.js
++++ b/tests/sync_js_offline.test.js
+@@ -59,9 +59,9 @@
+ test('online (unchanged): a write is still queued and sent to /api/storage/batch', async () => {
+   const b = makeBrowser(false);
+   b.sandbox.localStorage.setItem('company_1_daybook', '[1]');
+-  await wait(300);
++  await wait(650);
+   assert.ok(b.calls.xhr.some(u => u === '/api/storage/batch'), 'xhr: ' + b.calls.xhr);
+-  assert.ok(b.calls.fetch.some(u => u.includes('/api/storage/changes')) || true);
++  assert.ok(b.calls.fetch.some(u => u.includes('/api/storage/changes')));
+ });
+ test('online (unchanged): file service still uses main port + 1', async () => {
+   const b = makeBrowser(false);
+--- a/tests/update_download.test.js
++++ b/tests/update_download.test.js
+@@ -0,0 +1,8 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),http=require('node:http'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
++const {downloadWithToken}=require('../runtime/electron-app/download');
++async function fixture(t,handler){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'vihan-download-')),server=http.createServer(handler);await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(async()=>{server.closeAllConnections();await new Promise(r=>server.close(r));fs.rmSync(dir,{recursive:true,force:true})});return{url:'http://127.0.0.1:'+server.address().port,file:path.join(dir,'update.veupdate'),dir}}
++const payload=Buffer.from('verified update archive fixture'),digest=crypto.createHash('sha256').update(payload).digest('hex');
++test('update download verifies checksum and bytes before publishing destination',async t=>{const f=await fixture(t,(q,r)=>{assert.equal(q.headers['x-vihan-token'],'test');r.writeHead(200,{'Content-Length':payload.length});r.end(payload)});await downloadWithToken(f.url,'test',f.file,null,digest);assert.deepEqual(fs.readFileSync(f.file),payload)});
++test('truncated update rejects promptly and preserves existing package',async t=>{const f=await fixture(t,(q,r)=>{r.writeHead(200,{'Content-Length':1000});r.write('partial');setTimeout(()=>r.destroy(),10)});fs.writeFileSync(f.file,'previous verified package');await assert.rejects(downloadWithToken(f.url,'test',f.file,null,digest));assert.equal(fs.readFileSync(f.file,'utf8'),'previous verified package');assert.deepEqual(fs.readdirSync(f.dir),['update.veupdate'])});
++test('bad or missing checksum never replaces an existing package',async t=>{const f=await fixture(t,(q,r)=>r.end(payload));fs.writeFileSync(f.file,'previous');await assert.rejects(downloadWithToken(f.url,'test',f.file,null,'0'.repeat(64)),/checksum/);await assert.rejects(downloadWithToken(f.url,'test',f.file),/checksum/);assert.equal(fs.readFileSync(f.file,'utf8'),'previous')});

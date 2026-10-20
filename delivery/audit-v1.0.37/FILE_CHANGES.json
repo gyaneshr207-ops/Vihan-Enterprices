@@ -1,0 +1,206 @@
+[
+  {
+    "file": "Vihan_Enterprices_v1.0.37_Inno_Setup.iss",
+    "status": "new",
+    "sha256": "c37e3d8086682d2997688c624f665222a34e007f91c22420883517b7c97b8ab0"
+  },
+  {
+    "file": "app/bootstrap.html",
+    "status": "modified",
+    "sha256": "4d9791c6d63a5045e01a6d4342e6df092985b4f73b572cab26e1480c1b1932a4"
+  },
+  {
+    "file": "app/index.html",
+    "status": "modified",
+    "sha256": "f2a7c1fdbed6be42643e740bfc968ff6677a46b76d461e69fd58d060d0fff5ac"
+  },
+  {
+    "file": "app/version.json",
+    "status": "modified",
+    "sha256": "4a5688b5c84876a2671e8965f84322abe3f77fe6a4e5358804f1048240fe8ed5"
+  },
+  {
+    "file": "app/vihan-sync.js",
+    "status": "modified",
+    "sha256": "2e1884af8432fbf51bfa682addd37313fc5d7dc8a4662015eee346335396f5e0"
+  },
+  {
+    "file": "installer/EasyUninstall.ps1",
+    "status": "modified",
+    "sha256": "67956be71eb7053df8da0f8ce3392dbae89e0d11ada00a3839cf6c3d7682e863"
+  },
+  {
+    "file": "installer/Install.ps1",
+    "status": "modified",
+    "sha256": "2122b876f3573f5a7d1565a1ff552067ac4ced1ee334d43ed32b5452133fe100"
+  },
+  {
+    "file": "manifest.json",
+    "status": "new",
+    "sha256": "cb5edebd0e31963d873851ddf7d71e1d4057a825b1e5ed2cd810ea533923307a"
+  },
+  {
+    "file": "runtime/ApplyRemoteRestore.ps1",
+    "status": "modified",
+    "sha256": "4806c7b3c0e92f159098fa61a5b5afb0dab2f778f113baba3a756774f1ed1b29"
+  },
+  {
+    "file": "runtime/ApplyUpdate.ps1",
+    "status": "modified",
+    "sha256": "94a4914756fe491f4abbb01ee29884bf88288cbf313c219b59dc7b9760d43f99"
+  },
+  {
+    "file": "runtime/ArchiveSafety.ps1",
+    "status": "new",
+    "sha256": "ced39162c8a186a5f693c294612678984cf8f79a022c93d2acb72ef19636a176"
+  },
+  {
+    "file": "runtime/AuditStorageSafe.ps1",
+    "status": "new",
+    "sha256": "e0af3616384e4a54afdee0aef91c33c300f081c3977d0a03d14fb2c046f2cb35"
+  },
+  {
+    "file": "runtime/AutoUpdater.ps1",
+    "status": "modified",
+    "sha256": "6b2efc175054883ccbf34447ea0b4fccdec28d7d73678224a3d3c5efb415e211"
+  },
+  {
+    "file": "runtime/BlobStorage.ps1",
+    "status": "new",
+    "sha256": "bb8cc8715cc3392ea8dbb3768b6b2578803262ed87f5f9c1b1543c3e027dc310"
+  },
+  {
+    "file": "runtime/FileService.ps1",
+    "status": "modified",
+    "sha256": "dfdd80293d0a0adb9d33c37dfb28c91c2834572dc40a4a14c2142609bb3e29b7"
+  },
+  {
+    "file": "runtime/FirstSetup.ps1",
+    "status": "modified",
+    "sha256": "828f7f39e9301c96562cc9b2101911007121e3d7737ec125de7e646f1b9557e9"
+  },
+  {
+    "file": "runtime/MainService.ps1",
+    "status": "modified",
+    "sha256": "e18eb189ce5b4ccb6afebac4eda2c9341402999ee80679e39cacd20232215a38"
+  },
+  {
+    "file": "runtime/RepairMainService.ps1",
+    "status": "modified",
+    "sha256": "7497058b8211ec29b2193d2414666196e9f6c88c41ee972ed423c38e5659e96d"
+  },
+  {
+    "file": "runtime/ResetConnection.ps1",
+    "status": "modified",
+    "sha256": "28a1030b04b2b89e2f64051be0eb4e9bfe15cf5140349dfb6a6231d8ac414c1e"
+  },
+  {
+    "file": "runtime/RestoreBackup.ps1",
+    "status": "modified",
+    "sha256": "78552fbbf18ebd9b6aceb86e6ab829de48d6b9c7e9a66170f959d04af643abe8"
+  },
+  {
+    "file": "runtime/StoragePaths.ps1",
+    "status": "new",
+    "sha256": "80b346274c2ef9c91dc8eb53d7dba2e287299ac15d1d16f61762229753d6316c"
+  },
+  {
+    "file": "runtime/VihanSqlite.cs",
+    "status": "modified",
+    "sha256": "702bd13bdcd9fe6c7065e19741e1046c6fcc8545e0197490988e432deb9a253c"
+  },
+  {
+    "file": "runtime/electron-app/download.js",
+    "status": "new",
+    "sha256": "75ba58480e0ced86d52faa1213d4d24f9c8197bc58fb12cecc186a565b72ce1b"
+  },
+  {
+    "file": "runtime/electron-app/main.js",
+    "status": "modified",
+    "sha256": "3347117ae0290a46f8b55df9c0f7841f0ade10853d36a1f4534157a4680f7151"
+  },
+  {
+    "file": "runtime/electron-app/offline.js",
+    "status": "modified",
+    "sha256": "5915a08d2e1403d719bc16f8686834608a580bb5c59640e52b663f2c9d554441"
+  },
+  {
+    "file": "runtime/electron-app/package.json",
+    "status": "modified",
+    "sha256": "f641e897ddd92e24acb82afcccedd9b10ff3d84740466467c4749b52319c909d"
+  },
+  {
+    "file": "tests/archive_safety.integration.ps1",
+    "status": "new",
+    "sha256": "8f04543d179b14a76bfa24787db0e860f8634580d762f795f9cba3146e6dc112"
+  },
+  {
+    "file": "tests/backend_safety.integration.ps1",
+    "status": "new",
+    "sha256": "bebc645d0b37685cb1a695eea4e5ad686a6ff4d3113642a2c6260e5199c7af4d"
+  },
+  {
+    "file": "tests/bootstrap_offline.test.js",
+    "status": "modified",
+    "sha256": "7c1a27e18d41d8cf0efcf579bcfc49281509253a902de545caa177aa011c350e"
+  },
+  {
+    "file": "tests/camera_permissions.test.js",
+    "status": "new",
+    "sha256": "c6f5eebac3a42e20220c4821350e5c4c80f0166e2bdda13403fd18de7f60344a"
+  },
+  {
+    "file": "tests/company2_navigation.browser.test.js",
+    "status": "modified",
+    "sha256": "1591f7f819adf79317685618e135b854df67042c98f13d0e493ebb707ddd7aaa"
+  },
+  {
+    "file": "tests/desktop_safety.test.js",
+    "status": "new",
+    "sha256": "92940651b9bd0da2115090a970c9f2031856959a8e6cfca512c23d4403094e5f"
+  },
+  {
+    "file": "tests/full_app_audit.browser.test.js",
+    "status": "new",
+    "sha256": "fb0d3255627fa53fcef3ae4c0294bd9dd3361daeb7e0915bc2a44982806719de"
+  },
+  {
+    "file": "tests/helpers/company2-browser-harness.js",
+    "status": "modified",
+    "sha256": "2586777d3830ee0706627c5f9b03075c80f81eb8ebdce8a47d640fdca1f504c5"
+  },
+  {
+    "file": "tests/offline.test.js",
+    "status": "modified",
+    "sha256": "8aec1f4ffd8a733c91071e950db37a46b9ccc4872b84411054f6fe6f6de85da4"
+  },
+  {
+    "file": "tests/powershell_backend.test.js",
+    "status": "new",
+    "sha256": "8502315e3afb959061d2e0813b00fe894f03cd832b59a6d48c324f20a7514ea3"
+  },
+  {
+    "file": "tests/powershell_syntax.integration.ps1",
+    "status": "new",
+    "sha256": "10964914606c10159cd500a698014e006a5da52898a325f520ec3cd24463e929"
+  },
+  {
+    "file": "tests/sqlite_bridge.integration.ps1",
+    "status": "new",
+    "sha256": "29c0f926e4cfbf01bb99dd6ee18ae1806d59fe6083cb836813481adda14796d0"
+  },
+  {
+    "file": "tests/sync_js_offline.test.js",
+    "status": "modified",
+    "sha256": "069508e80c34a20e42194f37133ce7b188375e5249899aad0dcf81c31e4c4e63"
+  },
+  {
+    "file": "tests/update_download.test.js",
+    "status": "new",
+    "sha256": "0647a1753e55fb9f654afc37caa435c59a2c8a62ade57aa92ebd8495999d26e5"
+  },
+  {
+    "file": "Vihan_Enterprices_v1.0.36_Inno_Setup.iss",
+    "status": "removed or renamed"
+  }
+]

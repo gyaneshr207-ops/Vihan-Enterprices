@@ -1,0 +1,1219 @@
+[
+  {
+    "id": "",
+    "label": "LOGIN",
+    "handler": "login()",
+    "target": "login",
+    "type": "function"
+  },
+  {
+    "id": "backAdmin",
+    "label": "← Back to Admin Main",
+    "handler": "backToAdmin()",
+    "target": "backToAdmin",
+    "type": "function"
+  },
+  {
+    "id": "db755UserAttendanceBtn",
+    "label": "Attendance",
+    "handler": "db755OpenUserAttendance()",
+    "target": "db755OpenUserAttendance",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Logout",
+    "handler": "logout()",
+    "target": "logout",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🏠 Admin Dashboard",
+    "handler": "page('dashboard',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🏢 Company Management",
+    "handler": "page('companies',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "👨‍💼 Staff Management",
+    "handler": "page('staffManagement',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🏢 My Company",
+    "handler": "page('companyHome',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "👥 All Users",
+    "handler": "page('users',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "👤 My Users",
+    "handler": "page('myUsers',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🎓 Students",
+    "handler": "page('students',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📘 Student Joining",
+    "handler": "openStudentJoiningPage(this)",
+    "target": "openStudentJoiningPage",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📕 Student Leave",
+    "handler": "openStudentLeavePage(this)",
+    "target": "openStudentLeavePage",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "💰 Payment In / Out",
+    "handler": "openPaymentInPage(this)",
+    "target": "openPaymentInPage",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📊 Student Report",
+    "handler": "openStudentReportPage(this)",
+    "target": "openStudentReportPage",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "⚙️ System Settings",
+    "handler": "page('settings',this)",
+    "target": "page",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd04hrfk')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd04hrfk')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd04hrfk')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd06a47h')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd06a47h')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd06a47h')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd0jjgpf')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd0jjgpf')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd0jjgpf')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd08ch80')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd08ch80')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd08ch80')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd0ejdt9')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd0ejdt9')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd0ejdt9')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add New Company",
+    "handler": "editCompany('')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd04hrfk')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd04hrfk')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd04hrfk')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd06a47h')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd06a47h')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd06a47h')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd0jjgpf')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd0jjgpf')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd0jjgpf')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd08ch80')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd08ch80')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd08ch80')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Company",
+    "handler": "editCompany('mvgaynd0ejdt9')",
+    "target": "editCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Open Company",
+    "handler": "viewCompany('mvgaynd0ejdt9')",
+    "target": "viewCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete Company",
+    "handler": "deleteCompany('mvgaynd0ejdt9')",
+    "target": "deleteCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Add Staff / Staff List",
+    "handler": "sm712Tab('staff',this)",
+    "target": "sm712Tab",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Attendance",
+    "handler": "sm712Tab('attendance',this)",
+    "target": "sm712Tab",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Salary",
+    "handler": "sm712Tab('salary',this)",
+    "target": "sm712Tab",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Permissions",
+    "handler": "sm712Tab('permissions',this)",
+    "target": "sm712Tab",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Activity Report",
+    "handler": "sm712Tab('activity',this)",
+    "target": "sm712Tab",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Staff",
+    "handler": "sm712SaveStaff()",
+    "target": "sm712SaveStaff",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Clear",
+    "handler": "sm712ClearStaff()",
+    "target": "sm712ClearStaff",
+    "type": "function"
+  },
+  {
+    "id": "sm729SummaryBtn",
+    "label": "Day Attendance",
+    "handler": "sm729ToggleSummary()",
+    "target": "sm729ToggleSummary",
+    "type": "function"
+  },
+  {
+    "id": "sm737MonthlyBtn",
+    "label": "Monthly Attendance Report",
+    "handler": "sm737ToggleMonthly()",
+    "target": "sm737ToggleMonthly",
+    "type": "function"
+  },
+  {
+    "id": "sm738SummaryReportBtn",
+    "label": "Summary Report",
+    "handler": "sm738ToggleSummaryReport()",
+    "target": "sm738ToggleSummaryReport",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Present",
+    "handler": "sm729SetStatus('Present',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Half Day",
+    "handler": "sm729SetStatus('Half Day',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Leave",
+    "handler": "sm729SetStatus('Leave',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Absent",
+    "handler": "sm729SetStatus('Absent',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Weekly Off",
+    "handler": "sm729SetStatus('Weekly Off',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Holiday",
+    "handler": "sm729SetStatus('Holiday',this)",
+    "target": "sm729SetStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Attendance",
+    "handler": "sm729SaveSummary()",
+    "target": "sm729SaveSummary",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Clear",
+    "handler": "sm729ClearSummaryForm()",
+    "target": "sm729ClearSummaryForm",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Mark All Present",
+    "handler": "sm737MarkAll('Present')",
+    "target": "sm737MarkAll",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Sunday Weekly Off",
+    "handler": "sm737MarkSundaysWeeklyOff()",
+    "target": "sm737MarkSundaysWeeklyOff",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Clear",
+    "handler": "sm737ClearMonthMarks()",
+    "target": "sm737ClearMonthMarks",
+    "type": "function"
+  },
+  {
+    "id": "sm740SalaryCalcBtn",
+    "label": "Salary Auto Calculation",
+    "handler": "sm740ToggleSalaryCalc()",
+    "target": "sm740ToggleSalaryCalc",
+    "type": "function"
+  },
+  {
+    "id": "sm742StaffAccountBtn",
+    "label": "Staff Account Report",
+    "handler": "sm742ToggleStaffAccount()",
+    "target": "sm742ToggleStaffAccount",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Salary",
+    "handler": "sm712SaveSalary()",
+    "target": "sm712SaveSalary",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Print Account Report",
+    "handler": "sm743PrintStaffAccount(false)",
+    "target": "sm743PrintStaffAccount",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "PDF Account Report",
+    "handler": "sm743PrintStaffAccount(true)",
+    "target": "sm743PrintStaffAccount",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Permissions",
+    "handler": "sm712SavePermissions()",
+    "target": "sm712SavePermissions",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add User",
+    "handler": "openUser()",
+    "target": "openUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd04hrfk','admin')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd04hrfk','admin')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd04hrfk','user')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd04hrfk','user')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Disable",
+    "handler": "toggleUser('mvgaynd04hrfk','user')",
+    "target": "toggleUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete",
+    "handler": "deleteUser('mvgaynd04hrfk','user')",
+    "target": "deleteUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd06a47h','admin')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd06a47h','admin')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd06a47h','user')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd06a47h','user')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Disable",
+    "handler": "toggleUser('mvgaynd06a47h','user')",
+    "target": "toggleUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete",
+    "handler": "deleteUser('mvgaynd06a47h','user')",
+    "target": "deleteUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd0jjgpf','admin')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd0jjgpf','admin')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd0jjgpf','user')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd0jjgpf','user')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Disable",
+    "handler": "toggleUser('mvgaynd0jjgpf','user')",
+    "target": "toggleUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete",
+    "handler": "deleteUser('mvgaynd0jjgpf','user')",
+    "target": "deleteUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd08ch80','admin')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd08ch80','admin')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd08ch80','user')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd08ch80','user')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Disable",
+    "handler": "toggleUser('mvgaynd08ch80','user')",
+    "target": "toggleUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete",
+    "handler": "deleteUser('mvgaynd08ch80','user')",
+    "target": "deleteUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd0ejdt9','admin')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd0ejdt9','admin')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit",
+    "handler": "db608EditUser('mvgaynd0ejdt9','user')",
+    "target": "db608EditUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Role / Permission",
+    "handler": "db596OpenGlobalUserRole('mvgaynd0ejdt9','user')",
+    "target": "db596OpenGlobalUserRole",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Disable",
+    "handler": "toggleUser('mvgaynd0ejdt9','user')",
+    "target": "toggleUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Delete",
+    "handler": "deleteUser('mvgaynd0ejdt9','user')",
+    "target": "deleteUser",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add Student",
+    "handler": "openStudent()",
+    "target": "openStudent",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add Joining",
+    "handler": "openJoiningForm()",
+    "target": "openJoiningForm",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add Leave",
+    "handler": "openLeaveForm()",
+    "target": "openLeaveForm",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Payment",
+    "handler": "savePaymentIn()",
+    "target": "savePaymentIn",
+    "type": "function"
+  },
+  {
+    "id": "reportAllBtn",
+    "label": "All Students",
+    "handler": "setReportStudentFilter('all')",
+    "target": "setReportStudentFilter",
+    "type": "function"
+  },
+  {
+    "id": "reportActiveBtn",
+    "label": "Active Students",
+    "handler": "setReportStudentFilter('active')",
+    "target": "setReportStudentFilter",
+    "type": "function"
+  },
+  {
+    "id": "reportInactiveBtn",
+    "label": "Inactive Students",
+    "handler": "setReportStudentFilter('inactive')",
+    "target": "setReportStudentFilter",
+    "type": "function"
+  },
+  {
+    "id": "reportDueBtn",
+    "label": "Total Due Report",
+    "handler": "openDueStudentReportV43()",
+    "target": "openDueStudentReportV43",
+    "type": "function"
+  },
+  {
+    "id": "reportAdvanceBtn",
+    "label": "Advance Payment Report",
+    "handler": "openAdvanceStudentReportV43()",
+    "target": "openAdvanceStudentReportV43",
+    "type": "function"
+  },
+  {
+    "id": "reportClearAdvanceBtn",
+    "label": "Clear Advance Report",
+    "handler": "openClearAdvanceReportV100()",
+    "target": "openClearAdvanceReportV100",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "closeClearAdvanceReportV100()",
+    "target": "closeClearAdvanceReportV100",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🖨 Print",
+    "handler": "printSpecialStudentReportV43()",
+    "target": "printSpecialStudentReportV43",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "⬇ Export CSV",
+    "handler": "exportSpecialStudentReportCSVV43()",
+    "target": "exportSpecialStudentReportCSVV43",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "🖨 Print",
+    "handler": "printStudentReport()",
+    "target": "printStudentReport",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📄 PDF",
+    "handler": "downloadStudentReportPDF()",
+    "target": "downloadStudentReportPDF",
+    "type": "function"
+  },
+  {
+    "id": "ve135OpenOfflineAccess",
+    "label": "Offline PC Access — Manage Clients",
+    "handler": "window.open('https://vihan-offline-admin.invalid/launch', '_blank')",
+    "type": "expression"
+  },
+  {
+    "id": "ve125PublishBtn",
+    "label": "⬆ Publish Update to All PCs",
+    "handler": "vihanPublishCentralUpdate()",
+    "target": "vihanPublishCentralUpdate",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "↻ Refresh Update Status",
+    "handler": "vihanRefreshCentralUpdateStatus()",
+    "target": "vihanRefreshCentralUpdateStatus",
+    "type": "function"
+  },
+  {
+    "id": "ve104BackupNowBtn",
+    "label": "Download Complete Backup (All Companies)",
+    "handler": "ve104DownloadAllCompanies()",
+    "target": "ve104DownloadAllCompanies",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "↻ Refresh Status",
+    "handler": "ve104RefreshBackupStatus()",
+    "target": "ve104RefreshBackupStatus",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📋 Copy Backup Location",
+    "handler": "ve104CopyBackupLocation()",
+    "target": "ve104CopyBackupLocation",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Edit Button Names",
+    "handler": "toggleCompany2ButtonEditorV135()",
+    "target": "toggleCompany2ButtonEditorV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(0)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(1)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(2)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(3)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(4)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(5)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveCompany2ButtonNameV135(6)",
+    "target": "saveCompany2ButtonNameV135",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "← Back to Main Buttons",
+    "handler": "closeCustomerInquiryV136()",
+    "target": "closeCustomerInquiryV136",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "＋ Add Inquiry",
+    "handler": "openInquiryFormV136()",
+    "target": "openInquiryFormV136",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeInquiryFormV136()",
+    "target": "closeInquiryFormV136",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Inquiry",
+    "handler": "saveInquiryV136()",
+    "target": "saveInquiryV136",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "closeModal('company2InquiryViewModalV136')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Print",
+    "handler": "printCurrentInquiryV136()",
+    "target": "printCurrentInquiryV136",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "closeModal('paymentReceiptModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeModal('leaveModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Leave",
+    "handler": "saveLeave()",
+    "target": "saveLeave",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeModal('joiningModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Joining",
+    "handler": "saveJoining()",
+    "target": "saveJoining",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "closeDocumentViewer()",
+    "target": "closeDocumentViewer",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📷 Open Camera",
+    "handler": "openCamera()",
+    "target": "openCamera",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close Camera",
+    "handler": "stopCamera()",
+    "target": "stopCamera",
+    "type": "function"
+  },
+  {
+    "id": "captureBtn",
+    "label": "📸 Capture Photo",
+    "handler": "captureStudentPhoto()",
+    "target": "captureStudentPhoto",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "📷 Open Camera",
+    "handler": "openDocCamera()",
+    "target": "openDocCamera",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close Camera",
+    "handler": "stopDocCamera()",
+    "target": "stopDocCamera",
+    "type": "function"
+  },
+  {
+    "id": "docCaptureBtn",
+    "label": "📸 Capture Document",
+    "handler": "captureDocumentPhoto()",
+    "target": "captureDocumentPhoto",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeStudentModal()",
+    "target": "closeStudentModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Student",
+    "handler": "saveStudent()",
+    "target": "saveStudent",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeModal('companyModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save Company",
+    "handler": "saveCompany()",
+    "target": "saveCompany",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeModal('userModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save User",
+    "handler": "saveUser()",
+    "target": "saveUser",
+    "type": "function"
+  },
+  {
+    "id": "db755MarkInBtn",
+    "label": "Mark In",
+    "handler": "db755MarkIn()",
+    "target": "db755MarkIn",
+    "type": "function"
+  },
+  {
+    "id": "db755MarkOutBtn",
+    "label": "Mark Out",
+    "handler": "db755MarkOut()",
+    "target": "db755MarkOut",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "closeModal('db755UserAttendanceModal')",
+    "target": "closeModal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "✕",
+    "handler": "closeClearAdvanceV97()",
+    "target": "closeClearAdvanceV97",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "closeClearAdvanceV97()",
+    "target": "closeClearAdvanceV97",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Save",
+    "handler": "saveClearAdvanceV97()",
+    "target": "saveClearAdvanceV97",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "✕",
+    "handler": "c2CloseInquiryFormV151()",
+    "target": "c2CloseInquiryFormV151",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Cancel",
+    "handler": "c2CloseInquiryFormV151()",
+    "target": "c2CloseInquiryFormV151",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "+ New Inquiry",
+    "handler": "c2NewInquiryFromListV160()",
+    "target": "c2NewInquiryFromListV160",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Approve",
+    "handler": "c2ToggleApprovedFileV164()",
+    "target": "c2ToggleApprovedFileV164",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Print",
+    "handler": "c2PrintInquiryListV154()",
+    "target": "c2PrintInquiryListV154",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "c2CloseInquiryListV154()",
+    "target": "c2CloseInquiryListV154",
+    "type": "function"
+  },
+  {
+    "id": "db568CashClose",
+    "label": "×",
+    "handler": "db568CashClose()",
+    "target": "db568CashClose",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Clear",
+    "handler": "db568CashClear()",
+    "target": "db568CashClear",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Use Total",
+    "handler": "db568CashUseTotal()",
+    "target": "db568CashUseTotal",
+    "type": "function"
+  },
+  {
+    "id": "",
+    "label": "Close",
+    "handler": "db568CashClose()",
+    "target": "db568CashClose",
+    "type": "function"
+  }
+]
