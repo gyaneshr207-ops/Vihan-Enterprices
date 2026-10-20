@@ -16,14 +16,9 @@ jobs:
         shell: powershell
         run: |
           Expand-Archive -LiteralPath verification/v139-candidate.zip -DestinationPath "$env:RUNNER_TEMP\vihan-source"
+          Expand-Archive -LiteralPath delivery/Vihan_Enterprices_v1.0.37_Audit_Repaired.zip -DestinationPath "$env:RUNNER_TEMP\vihan37"
+          Expand-Archive -LiteralPath delivery/Vihan_Enterprices_v1.0.38_Security_Repaired.zip -DestinationPath "$env:RUNNER_TEMP\vihan38"
           New-Item -ItemType Directory -Force verification/windows-results | Out-Null
-      - name: Native Windows PowerShell Main File TLS migration checks
-        id: native
-        continue-on-error: true
-        shell: powershell
-        run: |
-          & "$env:RUNNER_TEMP\vihan-source\tests\WindowsAcceptance.ps1" -OutputDirectory "$env:GITHUB_WORKSPACE\verification\windows-results\native"
-          exit $LASTEXITCODE
       - name: Compile Windows installer with Inno Setup
         id: installer
         continue-on-error: true
@@ -35,6 +30,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Installer compile failed' }
           Copy-Item "$env:RUNNER_TEMP\vihan-source\Output\*.exe" verification/windows-results/
           Get-FileHash verification/windows-results/*.exe -Algorithm SHA256 | Select-Object @{n='file';e={Split-Path $_.Path -Leaf}},Hash | ConvertTo-Json | Set-Content verification/windows-results/installer-sha256.json
+      - name: Native Windows PowerShell Main File TLS migration checks
+        id: native
+        continue-on-error: true
+        shell: powershell
+        run: |
+          & "$env:RUNNER_TEMP\vihan-source\tests\WindowsAcceptance.ps1" -OutputDirectory "$env:GITHUB_WORKSPACE\verification\windows-results\native" -InstallerPath "$env:GITHUB_WORKSPACE\verification\windows-results\Vihan_Enterprices_v1.0.39_Setup.exe" -OldSource37 "$env:RUNNER_TEMP\vihan37" -OldSource38 "$env:RUNNER_TEMP\vihan38"
+          exit $LASTEXITCODE
       - name: Save execution evidence on separate branch
         if: always()
         shell: powershell
